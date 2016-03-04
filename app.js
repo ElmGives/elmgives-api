@@ -52,6 +52,11 @@ app.use(bodyParser.urlencoded({
 }));
 
 /**
+ * Require modules/routes/express applications and use their endpoints
+ */
+require('./modules')(app);
+
+/**
  * catch 404 and forward to error handler
  */
 app.use(fourOhFour);

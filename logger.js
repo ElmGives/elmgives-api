@@ -9,10 +9,10 @@
  * a simple and fast JSON logging module for node.js services
  * @see  https://github.com/trentm/node-bunyan
  */
-let bunyan = require('bunyan');
+const bunyan = require('bunyan');
 
-let serializer = require('./helpers/requestSerializer');
-let querySerializer = require('./helpers/querySerializer');
+const serializer = require('./helpers/requestSerializer');
+const querySerializer = require('./helpers/querySerializer');
 
 /**
  * Used on development
@@ -48,7 +48,7 @@ if (!SEND_LOGS) {
 }
 
 let log = bunyan.createLogger({
-    name: 'cc',
+    name: 'elm-api',
     src: false,
     serializers: {
         /**
