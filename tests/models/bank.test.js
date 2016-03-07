@@ -1,16 +1,16 @@
 'use strict';
 
 const tape = require('tape');
-const Npo = require('../../npos/npo');
+const Bank = require('../../banks/bank');
 const types = require('../types');
 const required = require('../required');
 const defaults = require('../defaults');
 
-tape('Npo model', test => {
+tape('Bank model', test => {
     test.plan(18);
 
-    let npo = new Npo({});
-    let values = npo.schema.paths;
+    let bank = new Bank({});
+    let values = bank.schema.paths;
 
     let stringProperties = [
         'name', 'description', 'logoUrl', 'email', 'phone'
@@ -21,15 +21,15 @@ tape('Npo model', test => {
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
 
-    defaults(['active'], npo.schema.tree, test, true);
-    defaults(['archived'], npo.schema.tree, test, undefined);
+    defaults(['active'], bank.schema.tree, test, true);
+    defaults(['archived'], bank.schema.tree, test, undefined);
 
-    npo.validate(error => {
+    bank.validate(error => {
         let fields = ['name', 'description', 'logoUrl', 'email', 'phone'  ];
         required(fields, error.errors, test);
     });
 
-    new Npo({
+    new Bank({
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'logo',

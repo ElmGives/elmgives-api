@@ -1,29 +1,29 @@
 /**
- * Manage Non Profift Organizations
+ * Manage Banks
  *  create
  *  update
  *  get single and list
- *  archive
  *  delete
  */
 'use strict';
 
-const Npo = require('./npo');
 const router = require('express').Router();
+
+const Bank = require('./bank');
 const create = require('../lib/create');
 const list = require('../lib/list');
 const show = require('../lib/show');
 const update = require('../lib/update');
 const archive = require('../lib/archive');
 
-const PATH = '/npos';
-const SINGLE = '/npos/:id';
+const PATH = '/banks';
+const SINGLE = '/banks/:id';
 
 router
-    .get(PATH, list(Npo))
-    .post(PATH, create(Npo))
-    .get(SINGLE, show(Npo))
-    .put(SINGLE, update(Npo))
-    .delete(SINGLE, archive(Npo));
+    .get(PATH, list(Bank))
+    .post(PATH, create(Bank))
+    .get(SINGLE, show(Bank))
+    .put(SINGLE, update(Bank))
+    .delete(SINGLE, archive(Bank));
 
 module.exports = router;

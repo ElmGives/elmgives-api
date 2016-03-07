@@ -5,8 +5,10 @@
 'use strict';
 
 const npos = require('./npos');
+const banks = require('./banks');
 
 module.exports = app => {
     app
+        .use(banks)
         .use(npos);
 };

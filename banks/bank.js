@@ -1,6 +1,9 @@
 /**
- * NPO(Non Profit Organizations) Model
- * Manage attributes, CRUD actions and queries
+ * Bank Model
+ * Manage
+ *     attributes,
+ *     CRUD actions and
+ *     queries
  */
 'use strict';
 
@@ -34,22 +37,18 @@ let schema = new mongoose.Schema({
     },
 
     /**
-     * Special status for 'deleted' npos
+     * Special status for 'deleted' banks
      */
     archived: {
         type: Boolean
     },
 
     /**
-     * Hold status of the npo
+     * Hold status of the bank
      */
     active: {
         type: Boolean,
         default: true
-    },
-
-    zip: {
-        type: String
     },
 
     address: {
@@ -60,4 +59,4 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
-module.exports = mongoose.model('Npo', schema);
+module.exports = mongoose.model('Bank', schema);
