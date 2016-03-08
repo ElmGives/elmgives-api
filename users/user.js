@@ -10,6 +10,7 @@
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
 const email = require('../helpers/emailValidator');
+let bcrypt = require('bcrypt');
 
 let schema = new mongoose.Schema({
     name: {
@@ -71,4 +72,31 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
+
+/**
+ * Arrow functions doesn't work on this function since the scope of `this` is
+ * needed to access `this.PROPERTY`
+ */
+schema.pre('save', function(next) {
+    /**
+     * Do not allow update password on edit,
+     * We must use a recovery password method
+     */
+    if (!this.isNew) {
+        return next();
+    }
+
+    bcrypt.hash(this.password, 8, (error, hash) => {
+        let saltError = new Error();
+        saltError.message = 'Cant process request';
+
+        if (error) {
+            return next(saltError);
+        }
+
+        this.password = hash;
+        return next();
+    });
+});
+
 module.exports = mongoose.model('User', schema);
