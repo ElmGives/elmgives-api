@@ -30,7 +30,7 @@ tape('Bank model', test => {
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',
-        email: 'someEmail',
+        email: 'foo@bar.com',
         phone: 'some phone'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 

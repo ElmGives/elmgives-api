@@ -33,7 +33,7 @@ tape('Npo model', test => {
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',
-        email: 'someEmail',
+        email: 'foo@bar.com',
         phone: 'some phone',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
@@ -42,6 +42,6 @@ tape('Npo model', test => {
     }).validate(error => {
         let expected = 'http:// is not a valid url';
         let actual = error.errors.logoUrl.message;
-        test.equal(expected, actual, 'valid message for invalid url')
+        test.equal(expected, actual, 'valid message for invalid url');
     });
 });
