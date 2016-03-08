@@ -6,9 +6,11 @@
 
 const npos = require('./npos');
 const banks = require('./banks');
+const users = require('./users');
 
 module.exports = app => {
     app
+        .use(users)
         .use(banks)
         .use(npos);
 };
