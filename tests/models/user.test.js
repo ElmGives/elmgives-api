@@ -5,9 +5,13 @@ const User = require('../../users/user');
 const types = require('../types');
 const required = require('../required');
 const defaults = require('../defaults');
+const mongoose = require('mongoose');
+const mockgoose = require('mockgoose');
+mockgoose(mongoose);
+
 
 tape('User model', test => {
-    test.plan(19);
+    test.plan(21);
 
     let user = new User({});
     let values = user.schema.paths;
@@ -41,5 +45,37 @@ tape('User model', test => {
         let expected = 'foo is not a valid email';
         let actual = error.errors.email.message;
         test.equal(expected, actual, 'valid message for invalid email');
+    });
+
+    /**
+     * We are using fake database to test password hash
+     */
+    mongoose.connect('mongodb://example.com/TestingDB', function(error) {
+        if (error) {
+            return console.log('error on fake db test', error);
+        }
+
+        new User({
+                name: 'foobar',
+                firstName: 'barfoo',
+                email: 'foo@bar.com',
+                password: 'foobar'
+            })
+            .save()
+            .then(data => {
+                test.notEqual(data.password, 'foobar', 'password hash');
+                test.equal(60, data.password.length, 'password hash length');
+
+                /**
+                 * Reset and close connection
+                 */
+                mockgoose.reset(function() {});
+                mongoose.connection.close(function() {});
+            })
+            .catch(error => {
+                console.log('error on test user', error)
+                mockgoose.reset(function() {});
+                mongoose.connection.close(function() {});
+            });
     });
 });
