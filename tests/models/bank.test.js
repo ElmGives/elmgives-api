@@ -7,14 +7,11 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Bank model', test => {
-    test.plan(18);
+    test.plan(19);
 
     let bank = new Bank({});
     let values = bank.schema.paths;
-
-    let stringProperties = [
-        'name', 'description', 'logoUrl', 'email', 'phone'
-    ];
+    let stringProperties = ['name', 'description', 'logoUrl', 'email', 'phone'];
 
     types(stringProperties, values, test, 'String');
     types(['createdAt', 'updatedAt'], values, test, 'Date');
@@ -25,15 +22,23 @@ tape('Bank model', test => {
     defaults(['archived'], bank.schema.tree, test, undefined);
 
     bank.validate(error => {
-        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'  ];
+        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'];
         required(fields, error.errors, test);
     });
 
     new Bank({
         name: 'foobar',
         description: 'barfoo',
-        logoUrl: 'logo',
+        logoUrl: 'http://localhost',
         email: 'someEmail',
         phone: 'some phone'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Bank({
+        logoUrl: 'http://',
+    }).validate(error => {
+        let expected = 'http:// is not a valid url';
+        let actual = error.errors.logoUrl.message;
+        test.equal(expected, actual, 'valid message for invalid url')
+    });
 });

@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let validate = require('../../helpers/validUrl');
+let validate = require('../../helpers/validateUrl');
 
 tape('Validate url helper validator', (test) => {
     test.plan(5);

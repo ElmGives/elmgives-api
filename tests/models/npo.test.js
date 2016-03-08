@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(18);
+    test.plan(19);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -25,15 +25,23 @@ tape('Npo model', test => {
     defaults(['archived'], npo.schema.tree, test, undefined);
 
     npo.validate(error => {
-        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'  ];
+        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'];
         required(fields, error.errors, test);
     });
 
     new Npo({
         name: 'foobar',
         description: 'barfoo',
-        logoUrl: 'logo',
+        logoUrl: 'http://localhost',
         email: 'someEmail',
-        phone: 'some phone'
+        phone: 'some phone',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Npo({
+        logoUrl: 'http://',
+    }).validate(error => {
+        let expected = 'http:// is not a valid url';
+        let actual = error.errors.logoUrl.message;
+        test.equal(expected, actual, 'valid message for invalid url')
+    });
 });
