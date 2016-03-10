@@ -3,7 +3,7 @@
 let tape = require('tape');
 let validationErrors = require('../../helpers/validationErrors');
 
-tape('validation errors helper', test => {
+tape('Validation Errors helper', test => {
     test.plan(1);
 
     let data = {
