@@ -26,3 +26,7 @@ npm start
 ```
 npm test
 ```
+
+## About env variables
+
+Copy `.env.example` to `.env` and set proper values for each env variable
