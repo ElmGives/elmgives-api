@@ -18,6 +18,8 @@
     "debug": "2.2.0",
     "dotenv": "2.0.0",
     "express": "4.13.4",
+    "hat": "0.0.3",
+    "jsonwebtoken": "5.7.0",
     "mongoose": "4.4.6",
     "mongoose-timestamp": "0.5.0"
   },
