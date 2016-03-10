@@ -39,6 +39,6 @@ tape('Bank model', test => {
     }).validate(error => {
         let expected = 'http:// is not a valid url';
         let actual = error.errors.logoUrl.message;
-        test.equal(expected, actual, 'valid message for invalid url')
+        test.equal(expected, actual, 'valid message for invalid url');
     });
 });
