@@ -3,7 +3,7 @@
 let tape = require('tape');
 let querySerializer = require('../../helpers/querySerializer');
 
-tape('querySerializer helper', test => {
+tape('Query Serializer helper', test => {
     test.plan(1);
 
     let data = {

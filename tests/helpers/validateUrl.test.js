@@ -3,7 +3,7 @@
 let tape = require('tape');
 let validate = require('../../helpers/validateUrl');
 
-tape('Validate url helper validator', (test) => {
+tape('Validate url helper', (test) => {
     test.plan(5);
 
     let url = 'http://localhost/img.jpg';

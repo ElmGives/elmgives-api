@@ -73,7 +73,7 @@ tape('User model', test => {
                 mongoose.connection.close(function() {});
             })
             .catch(error => {
-                console.log('error on test user', error)
+                console.log('error on test user', error);
                 mockgoose.reset(function() {});
                 mongoose.connection.close(function() {});
             });
