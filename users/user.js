@@ -87,10 +87,10 @@ schema.pre('save', function(next) {
     }
 
     bcrypt.hash(this.password, 8, (error, hash) => {
-        let saltError = new Error();
-        saltError.message = 'Cant process request';
 
         if (error) {
+            let saltError = new Error();
+            saltError.message = 'Cant process request';
             return next(saltError);
         }
 
