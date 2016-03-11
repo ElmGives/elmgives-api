@@ -4,14 +4,17 @@ const tape = require('tape');
 const User = require('../../users/user');
 const types = require('../types');
 const required = require('../required');
+const unique = require('../unique');
+const index = require('../index');
 const defaults = require('../defaults');
 const mongoose = require('mongoose');
 const mockgoose = require('mockgoose');
+
 mockgoose(mongoose);
 
 
 tape('User model', test => {
-    test.plan(21);
+    test.plan(23);
 
     let user = new User({});
     let values = user.schema.paths;
@@ -26,6 +29,8 @@ tape('User model', test => {
 
     defaults(['active'], user.schema.tree, test, true);
     defaults(['archived'], user.schema.tree, test, undefined);
+    unique(['email'], user.schema.tree, test);
+    index(['email'], user.schema.tree, test);
 
     user.validate(error => {
         let fields = ['name', 'firstName', 'email'];
