@@ -69,7 +69,9 @@ module.exports = (request, response) => {
         })
         .then(session => {
             request.expiresIn = session.expire;
-            return jwt(session.token, JWT_SECRET);
+            return jwt({
+                token: session.token
+            }, JWT_SECRET);
         })
         .then(token => {
             response.json({
