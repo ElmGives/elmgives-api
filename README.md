@@ -31,6 +31,16 @@ npm test
 
 Copy `.env.example` to `.env` and set proper values for each env variable
 
+## Update dependencies
+
+To update / upgrade dependencies just run:
+
+```
+npm run update
+```
+
+and follow instructions. We are using `npm-check` package
+
 ## Folder structure
 
 ```

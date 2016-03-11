@@ -5,29 +5,31 @@
   "scripts": {
     "start": "nodemon ./bin/www | bunyan",
     "test": "tape tests/**/*.test.js | tap-spec",
-    "lint": "jshint --exclude ./node_modules ."
+    "lint": "jshint --exclude ./node_modules .",
+    "update": "npm-check -u"
   },
   "engines": {
     "node": "5.7.0"
   },
   "dependencies": {
     "bcrypt": "0.8.5",
-    "body-parser": "1.13.3",
+    "body-parser": "1.15.0",
     "bunyan": "1.7.1",
     "cors": "2.7.1",
-    "debug": "2.2.0",
     "dotenv": "2.0.0",
     "express": "4.13.4",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
     "mongoose": "4.4.6",
-    "mongoose-timestamp": "0.5.0"
+    "mongoose-timestamp": "0.5.0",
+    "mongoose-unique-validator": "1.0.2"
   },
   "devDependencies": {
     "jshint": "2.9.1",
     "mockgoose": "5.3.3",
     "nodemon": "1.9.1",
+    "npm-check": "4.1.4",
     "tap-spec": "4.1.1",
-    "tape": "4.4.0"
+    "tape": "4.5.1"
   }
 }

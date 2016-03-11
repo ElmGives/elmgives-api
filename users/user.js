@@ -8,9 +8,12 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const timestamps = require('mongoose-timestamp');
-const email = require('../helpers/emailValidator');
 let bcrypt = require('bcrypt');
+
+const timestamps = require('mongoose-timestamp');
+var unique = require('mongoose-unique-validator');
+
+const email = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
     name: {
@@ -30,6 +33,8 @@ let schema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        index: true,
+        unique: true,
         validate: {
             validator: value => email(value),
             message: '{VALUE} is not a valid email'
@@ -72,7 +77,7 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
-
+schema.plugin(unique);
 /**
  * Arrow functions doesn't work on this function since the scope of `this` is
  * needed to access `this.PROPERTY`
