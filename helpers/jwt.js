@@ -3,6 +3,11 @@
  */
 'use strict';
 
+/**
+ * JsonWebToken implementation for node.js
+ * @see  http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html
+ * https://github.com/auth0/node-jsonwebtoken
+ */
 const jwt = require('jsonwebtoken');
 
 module.exports = (data, salt) => {

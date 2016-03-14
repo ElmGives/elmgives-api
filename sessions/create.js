@@ -76,7 +76,10 @@ module.exports = (request, response) => {
         .then(token => {
             response.json({
                 expire: request.expiresIn,
-                token: token
+                token: token,
+                firstName: request.accountUser.firstName,
+                id: request.accountUser._id,
+                email: request.accountUser.email
             });
         })
         .catch(error(response));
