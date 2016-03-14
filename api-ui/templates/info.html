@@ -1,0 +1,74 @@
+<section id="code">
+    <section class="content-header">
+        <h1><%= service.name %><br /><small><%= service.description %></small>
+	    </h1>
+    </section>
+
+    <section class="content">
+        <% _.each(service.calls,function(value, key){ %>
+
+            <h2 id="header<%= key.replace(/ /g,'') %>"><%= key %></h2>
+            <p> <%= value.description %> </p>
+            <div class="call-properties-table">
+                <table class="table table-bordered table-striped call-properties-table">
+                    <tr>
+                        <td>Method</td>
+                        <td><span class="label label-<%= value.method %>"><%= value.method %></span></td>
+                    </tr>
+                    <tr>
+                        <td>URL</td>
+                        <td>
+                            <%= value.url %>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="bs-docs-example">
+                <form class="form-horizontal">
+                    <% _.each(value.params,function(paramType, paramName){ %>
+                        <% if (_.isObject(paramType)) { %>
+                            <% _.each(paramType,function(paramNestedType, paramNestedName){ %>
+                                <div class="control-group">
+                                    <% var paramInputId = 'input' + key.replace(/ /g,'') + paramNestedName; %>
+                                    <label class="control-label" for="<%= paramInputId %>">
+                                        <%= paramNestedName %>
+                                    </label>
+                                    <div class="controls">
+                                        <% if (paramNestedType == 'file') { %>
+                                            <input type="file" id="<%= paramInputId %>" class='form-control file-input'>
+                                        <% } else { %>
+                                            <input class="form-control" type="text" id="<%= paramInputId %>" placeholder="<%= paramNestedType %>">
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="control-group">
+                                <% var paramInputId = 'input' + key.replace(/ /g,'') + paramName; %>
+                                <label class="control-label" for="<%= paramInputId %>">
+                                    <%= paramName %>
+                                </label>
+                                <div class="controls">
+                                    <% if (paramType == 'file') { %>
+                                        <input type="file" id="<%= paramInputId %>" class='file-input'>
+                                    <% } else { %>
+                                        <input class="form-control"  type="text" id="<%= paramInputId %>" placeholder="<%= paramType %>">
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% }) %>
+
+                    <div class="clear"></div>
+                    <div class="control-group buttons-group">
+                        <div class="controls">
+                            <button type="button" call="<%= key %>" class="btn btn-info make-call">Make Call</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <pre id="result<%= key.replace(/ /g,'') %>" class="prettyprint pre-scrollable json-editor"></pre>
+        <% }) %>
+    </section>
+</section>

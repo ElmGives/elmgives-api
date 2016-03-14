@@ -1,0 +1,45 @@
+.wrapper {
+    position: relative;
+    top: 40px;
+}
+
+
+.label-DELETE,
+.badge-DELETE {
+  background-color: #b94a48;
+}
+
+.label-DELETE[href],
+.badge-DELETE[href] {
+  background-color: #953b39;
+}
+
+.label-PUT,
+.badge-PUT {
+  background-color: #f89406;
+}
+
+.label-PUT[href],
+.badge-PUT[href] {
+  background-color: #c67605;
+}
+
+.label-GET,
+.badge-GET {
+  background-color: #468847;
+}
+
+.label-GET[href],
+.badge-GET[href] {
+  background-color: #356635;
+}
+
+.label-POST,
+.badge-POST {
+  background-color: #3a87ad;
+}
+
+.label-POST[href],
+.badge-POST[href] {
+  background-color: #2d6987;
+}
