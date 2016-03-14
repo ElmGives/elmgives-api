@@ -1,55 +1,22 @@
 var API = 'http://localhost:3000';
 
-var schools = {
-    'name': 'Shools',
-    'description': '<p> Manage schools.</p>',
+var users = {
+    'name': 'Users',
+    'description': '<p> Manage users.</p>',
 
     'calls': {
-        'list': {
-            'description': 'Shools registered.',
+        'create new user': {
+            'description': 'Posts a user.',
             'params': {
-                'auth_token': 'string'
+                name: 'string',
+                firstName: 'string',
+                lastName: 'string',
+                password: 'string',
+                email: 'string'
             },
-            'url': API + '/schools',
-            'method': 'GET'
-        },
-        'single school': {
-            'description': 'Shows the given user info.',
-            'params': {
-                'auth_token': 'string',
-                'id': 'integer'
-            },
-            'url': API + '/schools/[id]',
-            'urlWithId': 'id',
-            'method': 'GET'
-        },
-        'create new school': {
-            'description': 'Posts a school.',
-            'params': {
-                'auth_token': 'string',
-                'title': 'string',
-                'location': 'string',
-                'description': 'string',
-                'enabled': 'boolean',
-            },
-            'url': API + '/schools',
+            'url': API + '/users',
             'wrapper': '',
             'method': 'POST'
-        },
-        'update school': {
-            'description': 'Updates an user.',
-            'params': {
-                'auth_token': 'string',
-                'id': 'integer',
-                'title': 'string',
-                'description': 'string',
-                'location': 'string',
-                'enabled': 'boolean',
-            },
-            'url': API + '/schools/[id]',
-            'urlWithId': 'id',
-            'wrapper': '',
-            'method': 'PUT'
         }
     }
 };
@@ -78,7 +45,8 @@ define([], function() {
     'use strict';
 
     var services = {
-        sessions: sessions
+        sessions: sessions,
+        users: users
     };
 
     return {
