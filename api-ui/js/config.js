@@ -21,6 +21,64 @@ var users = {
     }
 };
 
+var npos = {
+    'name': 'NPOs',
+    'description': '<p> Manage npos.</p>',
+
+    'calls': {
+        'npo list': {
+            'description': 'NPOs registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/npos',
+            'method': 'GET'
+        },
+        'single npo': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/npos/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new npo': {
+            'description': 'Posts a NPO.',
+            'params': {
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/npos',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update npo': {
+            'description': 'Updates an NPO.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/npos/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        }
+    }
+};
+
 var sessions = {
     'name': 'Sessions',
     'description': '<p> Manage sessions.</p>',
@@ -46,7 +104,8 @@ define([], function() {
 
     var services = {
         sessions: sessions,
-        users: users
+        users: users,
+        npos: npos
     };
 
     return {
