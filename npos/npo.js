@@ -42,7 +42,8 @@ let schema = new mongoose.Schema({
      * Special status for 'deleted' npos
      */
     archived: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
 
     /**
