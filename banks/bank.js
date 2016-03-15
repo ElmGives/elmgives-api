@@ -13,6 +13,11 @@ const validateUrl = require('../helpers/validateUrl');
 const email = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+
     name: {
         type: String,
         required: true
@@ -50,7 +55,8 @@ let schema = new mongoose.Schema({
      * Special status for 'deleted' banks
      */
     archived: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
 
     /**

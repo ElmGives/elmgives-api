@@ -21,6 +21,64 @@ var users = {
     }
 };
 
+var banks = {
+    'name': 'Banks',
+    'description': '<p> Manage banks.</p>',
+
+    'calls': {
+        'bank list': {
+            'description': 'Banks registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/banks',
+            'method': 'GET'
+        },
+        'single bank': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/banks/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new bank': {
+            'description': 'Posts a Bank.',
+            'params': {
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/banks',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update bank': {
+            'description': 'Updates an Bank.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/banks/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        }
+    }
+};
+
 var npos = {
     'name': 'NPOs',
     'description': '<p> Manage npos.</p>',
@@ -115,8 +173,9 @@ define([], function() {
     'use strict';
 
     var services = {
-        sessions: sessions,
         users: users,
+        sessions: sessions,
+        banks: banks,
         npos: npos
     };
 

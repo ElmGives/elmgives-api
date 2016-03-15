@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Bank model', test => {
-    test.plan(19);
+    test.plan(21);
 
     let bank = new Bank({});
     let values = bank.schema.paths;
@@ -17,16 +17,21 @@ tape('Bank model', test => {
     types(['createdAt', 'updatedAt'], values, test, 'Date');
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
+    types(['userId'], values, test, 'ObjectID');
 
     defaults(['active'], bank.schema.tree, test, true);
-    defaults(['archived'], bank.schema.tree, test, undefined);
+    defaults(['archived'], bank.schema.tree, test, false);
 
     bank.validate(error => {
-        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'];
+        let fields = [
+            'userId', 'name', 'description', 'logoUrl', 'email', 'phone'
+        ];
+
         required(fields, error.errors, test);
     });
 
     new Bank({
+        userId: new Array(25).join('x'),
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',
