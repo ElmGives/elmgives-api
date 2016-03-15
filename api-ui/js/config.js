@@ -95,6 +95,18 @@ var sessions = {
             callback: function(response) {
                 localStorage.setItem('cu', JSON.stringify(response));
             }
+        },
+        'delete session': {
+            'description': 'Removes a session.',
+            'params': {
+                'id': 'string'
+            },
+            'url': API + '/sessions/[id]',
+            'wrapper': '',
+            'method': 'DELETE',
+            callback: function(response) {
+                localStorage.removeItem('cu');
+            }
         }
     }
 };
