@@ -5,11 +5,20 @@
 
 const User = require('./user');
 const error = require('../lib/error');
-const success = require('../lib/success');
 
 module.exports = (request, response) => {
     return new User(request.body)
         .save()
-        .then(success(response))
+        .then(user => {
+            let result = {
+                name: user.name,
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            };
+
+            response.json(result);
+        })
         .catch(error(response));
 };
