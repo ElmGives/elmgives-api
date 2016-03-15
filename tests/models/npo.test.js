@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(19);
+    test.plan(21);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -20,16 +20,21 @@ tape('Npo model', test => {
     types(['createdAt', 'updatedAt'], values, test, 'Date');
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
+    types(['userId'], values, test, 'ObjectID');
 
     defaults(['active'], npo.schema.tree, test, true);
-    defaults(['archived'], npo.schema.tree, test, undefined);
+    defaults(['archived'], npo.schema.tree, test, false);
 
     npo.validate(error => {
-        let fields = ['name', 'description', 'logoUrl', 'email', 'phone'];
+        let fields = [
+            'userId', 'name', 'description', 'logoUrl', 'email', 'phone'
+        ];
+
         required(fields, error.errors, test);
     });
 
     new Npo({
+        userId: new Array(25).join('x'),
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',

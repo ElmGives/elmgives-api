@@ -9,6 +9,11 @@ const timestamps = require('mongoose-timestamp');
 const validateUrl = require('../helpers/validateUrl');
 
 let schema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+
     name: {
         type: String,
         required: true
