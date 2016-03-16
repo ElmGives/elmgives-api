@@ -62,7 +62,8 @@ module.exports = (request, response) => {
                 token: token(),
                 expire: expire(EXPIRE),
                 userId: request.accountUser._id,
-                agent: request.headers['user-agent']
+                agent: request.headers['user-agent'],
+                verified: request.accountUser.verified
             };
 
             return new Session(session).save();
@@ -79,7 +80,8 @@ module.exports = (request, response) => {
                 token: token,
                 firstName: request.accountUser.firstName,
                 id: request.accountUser._id,
-                email: request.accountUser.email
+                email: request.accountUser.email,
+                verified: request.accountUser.verified
             });
         })
         .catch(error(response));
