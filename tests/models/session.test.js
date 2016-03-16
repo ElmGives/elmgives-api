@@ -5,8 +5,8 @@ const Session = require('../../sessions/session');
 const types = require('../types');
 const required = require('../required');
 
-tape('Session model', test => {
-    test.plan(9);
+tape('Session Model', test => {
+    test.plan(10);
 
     let session = new Session({});
     let values = session.schema.paths;
@@ -14,9 +14,11 @@ tape('Session model', test => {
     types(['token', 'agent'], values, test, 'String');
     types(['expire'], values, test, 'Date');
     types(['userId'], values, test, 'ObjectID');
+    types(['verified'], values, test, 'Boolean');
 
     session.validate(error => {
-        required(['userId', 'token', 'agent', 'expire'], error.errors, test);
+        let fields = ['userId', 'token', 'agent', 'expire', 'verified'];
+        required(fields, error.errors, test);
     });
 
     new Session({
