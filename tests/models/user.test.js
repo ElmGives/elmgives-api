@@ -14,7 +14,7 @@ mockgoose(mongoose);
 
 
 tape('User model', test => {
-    test.plan(23);
+    test.plan(24);
 
     let user = new User({});
     let values = user.schema.paths;
@@ -26,14 +26,15 @@ tape('User model', test => {
     types(['createdAt', 'updatedAt'], values, test, 'Date');
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
+    types(['verificationCode'], values, test, 'Number');
 
     defaults(['active'], user.schema.tree, test, true);
-    defaults(['archived'], user.schema.tree, test, undefined);
+    defaults(['archived'], user.schema.tree, test, false);
     unique(['email'], user.schema.tree, test);
     index(['email'], user.schema.tree, test);
 
     user.validate(error => {
-        let fields = ['name', 'firstName', 'email'];
+        let fields = ['name', 'firstName', 'email', 'verificationCode'];
         required(fields, error.errors, test);
     });
 
@@ -41,7 +42,8 @@ tape('User model', test => {
         name: 'foobar',
         firstName: 'barfoo',
         email: 'foo@bar.com',
-        password: 'foobar'
+        password: 'foobar',
+        verificationCode: 1111,
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new User({
@@ -64,7 +66,8 @@ tape('User model', test => {
                 name: 'foobar',
                 firstName: 'barfoo',
                 email: 'foo@bar.com',
-                password: 'foobar'
+                password: 'foobar',
+                verificationCode: 1111
             })
             .save()
             .then(data => {
