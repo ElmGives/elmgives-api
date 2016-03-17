@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let requestSerializer = require('../../helpers/requestSerializer');
+let requestSerializer = require('../../../helpers/requestSerializer');
 
 tape('Request Serializer helper', test => {
     test.plan(2);

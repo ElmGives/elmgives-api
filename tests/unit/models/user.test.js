@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const User = require('../../users/user');
+const User = require('../../../users/user');
 const types = require('../types');
 const required = require('../required');
 const unique = require('../unique');

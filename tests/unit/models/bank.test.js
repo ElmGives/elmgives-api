@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const Bank = require('../../banks/bank');
+const Bank = require('../../../banks/bank');
 const types = require('../types');
 const required = require('../required');
 const defaults = require('../defaults');

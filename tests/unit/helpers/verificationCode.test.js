@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const code = require('../../helpers/verificationCode');
+const code = require('../../../helpers/verificationCode');
 
 tape('Verification Code', test => {
     test.plan(4);

@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let validateSession = require('../../helpers/validSession');
+let validateSession = require('../../../helpers/validSession');
 
 tape('Validate Session helper', test => {
     test.plan(2);

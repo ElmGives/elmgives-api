@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let token = require('../../helpers/token');
+let token = require('../../../helpers/token');
 
 tape('Token helper', test => {
     test.plan(3);

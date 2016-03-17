@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const Session = require('../../sessions/session');
+const Session = require('../../../sessions/session');
 const types = require('../types');
 const required = require('../required');
 

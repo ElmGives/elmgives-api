@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let expire = require('../../helpers/expire');
+let expire = require('../../../helpers/expire');
 
 tape('Expire helper', test => {
     test.plan(1);

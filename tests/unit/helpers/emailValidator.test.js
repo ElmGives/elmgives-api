@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let email = require('../../helpers/emailValidator');
+let email = require('../../../helpers/emailValidator');
 
 tape('Validate emails', (test) => {
     test.plan(6);

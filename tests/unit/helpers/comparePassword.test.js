@@ -1,7 +1,7 @@
 'use strict';
 
 let tape = require('tape');
-let compare = require('../../helpers/comparePassword');
+let compare = require('../../../helpers/comparePassword');
 const hash = '$2a$08$FqxIlWNfKD/sRlsBHtn4SON71eJbtc33G04fgu1hncXtkeBsJYjO2';
 
 tape('Compare password helper', test => {

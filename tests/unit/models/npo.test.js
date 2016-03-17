@@ -1,7 +1,7 @@
 'use strict';
 
 const tape = require('tape');
-const Npo = require('../../npos/npo');
+const Npo = require('../../../npos/npo');
 const types = require('../types');
 const required = require('../required');
 const defaults = require('../defaults');
