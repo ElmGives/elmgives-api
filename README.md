@@ -41,6 +41,17 @@ npm run update
 
 and follow instructions. We are using `npm-check` package
 
+## Seed
+
+Only for development. This process will create default:
+
+`users` `banks` `npos`
+
+
+```
+npm run seed
+```
+
 ## Folder structure
 
 ```

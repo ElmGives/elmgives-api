@@ -7,6 +7,9 @@
     "test": "tape tests/**/*.test.js | tap-spec",
     "lint": "jshint --exclude ./node_modules .",
     "update": "npm-check -u",
+    "s-users": "node ./db/users.js",
+    "s-banks": "node ./db/banks.js",
+    "seed": "npm run s-users && npm run s-banks",
     "ui": "superstatic api-ui --port 3002 --host 127.0.0.1"
   },
   "engines": {
@@ -15,13 +18,13 @@
   "dependencies": {
     "bcrypt": "0.8.5",
     "body-parser": "1.15.0",
-    "bunyan": "1.7.1",
+    "bunyan": "1.8.0",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
     "express": "4.13.4",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
-    "mongoose": "4.4.6",
+    "mongoose": "4.4.7",
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2"
   },
