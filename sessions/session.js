@@ -27,6 +27,12 @@ let schema = new mongoose.Schema({
     agent: {
         type: String,
         required: true
+    },
+
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, {
     versionKey: false

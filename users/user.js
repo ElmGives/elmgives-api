@@ -14,6 +14,7 @@ const timestamps = require('mongoose-timestamp');
 var unique = require('mongoose-unique-validator');
 
 const email = require('../helpers/emailValidator');
+const token = require('../helpers/verificationCode');
 
 let schema = new mongoose.Schema({
     name: {
@@ -55,14 +56,15 @@ let schema = new mongoose.Schema({
     },
 
     /**
-     * Special status for 'deleted' banks
+     * Special status for 'deleted' users
      */
     archived: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
 
     /**
-     * Hold status of the bank
+     * Hold status of the user
      */
     active: {
         type: Boolean,
@@ -71,6 +73,12 @@ let schema = new mongoose.Schema({
 
     address: {
         type: 'Mixed'
+    },
+
+    verificationCode: {
+        type: Number,
+        required: true,
+        default: token()
     }
 }, {
     versionKey: false
@@ -102,6 +110,12 @@ schema.pre('save', function(next) {
         this.password = hash;
         return next();
     });
+});
+
+const virtual = schema.virtual('verified');
+
+virtual.get(function() {
+    return !this.verificationCode;
 });
 
 module.exports = mongoose.model('User', schema);
