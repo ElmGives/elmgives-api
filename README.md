@@ -21,6 +21,15 @@ npm install
 npm start
 ```
 
+## Production Server
+
+Besides the app server(pm2 recommended):
+Either set `NODE_ENV=production` and `npm install` or run `npm install --production`
+
+Then run it with `npm start-production`
+
+You should include proper env variables to your environment.
+
 ## Unit Tests
 
 ```

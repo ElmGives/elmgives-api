@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npm i && nodemon ./bin/www | bunyan",
+    "start-production": "node ./bin/www | bunyan",
     "lint": "jshint --exclude ./node_modules .",
     "update": "npm-check -u",
     "SEED":"------------------------------------------------------------------",

@@ -8,7 +8,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
-let bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
 const timestamps = require('mongoose-timestamp');
 var unique = require('mongoose-unique-validator');
