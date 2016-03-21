@@ -14,7 +14,7 @@ mockgoose(mongoose);
 
 
 tape('User model', test => {
-    test.plan(24);
+    test.plan(25);
 
     let user = new User({});
     let values = user.schema.paths;
@@ -26,6 +26,7 @@ tape('User model', test => {
     types(['createdAt', 'updatedAt'], values, test, 'Date');
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
+    types(['charities'], values, test, 'Array');
     types(['verificationCode'], values, test, 'Number');
 
     defaults(['active'], user.schema.tree, test, true);
