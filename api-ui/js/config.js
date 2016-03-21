@@ -21,6 +21,37 @@ var users = {
     }
 };
 
+var charities = {
+    'name': 'Charities',
+    'description': '<p> Manage NPOs associated to an user</p>',
+
+    'calls': {
+        'add new one': {
+            'description': 'Associate NPOs, banks with current user.',
+            'params': {
+                userId: 'string',
+                bankId: 'string',
+                npoId: 'string',
+                montlyLimit: 'number'
+            },
+            'url': API + '/users/[userId]/charities',
+            'urlWithId': 'userId',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'list': {
+            'params': {
+                userId: 'string',
+                'auth_token': 'string'
+            },
+            'url': API + '/users/[userId]/charities',
+            'urlWithId': 'userId',
+            'wrapper': '',
+            'method': 'GET'
+        },
+    }
+};
+
 var banks = {
     'name': 'Banks',
     'description': '<p> Manage banks.</p>',
@@ -176,7 +207,8 @@ define([], function() {
         users: users,
         sessions: sessions,
         banks: banks,
-        npos: npos
+        npos: npos,
+        charities: charities
     };
 
     return {

@@ -53,7 +53,7 @@ npos(userNpos)  Mixed(Array Mixed)
     bankId          Objectid
     montlyLimit(c)  Number
     active          Boolean
-    archived				Boolean
+    archived	    Boolean
 ```
 
 ## banks
