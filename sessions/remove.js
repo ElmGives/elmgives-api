@@ -4,9 +4,8 @@
 'use strict';
 
 const Session = require('./session');
-const error = require('../lib/error');
 
-module.exports = (request, response) => {
+module.exports = function remove(request, response, next) {
 
     let query = {
         token: request.userToken,
@@ -25,5 +24,5 @@ module.exports = (request, response) => {
             return Session.remove(query);
         })
         .then(( /*removed*/ ) => response.send())
-        .catch(error(response));
+        .catch(next);
 };
