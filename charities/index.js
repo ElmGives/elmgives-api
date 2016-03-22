@@ -13,7 +13,7 @@ const currentUser = require('../lib/currentUser');
 const PATH = '/users/:id/charities';
 
 router
-    .get(PATH,  verifyToken, authenticate, currentUser, list)
-    .post(PATH,  verifyToken, authenticate, currentUser, create);
+    .get(PATH, verifyToken, authenticate, currentUser, list)
+    .post(PATH, verifyToken, authenticate, currentUser, create);
 
 module.exports = router;
