@@ -21,6 +21,14 @@ npm install
 npm start
 ```
 
+## API UI <small> (endpoint documentation) </small>
+
+```
+npm run ui
+```
+
+Then open your browser http://localhost:3002
+
 ## Production Server
 
 Besides the app server(pm2 recommended):
