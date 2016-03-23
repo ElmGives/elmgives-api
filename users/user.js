@@ -16,7 +16,7 @@ var unique = require('mongoose-unique-validator');
 const email = require('../helpers/emailValidator');
 const token = require('../helpers/verificationCode');
 
-const charitySchema = require('../charities/charitySchema');
+const charitySchema = require('../charities/schema');
 
 let schema = new mongoose.Schema({
     name: {

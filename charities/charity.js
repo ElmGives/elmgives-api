@@ -5,6 +5,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const schema = require('./charitySchema');
+const schema = require('./schema');
 
 module.exports = mongoose.model('Charity', schema);

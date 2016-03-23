@@ -16,8 +16,18 @@ let schema = new mongoose.Schema({
         required: true
     },
 
+    npo: {
+        type: String,
+        required: true
+    },
+
     bankId: {
         type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+
+    bank: {
+        type: String,
         required: true
     },
 

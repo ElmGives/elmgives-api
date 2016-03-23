@@ -48,7 +48,18 @@ var charities = {
             'urlWithId': 'userId',
             'wrapper': '',
             'method': 'POST'
-        }
+        },
+        'single charity': {
+            'description': 'Get single Charity information',
+            'params': {
+                'auth_token': 'string',
+                'userId': 'string',
+                'charityId': 'string'
+            },
+            'url': API + '/users/[userId]/charities/[charityId]',
+            'urlWithId': ['userId', 'charityId'],
+            'method': 'GET'
+        },
     }
 };
 
