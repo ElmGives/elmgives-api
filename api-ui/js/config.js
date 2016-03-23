@@ -26,6 +26,16 @@ var charities = {
     'description': '<p> Manage NPOs associated to an user</p>',
 
     'calls': {
+        'list': {
+            'params': {
+                userId: 'string',
+                'auth_token': 'string'
+            },
+            'url': API + '/users/[userId]/charities',
+            'urlWithId': 'userId',
+            'wrapper': '',
+            'method': 'GET'
+        },
         'add new one': {
             'description': 'Associate NPOs, banks with current user.',
             'params': {
@@ -38,17 +48,7 @@ var charities = {
             'urlWithId': 'userId',
             'wrapper': '',
             'method': 'POST'
-        },
-        'list': {
-            'params': {
-                userId: 'string',
-                'auth_token': 'string'
-            },
-            'url': API + '/users/[userId]/charities',
-            'urlWithId': 'userId',
-            'wrapper': '',
-            'method': 'GET'
-        },
+        }
     }
 };
 
