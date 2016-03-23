@@ -27,8 +27,6 @@ sessions.stack.map(item => {
     });
 });
 
-console.log(middlewares);
-
 tape.test('Session Endpoints', test => {
     test.plan(2);
 

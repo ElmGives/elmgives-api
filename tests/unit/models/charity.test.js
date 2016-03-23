@@ -5,8 +5,8 @@ const Charity = require('../../../charities/charity');
 const types = require('../types');
 const required = require('../required');
 
-tape('User\'s Npos model', test => {
-    test.plan(11);
+tape('Charity model', test => {
+    test.plan(13);
 
     let charity = new Charity({});
     let values = charity.schema.paths;
@@ -16,14 +16,18 @@ tape('User\'s Npos model', test => {
     types(['userId', 'bankId', 'npoId'], values, test, 'ObjectID');
 
     charity.validate(error => {
-        let fields = ['userId', 'bankId', 'npoId', 'montlyLimit'];
+        let fields = [
+            'userId', 'bankId', 'npoId', 'montlyLimit', 'npo', 'bank'
+        ];
         required(fields, error.errors, test);
     });
 
     new Charity({
-        userId: new Array(25).join('x'),
-        npoId: new Array(25).join('x'),
-        bankId: new Array(25).join('x'),
+        userId: 'x'.repeat(24),
+        npoId: 'x'.repeat(24),
+        bankId: 'x'.repeat(24),
+        npo: 'foobar',
+        bank: 'barfoo',
         montlyLimit: 50
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 });
