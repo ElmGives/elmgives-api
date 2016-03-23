@@ -44,6 +44,12 @@ const SEND_ERRORS = process.env.SEND_ERRORS;
 
 let app = express();
 
+/**
+ * Recommended from Express documentation
+ * @see  http://expressjs.com/en/advanced/best-practice-security.html
+ */
+app.disable('x-powered-by');
+
 app.use(cors());
 app.use(logRequest);
 app.use(bodyParser.json());
@@ -55,6 +61,14 @@ app.use(bodyParser.urlencoded({
  * Require modules/routes/express applications and use their endpoints
  */
 require('./modules')(app);
+
+/**
+ * Reject any other request to any other endpoint
+ */
+
+app.all('*', (request, response) => {
+    return response.status(405).send();
+});
 
 /**
  * catch 404 and forward to error handler

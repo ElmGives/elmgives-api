@@ -5,7 +5,6 @@
 
 const Session = require('./session');
 const User = require('../users/user');
-const error = require('../lib/error');
 const token = require('../helpers/token');
 const expire = require('../helpers/expire');
 const EXPIRE = process.env.EXPIRE_HOURS;
@@ -13,14 +12,15 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const jwt = require('../helpers/jwt');
 const comparePassword = require('../helpers/comparePassword');
 
-module.exports = (request, response) => {
+module.exports = function create(request, response, next) {
     const email = request.body.email;
     const password = request.body.password;
 
     if (!email || !password) {
-        return response.status(422).json({
-            error: 'Email and password required'
-        });
+        let error = new Error();
+        error.status = 422;
+        error.message = 'Invalid credentials';
+        return next(error);
     }
 
     let findQuery = {
@@ -38,9 +38,11 @@ module.exports = (request, response) => {
         .findOne(findQuery)
         .then(user => {
             if (!user) {
-                return response.status(422).json({
-                    error: 'Invalid credentials'
-                });
+                let error = new Error();
+                error.status = 422;
+                error.message = 'Invalid credentials';
+
+                return next(error);
             }
 
             /**
@@ -53,9 +55,11 @@ module.exports = (request, response) => {
         .then(isValid => {
 
             if (!isValid) {
-                return response.status(422).json({
-                    error: 'Invalid credentials'
-                });
+                let error = new Error();
+                error.status = 422;
+                error.message = 'Invalid credentials';
+
+                return next(error);
             }
 
             let session = {
@@ -84,5 +88,5 @@ module.exports = (request, response) => {
                 verified: request.accountUser.verified
             });
         })
-        .catch(error(response));
+        .catch(next);
 };
