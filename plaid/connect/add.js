@@ -38,22 +38,16 @@ module.exports = function addConnectUser(request, response, next) {
           list: true,
       }, function(err, mfaRes, res) {
         if (err) return next(err);
-
-        /* Return MFA options to the client */
-        if (mfaRes) {
-          return response.json({
-            data: {
-              mfa: mfaRes.mfa
-            }
-          });
-        }
-
         /* Store access_token */
-        request.currentUser.update({'plaid.tokens.connect': res.access_token})
+        let accessToken = (mfaRes || res).access_token;
+        let query = {};
+        query['plaid.tokens.connect.' + bank.type] = accessToken;
+        request.currentUser.update(query)
           .then(function () {
             response.json({
               data: {
-                access_token: res.access_token
+                mfa: mfaRes ? mfaRes.mfa : undefined,
+                access_token: accessToken
               }
             })
           });

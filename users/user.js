@@ -59,9 +59,7 @@ let schema = new mongoose.Schema({
 
     plaid: {
         tokens: {
-            connect: {
-                type: String
-            }
+            connect: {}
         }
     },
 
