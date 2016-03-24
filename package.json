@@ -17,7 +17,8 @@
     "TEST":"------------------------------------------------------------------",
     "test": "tape tests/unit/**/*.test.js | tap-spec",
     "start-test":"DB_NAME=elm-test node ./bin/www",
-    "acceptance": "tape tests/acceptance/**/*.js | tap-spec"
+    "acceptance": "tape tests/acceptance/**/*.js | tap-spec",
+    "roundup": "node ./bin/roundup"
   },
   "engines": {
     "node": "5.9.0"
