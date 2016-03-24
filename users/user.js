@@ -57,6 +57,14 @@ let schema = new mongoose.Schema({
         type: String
     },
 
+    plaid: {
+        tokens: {
+            connect: {
+                type: String
+            }
+        }
+    },
+
     /**
      * Special status for 'deleted' users
      */
