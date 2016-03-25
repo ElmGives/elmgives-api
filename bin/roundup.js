@@ -2,6 +2,7 @@
 const cluster = require('cluster');
 const https = require('https');
 const querystring = require('querystring');
+const numCPUs = require('os').cpus().length;
 
 const Cluster = {
 
@@ -10,27 +11,26 @@ const Cluster = {
     init() {
         'use strict';
 
-        console.log('Start process', Date.now())
+        console.log('Start process', Date.now());
 
         // For this demo we are going to use three cores
-        for (let i = 0; i < 3; i += 1) {
+        for (let i = 0; i < numCPUs; i += 1) {
             let worker = cluster.fork();
 
-            worker.send('start to work ' + worker.id + ' iteratoin ' + this.accounts)
+            worker.send('start to work ' + worker.id + ' iteratoin ' + this.accounts);
             this.accounts += 1;
 
             worker.on('message', function(msg) {
-                console.log(msg, worker.id )
+                console.log(msg, worker.id );
 
                 if ( this.accounts < 1000 ) {
-                    worker.send('start to work ' + worker.id + ' iteration ' + this.accounts)
+                    worker.send('start to work ' + worker.id + ' iteration ' + this.accounts);
                     this.accounts += 1;
                 }
                 else {
-                    console.log('END PROCESS', Date.now())
-
+                    console.log('END PROCESS', Date.now());
                 }
-            }.bind( this ))
+            }.bind( this ));
         }
     },
 };
@@ -39,7 +39,7 @@ const Worker = {
 
     result: '',
 
-    init() {
+    request() {
         'use strict';
 
         const opts = {
@@ -65,24 +65,22 @@ const Worker = {
 
             res.setEncoding('utf8');
 
-            res.on('data', (chunk) => {
-                this.result += chunk;
-            });
+            res.on('data', chunk => this.result += chunk);
 
             res.on('end', () => {
-                console.log('No more data in response.')
+                console.log('No more data in response.');
 
                 // From the JSON received by Plaid we find useful the types 'place' and 'digital'
                 // because they are what we are ineterested in
                 JSON.parse( this.result ).transactions
-                    .filter( transaction => transaction.type.primary == 'place' || transaction.type.primary == 'digital' )
+                    .filter( transaction => transaction.type.primary === 'place' || transaction.type.primary === 'digital' )
                     .forEach( transaction => console.log( transaction.amount ));
 
-                console.log(`End worker ${ this.id }: `, Date.now() )
+                console.log(`End worker ${ this.id }: `, Date.now() );
 
-                this.result = ''
+                this.result = '';
 
-                process.send('I finished')
+                process.send('I finished');
             });
         }.bind( this ));
 
@@ -94,20 +92,21 @@ const Worker = {
         req.write(postData);
         req.end();
 
-        console.log(`Start worker ${ this.id }: `, Date.now() )
+        console.log(`Start worker ${ this.id }: `, Date.now() );
     },
 };
 
 if ( cluster.isMaster ) {
-    Cluster.init()
+    Cluster.init();
 }
 else {
-    var worker = Object.create( Worker )
+    var worker = Object.create( Worker );
     worker.id = process.pid;
 
-    process.on('message', (msg) => {
-        console.log( msg )
+    process.on('message', function (msg) {
+        'use strict';
 
-        worker.init()
-    })
+        console.log(msg);
+        worker.request();
+    });
 }
