@@ -7,6 +7,7 @@ const router = require('express').Router();
 const plaid = require('plaid');
 
 /* Plaid services */
+const link = require('./link');
 const connect = require('./connect');
 
 /* Plaid client*/
@@ -23,6 +24,7 @@ function plaidClient(request, response, next) {
 
 router
     .use(plaidClient)
+    .use(link)
     .use(connect);
 
 module.exports = router;

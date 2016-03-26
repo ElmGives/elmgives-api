@@ -1,20 +1,20 @@
 /*
- * Handle Plaid Connect addConnectUser
+ * Handle Plaid Link exchange public token
  */
  'use strict';
 
 const Bank = require('../../banks/bank');
 
-module.exports = function addConnectUser(request, response, next) {
+module.exports = function patchConnectUser(request, response, next) {
   let plaid = request.plaid;
-  let username = request.body.username;
-  let password = request.body.password;
+  let publicToken = request.body.public_token;
+  let accountID = request.body.request_id;
   let institution = request.body.institution;
 
   let error = new Error();
-  if (!username || !password) {
+  if (!publicToken) {
     error.status = 400;
-    error.message = 'Missing username or password';
+    error.message = 'Missing public_token';
     return next(error);
   }
   if (!institution) {
@@ -31,28 +31,27 @@ module.exports = function addConnectUser(request, response, next) {
         return next(error);
       }
 
-      plaid.client.addConnectUser(bank.type, {
-        username: username,
-        password: password,
-      }, {
-          list: true,
-      }, function(err, mfaRes, res) {
+      plaid.client.exchangeToken(publicToken, function (err, res) {
         if (err) return next(err);
-        /* Store access_token */
-        let accessToken = (mfaRes || res).access_token;
+
+        let accessToken = res.access_token;
+        if (!accessToken) {
+          error.status = 500;
+          error.message = 'Access token could not be retrieved';
+          return next(error);
+        }
+
         let query = {};
         query['plaid.tokens.connect.' + bank.type] = accessToken;
         request.currentUser.update(query)
           .then(function () {
             response.json({
               data: {
-                mfa: mfaRes ? mfaRes.mfa : undefined,
                 access_token: accessToken
               }
             })
           })
           .catch(next);
       });
-    })
-    .catch(next);
+    });
 }
