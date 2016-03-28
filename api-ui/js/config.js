@@ -5,6 +5,14 @@ var users = {
     'description': '<p> Manage users.</p>',
 
     'calls': {
+        'user list': {
+            'description': 'Users registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/users',
+            'method': 'GET'
+        },
         'create new user': {
             'description': 'Posts a user.',
             'params': {
