@@ -19,6 +19,10 @@ const token = require('../helpers/verificationCode');
 const charitySchema = require('../charities/schema');
 
 let schema = new mongoose.Schema({
+    roleId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+
     name: {
         type: String,
         required: true
