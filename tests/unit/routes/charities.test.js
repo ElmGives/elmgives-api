@@ -14,8 +14,8 @@ let options = {
     'get /users/:id/charities': 'get /users/:id/charities',
     'post /users/:id/charities': 'post /users/:id/charities',
     'get /users/:id/charities/:charityId': 'get /users/:id/charities/:charityId',
-    // 'put /users/:id/charities/:charityId': 'put /users/:id/charities/:charityId',
-    // 'delete /users/:id/charities/:charityId': 'delete /users/:id/charities/:charityId'
+    'put /users/:id/charities/:charityId': 'put /users/:id/charities/:charityId',
+    'delete /users/:id/charities/:charityId': 'delete /users/:id/charities/:charityId'
 };
 
 charities.stack.map(item => {
@@ -31,7 +31,7 @@ charities.stack.map(item => {
 });
 
 tape.test('Charities Endpoints', test => {
-    test.plan(3);
+    test.plan(5);
 
     Object.keys(options).map(key => {
         test.equal(key, data[key], `should provide ${key} endpoint`);
