@@ -43,7 +43,7 @@ tape.test('Charities Endpoints', test => {
  * object properly, at least on functions names
  */
 tape.test('Charitiess endpoints middlewares', test => {
-    test.plan(9);
+    test.plan(15);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `validate token on ${key}`);
