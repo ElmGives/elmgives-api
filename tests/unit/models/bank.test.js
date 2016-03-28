@@ -32,11 +32,14 @@ tape('Bank model', test => {
 
     new Bank({
         userId: new Array(25).join('x'),
-        name: 'foobar',
+        name: 'Foo Bar',
+        type: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',
         email: 'foo@bar.com',
-        phone: 'some phone'
+        phone: 'some phone',
+        has_mfa: false,
+        products: ['connect']
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new Bank({
