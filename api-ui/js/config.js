@@ -74,6 +74,18 @@ var charities = {
             'urlWithId': ['userId', 'charityId'],
             'method': 'PUT'
         },
+        'remove charity': {
+            'description': 'removes charity associated to current user.',
+            'params': {
+                'auth_token': 'string',
+                userId: 'string',
+                charityId: 'string'
+            },
+            'url': API + '/users/[userId]/charities/[charityId]',
+            'urlWithId': ['userId', 'charityId'],
+            'wrapper': '',
+            'method': 'DELETE'
+        }
     }
 };
 
