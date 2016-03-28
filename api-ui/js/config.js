@@ -60,6 +60,20 @@ var charities = {
             'urlWithId': ['userId', 'charityId'],
             'method': 'GET'
         },
+        'update charity': {
+            'description': 'update charity',
+            'params': {
+                'auth_token': 'string',
+                userId: 'string',
+                charityId: 'string',
+                bankId: 'string',
+                npoId: 'string',
+                montlyLimit: 'number'
+            },
+            'url': API + '/users/[userId]/charities/[charityId]',
+            'urlWithId': ['userId', 'charityId'],
+            'method': 'PUT'
+        },
     }
 };
 

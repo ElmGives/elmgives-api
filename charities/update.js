@@ -3,12 +3,11 @@
  */
 'use strict';
 
-const Charity = require('./charity');
 const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
 
-module.exports = (request, response, next) => {
-    const userId = request.body.userId + '';
+module.exports = function update(request, response, next) {
+    const userId = request.params.id + '';
 
     if (request.session.userId + '' !== userId) {
         return response.status(401).json({
@@ -28,15 +27,12 @@ module.exports = (request, response, next) => {
         _id: request.body.bankId
     });
 
-    let exist = user.charities.some(item => {
-        return item.npoId + '' === request.body.npoId &&
-            item.bankId + '' === request.body.bankId;
-    });
+    let charity = user.charities.id(request.params.charityId);
 
-    if (exist) {
+    if (!charity) {
         let error = new Error();
         error.status = 422;
-        error.message = 'Charity already exist';
+        error.message = 'Charity not found';
 
         return next(error);
     }
@@ -52,23 +48,17 @@ module.exports = (request, response, next) => {
                 return next(error);
             }
 
-            let charity = {
-                montlyLimit: request.body.montlyLimit,
-                npoId: request.body.npoId,
-                bankId: request.body.bankId,
-                npo: values[0].name,
-                bank: values[1].name,
-                userId: request.session.userId
-            };
+            charity.montlyLimit = request.body.montlyLimit || charity.montlyLimit;
 
-            return new Charity(charity);
-        }, error => {
-            return next(error);
-        })
-        .then(charity => {
-            user.charities.push(charity);
+            charity.npoId = request.body.npoId || charity.npoId;
+            charity.bankId = request.body.bankId || charity.bankId;
+            charity.npo = values[0].name || charity.npo;
+            charity.bank = values[1].name || charity.bank;
+
             request.charityId = charity._id;
             return user.save();
+        }, error => {
+            return next(error);
         })
         .then(( /*user*/ ) => response.json({
             data: [user.charities.id(request.charityId)]

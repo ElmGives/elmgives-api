@@ -5,6 +5,7 @@
 
 const router = require('express').Router();
 const create = require('./create');
+const update = require('./update');
 const list = require('./list');
 const single = require('./single');
 const verifyToken = require('../lib/verifyJwt');
@@ -16,6 +17,7 @@ const SINGLE = '/users/:id/charities/:charityId';
 
 router
     .get(SINGLE, verifyToken, authenticate, currentUser, single)
+    .put(SINGLE, verifyToken, authenticate, currentUser, update)
     .get(PATH, verifyToken, authenticate, currentUser, list)
     .post(PATH, verifyToken, authenticate, currentUser, create);
 
