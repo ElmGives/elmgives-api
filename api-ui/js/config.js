@@ -138,12 +138,10 @@ var posts = {
             'params': {
                 'id': 'string',
                 'auth_token': 'string',
-                'name': 'string',
-                'description': 'string',
-                'logoUrl': 'string',
-                'email': 'string',
-                'zip': 'string',
-                'phone': 'string'
+                'npoId': 'string',
+                'images': 'string',
+                'videos': 'string',
+                'textContent': 'string'
             },
             'url': API + '/posts/[id]',
             'urlWithId': 'id',

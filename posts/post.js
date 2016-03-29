@@ -28,7 +28,15 @@ let schema = new mongoose.Schema({
 
     textContent: {
         type: String
-    }
+    },
+
+    /**
+     * Special status for 'deleted' posts
+     */
+    archived: {
+        type: Boolean,
+        default: false
+    },
 }, {
     versionKey: false
 });

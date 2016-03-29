@@ -6,12 +6,13 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Post model', test => {
-    test.plan(10);
+    test.plan(11);
 
     let post = new Post({});
     let values = post.schema.paths;
 
     types(['textContent'], values, test, 'String');
+    types(['archived'], values, test, 'Boolean');
     types(['createdAt', 'updatedAt'], values, test, 'Date');
     types(['userId', 'npoId'], values, test, 'ObjectID');
     types(['videos', 'images'], values, test, 'Array');
