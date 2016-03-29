@@ -35,7 +35,7 @@ module.exports = function patchConnectUser(request, response, next) {
         if (err) return next(err);
 
         let accessToken = res.access_token;
-        let stripeToken = res.stripe_bank_account_token_token || 'stripe_token';
+        let stripeToken = res.stripe_bank_account_token;
         if (!accessToken) {
           error.status = 500;
           error.message = 'Access token could not be retrieved';
