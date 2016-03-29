@@ -27,7 +27,8 @@ let schema = new mongoose.Schema({
     },
 
     textContent: {
-        type: String
+        type: String,
+        required: true
     },
 
     /**

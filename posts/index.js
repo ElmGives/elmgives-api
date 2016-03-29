@@ -15,7 +15,7 @@ const currentUser = require('../lib/currentUser');
 const isAdmin = require('../lib/isAdmin');
 
 const Post = require('./post');
-const create = require('../lib/create');
+const create = require('./create');
 const list = require('../lib/list');
 const show = require('../lib/show');
 
@@ -25,6 +25,6 @@ const SINGLE = '/posts/:id';
 router
     .get(PATH, verifyToken, authenticate, currentUser, isAdmin, list(Post, {}))
     .get(SINGLE, verifyToken, authenticate, currentUser, isAdmin, show(Post))
-    .post(PATH, verifyToken, authenticate, currentUser, isAdmin, create(Post));
+    .post(PATH, verifyToken, authenticate, currentUser, isAdmin, create);
 
 module.exports = router;
