@@ -11,8 +11,10 @@ const Cluster = require('./cluster');
 const Worker = require('./worker');
 
 if (cluster.isMaster) {
-    Cluster.runWith(3);    // TODO: Leave CPUs instead of manual 3
+    Cluster.runWith(1);    // TODO: Leave CPUs instead of manual 1
 }
 else {
-    Object.create(Worker).request();
+//    Object.create(Worker).request();
+    const worker = Object.create(Worker);
+    worker.init();
 }

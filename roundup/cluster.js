@@ -16,12 +16,17 @@ module.exports = {
 
             worker.on('exit', () => {
 
-                console.log(cluster.workers)
-
                 // TODO: Test there is no more work to do before ending
-                if (Object.keys(cluster.workers).length == 0) {
+                if (Object.keys(cluster.workers).length === 0) {
                     console.log('There are no workers left');
                     process.exit(0);
+                }
+            });
+
+            worker.on('message', (msg) => {
+
+                if (msg === 'ready') {
+                    worker.send({ token: 'test_wells' });
                 }
             });
         }
