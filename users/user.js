@@ -59,7 +59,16 @@ let schema = new mongoose.Schema({
 
     plaid: {
         tokens: {
-            connect: {}
+            connect: {
+                type: Object,
+                default: {}
+            }
+        }
+    },
+
+    stripe: {
+        token: {
+            type: String
         }
     },
 

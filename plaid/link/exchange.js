@@ -8,7 +8,7 @@ const Bank = require('../../banks/bank');
 module.exports = function patchConnectUser(request, response, next) {
   let plaid = request.plaid;
   let publicToken = request.body.public_token;
-  let accountID = request.body.request_id;
+  let accountID = request.body.account_id;
   let institution = request.body.institution;
 
   let error = new Error();
@@ -31,10 +31,11 @@ module.exports = function patchConnectUser(request, response, next) {
         return next(error);
       }
 
-      plaid.client.exchangeToken(publicToken, function (err, res) {
+      plaid.client.exchangeToken(publicToken, accountID, function (err, res) {
         if (err) return next(err);
 
         let accessToken = res.access_token;
+        let stripeToken = res.stripe_bank_account_token_token || 'stripe_token';
         if (!accessToken) {
           error.status = 500;
           error.message = 'Access token could not be retrieved';
@@ -43,11 +44,13 @@ module.exports = function patchConnectUser(request, response, next) {
 
         let query = {};
         query['plaid.tokens.connect.' + bank.type] = accessToken;
+        query['stripe.token'] = stripeToken;
         request.currentUser.update(query)
           .then(function () {
             response.json({
               data: {
-                access_token: accessToken
+                access_token: accessToken,
+                stripe_token: stripeToken
               }
             })
           })

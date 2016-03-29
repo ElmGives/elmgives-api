@@ -49,10 +49,11 @@ tape.test('Plaid Endpoints', test => {
 });
 
 tape.test('Plaid endpoints middlewares', test => {
-    test.plan(12);
+    test.plan(18);
     Object.keys(middlewares).map(key => {
         let middleware = middlewares[key];
         test.equal('verifyToken', middleware[0], `should validate token on ${key}`);
         test.equal('authenticate', middleware[1], `should authenticate on ${key}`);
+        test.equal('currentUser', middleware[2], `verify current user on ${key}`);
     });
 });
