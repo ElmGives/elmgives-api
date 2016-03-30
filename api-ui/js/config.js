@@ -147,7 +147,17 @@ var posts = {
             'urlWithId': 'id',
             'wrapper': '',
             'method': 'PUT'
-        }
+        },
+        'remove post': {
+            'description': 'removes a post.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'method': 'DELETE'
+        },
     }
 };
 
