@@ -26,11 +26,11 @@ tape('Post model', test => {
         npoId: 'x'.repeat(24),
         textContent: 'x'.repeat(10)
     }).validate(error => {
-        test.equal(undefined, error, 'valid with attributes')
+        test.equal(undefined, error, 'valid with attributes');
     });
 
     new Post({}).validate(error => {
-        test.equal(!!error, true, 'invalid empty')
+        test.equal(!!error, true, 'invalid empty');
     });
 
     new Post({
@@ -38,7 +38,7 @@ tape('Post model', test => {
     }).validate(error => {
         let actual = error.errors.textContent.kind;
         let expected = 'minlength';
-        test.equal(expected, actual, 'require min length for text content')
+        test.equal(expected, actual, 'require min length for text content');
     });
 
     new Post({
@@ -46,6 +46,6 @@ tape('Post model', test => {
     }).validate(error => {
         let actual = error.errors.textContent.kind;
         let expected = 'maxlength';
-        test.equal(expected, actual, 'require max length for text content')
+        test.equal(expected, actual, 'require max length for text content');
     });
 });

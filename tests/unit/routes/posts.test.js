@@ -15,7 +15,7 @@ let options = {
     'post /posts': 'post /posts',
     'get /posts/:id': 'get /posts/:id',
     'put /posts/:id': 'put /posts/:id',
-    // 'delete /posts/:id': 'delete /posts/:id'
+    'delete /posts/:id': 'delete /posts/:id'
 };
 
 posts.stack.map(item => {
@@ -31,7 +31,7 @@ posts.stack.map(item => {
 });
 
 tape.test('Post Endpoints', test => {
-    test.plan(4);
+    test.plan(5);
 
     Object.keys(options).map(key => {
         test.equal(key, data[key], `should provide ${key} endpoint`);
@@ -39,7 +39,7 @@ tape.test('Post Endpoints', test => {
 });
 
 tape.test('Posts endpoints middlewares', test => {
-    test.plan(16);
+    test.plan(20);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);
