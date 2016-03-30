@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const Transaction = require('./transaction');
+const Transaction = require('./plaidTransaction');
 
 module.exports = (transaction) => {
     return new Transaction(transaction)

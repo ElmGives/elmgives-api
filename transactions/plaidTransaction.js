@@ -37,6 +37,13 @@ let schema = new mongoose.Schema({
     },
 
     /**
+     * Store where purchase was made
+     */
+    name: {
+        type: String,
+    },
+
+    /**
      * Keep transaction status for sum up process
      */
     summed: {
@@ -47,4 +54,4 @@ let schema = new mongoose.Schema({
     versionKey: false,
 });
 
-module.exports = mongoose.model('Transactions', schema);
+module.exports = mongoose.model('PlaidTransactions', schema);

@@ -100,6 +100,7 @@ module.exports = {
                     amount: transaction.amount,
                     roundup: roundup,
                     date: transaction.date,
+                    name:  transaction.name,
                     summed: false,    // This one is to know if we have already ran the process on this transaction
                 });
             });
