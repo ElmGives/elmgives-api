@@ -23,7 +23,7 @@ let schema = new mongoose.Schema({
         required: true,
     },
 
-    rounded: {
+    roundup: {
         type: Number,
         required: true,
     },

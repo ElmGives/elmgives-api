@@ -6,7 +6,7 @@
 
 const querystring = require('querystring');
 const https = require('https');
-const create = require('../transactions/create');
+//const create = require('../transactions/create');
 
 const TEST_SERVER = 'tartan.plaid.com';
 
@@ -92,13 +92,13 @@ module.exports = {
                 return (transaction.type.primary === 'place' || transaction.type.primary === 'digital') &&  (transaction.pending === false);
             })
             .forEach(transaction => {
-                let rounded = this.roundup(transaction.amount);
+                let roundup = this.roundup(transaction.amount);
 
                 this.save({
                     transactionId: transaction._id,
                     userId: personData._id,
                     amount: transaction.amount,
-                    rounded: rounded,
+                    roundup: roundup,
                     date: transaction.date,
                     summed: false,    // This one is to know if we have already ran the process on this transaction
                 });
@@ -126,6 +126,6 @@ module.exports = {
     save(transaction) {
         console.log(`Amount: ${transaction.amount}, Rounded: ${transaction.rounded}`);
         console.log('transaction: ', transaction);
-        create(transaction);
+//        create(transaction);
     },
 };
