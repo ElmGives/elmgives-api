@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Post model', test => {
-    test.plan(11);
+    test.plan(13);
 
     let post = new Post({});
     let values = post.schema.paths;
@@ -26,4 +26,6 @@ tape('Post model', test => {
         npoId: 'x'.repeat(24),
         textContent: 'foobar'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Post({}).validate(error => test.equal(!!error, true, 'invalid empty'));
 });
