@@ -11,10 +11,9 @@ const Cluster = require('./cluster');
 const Worker = require('./worker');
 
 if (cluster.isMaster) {
-    Cluster.runWith(1);    // TODO: Leave CPUs instead of manual 1
+    Cluster.runWith(1);    // TODO: Determine how many workers the cluster can spawn
 }
 else {
-//    Object.create(Worker).request();
     const worker = Object.create(Worker);
     worker.init();
 }
