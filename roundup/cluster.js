@@ -6,6 +6,7 @@
 'use strict';
 
 const cluster = require('cluster');
+const User = require('../users/user');
 
 module.exports = {
 
@@ -14,6 +15,19 @@ module.exports = {
      * @param {number} numberCpus The number of workers this cluster can spawn
      */
     runWith(numberCpus) {
+
+        let people = User.find({ active: true }).toArray((err, people) => {
+
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            if (!people || people.length === 0) {
+                console.log('There is no people information to process');
+                return;
+            }
+        });
 
         for (let i = 0; i < numberCpus; i += 1) {
             let worker = cluster.fork();
