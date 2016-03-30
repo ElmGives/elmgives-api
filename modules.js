@@ -9,9 +9,11 @@ const banks = require('./banks');
 const users = require('./users');
 const charities = require('./charities');
 const sessions = require('./sessions');
+const posts = require('./posts');
 
 module.exports = app => {
     app
+        .use(posts)
         .use(sessions)
         .use(charities)
         .use(users)

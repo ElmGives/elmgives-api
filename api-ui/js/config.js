@@ -97,6 +97,71 @@ var charities = {
     }
 };
 
+var posts = {
+    'name': 'Posts',
+    'description': '<p> Manage posts.</p>',
+
+    'calls': {
+        'post list': {
+            'description': 'Posts registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/posts',
+            'method': 'GET'
+        },
+        'single post': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new post': {
+            'description': 'Posts a Bank.',
+            'params': {
+                'auth_token': 'string',
+                'npoId': 'string',
+                'images': 'string',
+                'videos': 'string',
+                'textContent': 'string'
+            },
+            'url': API + '/posts',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update post': {
+            'description': 'Updates an Bank.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'npoId': 'string',
+                'images': 'string',
+                'videos': 'string',
+                'textContent': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
+        'remove post': {
+            'description': 'removes a post.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'method': 'DELETE'
+        },
+    }
+};
+
+
 var banks = {
     'name': 'Banks',
     'description': '<p> Manage banks.</p>',
@@ -253,6 +318,7 @@ define([], function() {
         sessions: sessions,
         banks: banks,
         npos: npos,
+        posts: posts,
         charities: charities
     };
 
