@@ -28,7 +28,9 @@ let schema = new mongoose.Schema({
 
     textContent: {
         type: String,
-        required: true
+        required: true,
+        minlength: 10,
+        maxlength: 1000
     },
 
     /**

@@ -3,7 +3,6 @@
  */
 'use strict';
 
-const defaultResponse = require('../helpers/defaultResponse');
 const Npo = require('../npos/npo');
 const Post = require('./post');
 const options = {

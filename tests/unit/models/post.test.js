@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Post model', test => {
-    test.plan(13);
+    test.plan(15);
 
     let post = new Post({});
     let values = post.schema.paths;
@@ -24,8 +24,28 @@ tape('Post model', test => {
     new Post({
         userId: 'x'.repeat(24),
         npoId: 'x'.repeat(24),
-        textContent: 'foobar'
-    }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+        textContent: 'x'.repeat(10)
+    }).validate(error => {
+        test.equal(undefined, error, 'valid with attributes')
+    });
 
-    new Post({}).validate(error => test.equal(!!error, true, 'invalid empty'));
+    new Post({}).validate(error => {
+        test.equal(!!error, true, 'invalid empty')
+    });
+
+    new Post({
+        textContent: 'x'
+    }).validate(error => {
+        let actual = error.errors.textContent.kind;
+        let expected = 'minlength';
+        test.equal(expected, actual, 'require min length for text content')
+    });
+
+    new Post({
+        textContent: 'x'.repeat(1001)
+    }).validate(error => {
+        let actual = error.errors.textContent.kind;
+        let expected = 'maxlength';
+        test.equal(expected, actual, 'require max length for text content')
+    });
 });
