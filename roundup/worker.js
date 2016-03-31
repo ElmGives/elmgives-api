@@ -6,12 +6,12 @@
 
 const querystring = require('querystring');
 const https = require('https');
-//const create = require('../transactions/create');
+const create = require('../transactions/create');
 
-const TEST_SERVER = 'tartan.plaid.com';
+const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
 const options = {
-    host: TEST_SERVER,    // TODO: point to production server when ready
+    host: PLAID_SERVER,
     method: 'POST',
     path: '/connect/get',
     headers: {
@@ -26,7 +26,16 @@ module.exports = {
      * supervisor
      */
     init() {
-        process.on('message', (personData) => this.request(personData));
+
+        process.on('message', (msg) => {
+
+            if (msg === 'finish') {
+                process.exit(0);
+                return;
+            }
+
+            this.request(msg);
+        });
         process.send('ready');
     },
 
@@ -39,10 +48,11 @@ module.exports = {
         const postData = querystring.stringify({
             'client_id'   : process.env.PLAID_CLIENTID || 'test_id',
             'secret'      : process.env.PLAID_SECRET || 'test_secret',
-            'access_token': personData.token,        // TODO: change for what is final on DB
+            'access_token': personData.token,
         });
 
         let req = https.request(options, function (res) {
+            // TODO: Remove headers log when accepted
 //            console.log(`STATUS: ${res.statusCode}`);
 //            console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
 
@@ -63,8 +73,7 @@ module.exports = {
                 this.processData(this.result, personData);
                 this.result = '';
 
-                process.exit(0);    // TODO: change this line for the one below once we have a list of people to analyze
-//                process.send('ready');
+                process.send('ready');
             });
         }.bind(this));
 
@@ -125,8 +134,8 @@ module.exports = {
      * @param {object} transaction
      */
     save(transaction) {
-        console.log(`Amount: ${transaction.amount}, Rounded: ${transaction.rounded}`);
-        console.log('transaction: ', transaction);
-//        create(transaction);
+        // console.log(`Amount: ${transaction.amount}, Rounded: ${transaction.roundup}`);
+        // console.log('transaction: ', transaction);
+       create(transaction);
     },
 };
