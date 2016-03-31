@@ -8,65 +8,6 @@
 const cluster = require('cluster');
 const Users = require('../users/user');
 
-// TODO: remove this test code when tests end
-// const Users = {
-//     find() {
-//         return this;
-//     },
-//
-//     toArray(callback) {
-//
-//         callback(null, [
-//             {
-//                 _id: 1,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 2,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 3,
-//             },
-//             {
-//                 _id: 4,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 5,
-//             },
-//             {
-//                 _id: 6,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//         ]);
-//     }
-// };
-
 module.exports = {
 
     /**
