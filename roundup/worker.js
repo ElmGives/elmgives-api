@@ -134,8 +134,6 @@ module.exports = {
      * @param {object} transaction
      */
     save(transaction) {
-        // console.log(`Amount: ${transaction.amount}, Rounded: ${transaction.roundup}`);
-        // console.log('transaction: ', transaction);
        create(transaction);
     },
 };
