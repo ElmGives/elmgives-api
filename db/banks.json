@@ -1,35 +1,7 @@
-[
-  {
+[{
     "name": "Bank Of America",
-    "type": "bofa",
     "description": "An American bank",
     "logoUrl": "http://localhost/",
     "phone": "123",
-    "email": "bank@bank.com",
-    "has_mfa": true,
-    "mfa": ["code", "list", "questions(3)"],
-    "products": [ "connect", "auth", "balance", "info", "income", "risk"]
-  },
-  {
-    "name": "Chase",
-    "type": "chase",
-    "description": "Another American bank",
-    "logoUrl": "http://localhost/",
-    "phone": "456",
-    "email": "bank@bank.com",
-    "has_mfa": true,
-    "mfa": ["code", "list"],
-    "products": [ "connect", "auth", "balance", "info", "income", "risk"]
-  },
-  {
-    "name": "Wells Fargo",
-    "type": "wells",
-    "description": "One more American bank",
-    "logoUrl": "http://localhost/",
-    "phone": "789",
-    "email": "bank@bank.com",
-    "has_mfa": false,
-    "mfa": [],
-    "products": [ "connect", "auth", "balance", "info", "income", "risk"]
-  }
-]
+    "email": "bank@bank.com"
+}]

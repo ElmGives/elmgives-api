@@ -23,11 +23,6 @@ let schema = new mongoose.Schema({
         required: true
     },
 
-    type: {
-        type: String,
-        required: true
-    },
-
     description: {
         type: String,
         required: true
@@ -53,20 +48,6 @@ let schema = new mongoose.Schema({
 
     phone: {
         type: String,
-        required: true
-    },
-
-    has_mfa: {
-        type: Boolean,
-        required: true
-    },
-
-    mfa: {
-        type: Array
-    },
-
-    products: {
-        type: Array,
         required: true
     },
 
