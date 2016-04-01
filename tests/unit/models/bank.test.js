@@ -34,6 +34,7 @@ tape('Bank model', test => {
     new Bank({
         userId: new Array(25).join('x'),
         name: 'foobar',
+        type: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',
         email: 'foo@bar.com',
