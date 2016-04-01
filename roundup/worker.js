@@ -10,6 +10,9 @@ const create = require('../transactions/create');
 
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
+const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
+const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
+
 const options = {
     host: PLAID_SERVER,
     method: 'POST',
@@ -18,6 +21,10 @@ const options = {
         'Content-Type': 'application/x-www-form-urlencoded',
     },
 };
+
+function padNumber(number) {
+  return (number < 10) ? `0${number}` : `${number}`;
+}
 
 module.exports = {
 
@@ -49,6 +56,9 @@ module.exports = {
             'client_id'   : process.env.PLAID_CLIENTID || 'test_id',
             'secret'      : process.env.PLAID_SECRET || 'test_secret',
             'access_token': personData.token,
+            'options'     : {
+              'gte':  YESTERDAY;
+            }
         });
 
         let req = https.request(options, function (res) {

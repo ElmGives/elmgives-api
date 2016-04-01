@@ -11,7 +11,7 @@ const INTERVAL = 1000 * 60 * 60 * 24; // 24 hours in milliseconds
 function run() {
     fork('./roundup/supervisor.js');
 
-//    setTimeout(() => run(), INTERVAL);    // TODO: Activate this timeOut when ready for production
+   setTimeout(() => run(), INTERVAL);    // TODO: Activate this timeOut when ready for production
 }
 
 run();
