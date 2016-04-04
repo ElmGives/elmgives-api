@@ -42,7 +42,7 @@ let schema = new mongoose.Schema({
     },
     payload: {
         count: {
-            type: String,
+            type: Number,
             required: true
         },
         address: {
@@ -90,14 +90,16 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
-schema.pre('save', function compareHash(next) {
-    let doc = this;
-    let payload = JSON.stringify(doc.payload);
-    let hash = crypto.createHash(doc.hash.type).update(payload).digest('hex');
-    if (doc.hash.value !== hash) {
-        doc.hash.value = hash;
-    }
+let schemaPayloadOrder = ['count', 'address', 'amount', 'roundup', 'balance', 'currency', 'limit', 'previous', 'timestamp', 'reference', 'info'];
+
+schema.post('save', function compareHash(doc, next) {
+    doc.payload = JSON.parse(JSON.stringify(doc.payload));
     next();
+});
+schema.post('find', function compareHash(docs) {
+    docs.map(doc => {
+        doc.payload = JSON.parse(JSON.stringify(doc.payload));
+    });
 });
 
 module.exports = mongoose.model('Transaction', schema);
