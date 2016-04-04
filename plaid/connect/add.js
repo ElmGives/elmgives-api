@@ -37,7 +37,7 @@ module.exports = function addConnectUser(request, response, next) {
       }, {
           list: true,
       }, function(err, mfaRes, res) {
-        if (err) return next(err);
+        if (err) { return next(err); }
         /* Store access_token */
         let accessToken = (mfaRes || res).access_token;
         let query = {};
@@ -49,10 +49,10 @@ module.exports = function addConnectUser(request, response, next) {
                 mfa: mfaRes ? mfaRes.mfa : undefined,
                 access_token: accessToken
               }
-            })
+            });
           })
           .catch(next);
       });
     })
     .catch(next);
-}
+};

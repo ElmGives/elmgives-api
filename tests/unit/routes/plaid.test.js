@@ -4,9 +4,9 @@
 
 'use strict';
 
-process.env['PLAID_CLIENTID'] = 'test_id';
-process.env['PLAID_SECRET'] = 'test_secret';
-process.env['PLAID_ENV'] = 'https://tartan.plaid.com';
+process.env.PLAID_CLIENTID = 'test_id';
+process.env.PLAID_SECRET = 'test_secret';
+process.env.PLAID_ENV = 'https://tartan.plaid.com';
 
 const tape = require('tape');
 const plaid = require('../../../plaid');
@@ -26,7 +26,7 @@ let options = {
 };
 
 plaid.stack.map(router => {
-    if (router.name !== 'router') return;
+    if (router.name !== 'router') { return; }
     router.handle.stack.map(item => {
         let method = Object.keys(item.route.methods).join('');
         let path = item.route.path;

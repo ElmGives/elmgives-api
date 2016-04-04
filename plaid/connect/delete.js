@@ -24,10 +24,10 @@ module.exports = function deleteConnectUser(request, response, next) {
   plaid.client.deleteConnectUser(plaidAccessToken, {
 
   }, function(err, res) {
-    if (err) return next(err);
+    if (err) { return next(err); }
 
     response.json({
       data: res
-    })
+    });
   });
-}
+};
