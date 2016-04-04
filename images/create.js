@@ -7,24 +7,43 @@ const formidable = require('formidable');
 const upload = require('./upload');
 
 function parseForm(request, response, next) {
-
     var form = new formidable.IncomingForm();
+    form.promises = [];
 
-    form.multiples = false;
-    form.maxFields = 0;
+    form.multiples = true;
+    form.maxFields = 2;
     form.keepExtensions = true;
-    form.onError = next;
+    form.uploadDir = '/tmp';
+
+    form.on('error', (error) => {
+        return next(error);
+    });
+
+    form.on('aborted', (error) => {
+        return next(error);
+    });
+
+    form.on('end', () => {
+        Promise
+            .all(form.promises)
+            .then(done => {
+                return response.json({
+                    data: done
+                });
+            }, error => {
+                return next(error);
+            });
+    });
 
     form.onPart = function(part) {
+
         if (!part.filename) {
             // Handle non file parts
             return this.handlePart(part);
         }
 
-        console.log('part', part);
-        upload(part);
+        form.promises.push(upload(part));
     };
-
 
     form.parse(request);
 }
