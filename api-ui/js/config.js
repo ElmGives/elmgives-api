@@ -162,6 +162,26 @@ var posts = {
 };
 
 
+var images = {
+    'name': 'Images',
+    'description': '<p> Manage posts.</p>',
+
+    'calls': {
+        'upload image': {
+            'description': '',
+            'params': {
+                'auth_token': 'string',
+                'images': 'file'
+            },
+            'url': API + '/images',
+            'wrapper': '',
+            hasFile: true,
+            'method': 'POST'
+        }
+    }
+};
+
+
 var banks = {
     'name': 'Banks',
     'description': '<p> Manage banks.</p>',
@@ -319,6 +339,7 @@ define([], function() {
         banks: banks,
         npos: npos,
         posts: posts,
+        images: images,
         charities: charities
     };
 

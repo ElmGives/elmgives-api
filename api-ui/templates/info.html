@@ -36,7 +36,7 @@
                                     </label>
                                     <div class="controls">
                                         <% if (paramNestedType == 'file') { %>
-                                            <input type="file" id="<%= paramInputId %>" class='form-control file-input'>
+                                            <input type="file" id="<%= paramInputId %>" multiple class='form-control file-input'>
                                         <% } else { %>
                                             <input class="form-control" type="text" id="<%= paramInputId %>" placeholder="<%= paramNestedType %>">
                                         <% } %>
@@ -51,7 +51,7 @@
                                 </label>
                                 <div class="controls">
                                     <% if (paramType == 'file') { %>
-                                        <input type="file" id="<%= paramInputId %>" class='file-input'>
+                                        <input type="file" id="<%= paramInputId %>" multiple class='file-input'>
                                     <% } else { %>
                                         <input class="form-control"  type="text" id="<%= paramInputId %>" placeholder="<%= paramType %>">
                                     <% } %>
