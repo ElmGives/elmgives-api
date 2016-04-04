@@ -4,6 +4,7 @@
 'use strict';
 
 const API_KEY = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
+const EMAIL_SENDER = 'danny@elmgives.com';
 
 const mandrill = require('mandrill-api/mandrill');
 const mandrillClient = new mandrill.Mandrill(API_KEY);
@@ -59,8 +60,8 @@ module.exports = {
 		let content = templateContent ? templateContent : [];
 
 		let message = {
-			to: [to],
-			from: 'danny@elmGives.com',	// TODO: Change for defulat sender
+			to        : [to],
+			from_email: EMAIL_SENDER,
 		};
 
 		return new Promise(( res, rej ) => {
