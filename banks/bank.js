@@ -56,12 +56,12 @@ let schema = new mongoose.Schema({
         required: true
     },
 
-    has_mfa: {
+    hasMultiFactorAuthentication: {
         type: Boolean,
         required: true
     },
 
-    mfa: {
+    multiFactorAuthentication: {
         type: Array
     },
 

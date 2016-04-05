@@ -12,6 +12,6 @@ const currentUser = require('../../lib/currentUser');
 const PATH = '/plaid/link';
 
 router
-    .post(PATH, verifyToken, authenticate, currentUser, exchange)
+    .post(PATH, verifyToken, authenticate, currentUser, exchange);
 
 module.exports = router;

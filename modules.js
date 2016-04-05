@@ -7,7 +7,6 @@
 const npos = require('./npos');
 const banks = require('./banks');
 const users = require('./users');
-const plaid = require('./plaid');
 const charities = require('./charities');
 const sessions = require('./sessions');
 const posts = require('./posts');
@@ -19,7 +18,6 @@ module.exports = app => {
         .use(posts)
         .use(sessions)
         .use(charities)
-        .use(plaid)
         .use(users)
         .use(banks)
         .use(npos);

@@ -27,10 +27,10 @@ module.exports = function getConnectUser(request, response, next) {
     lte: lte,
     gte: gte
   }, function(err, res) {
-    if (err) return next(err);
+    if (err) { return next(err); }
 
     response.json({
       data: res
-    })
+    });
   });
-}
+};

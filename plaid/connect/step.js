@@ -27,8 +27,8 @@ module.exports = function stepConnectUser(request, response, next) {
   }
   
   mfa.method = mfa.method ? {send_method: {type: mfa.method}} : {};
-  plaid.client.stepConnectUser(plaidAccessToken, mfa.answer, mfa.method, function(err, mfaRes, res) {
-    if (err) return next(err);
+  plaid.client.stepConnectUser(plaidAccessToken, mfa.answer, mfa.method, function(err, mfaRes) {
+    if (err) { return next(err); }
     
     return response.json({
       data: {
@@ -37,4 +37,4 @@ module.exports = function stepConnectUser(request, response, next) {
       }
     });
   });
-}
+};

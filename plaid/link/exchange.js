@@ -32,7 +32,7 @@ module.exports = function patchConnectUser(request, response, next) {
       }
 
       plaid.client.exchangeToken(publicToken, accountID, function (err, res) {
-        if (err) return next(err);
+        if (err) { return next(err); }
 
         let accessToken = res.access_token;
         let stripeToken = res.stripe_bank_account_token;
@@ -52,9 +52,9 @@ module.exports = function patchConnectUser(request, response, next) {
                 access_token: accessToken,
                 stripe_token: stripeToken
               }
-            })
+            });
           })
           .catch(next);
       });
     });
-}
+};
