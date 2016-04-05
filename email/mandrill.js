@@ -3,11 +3,11 @@
  */
 'use strict';
 
-const API_KEY = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
-const EMAIL_SENDER = 'danny@elmgives.com';
+const API_KEY         = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
+const EMAIL_SENDER    = 'danny@elmgives.com';
 
-const mandrill = require('mandrill-api/mandrill');
-const mandrillClient = new mandrill.Mandrill(API_KEY);
+const mandrill        = require('mandrill-api/mandrill');
+const mandrillClient  = new mandrill.Mandrill(API_KEY);
 
 function onSuccess( res, result ) {
 	res( result );
@@ -48,30 +48,30 @@ module.exports = {
 	 * Send a template email to specified recipient
 	 * @param   {string}          templateName
 	 * @param   {object}          to              An object with at least an email property. Other property is 'name'
-	 * @param   {Array}           templateContent If the template has vars then It's an Array with name and content property
+	 * @param   {Array}           globalMergeVars If the template has vars then It's an Array with name and content property. Assuming we use handlebars
 	 *                                            objects. Example: [{
-													"name": "example name",
-													"content": "example content"
+													"name": "name variable",
+													"content": "content of variable"
 												 }]
 	 * @returns {Promise<object>} Returning value is a JSON object when success
 	 */
-	send(templateName, to, templateContent) {
-
-		let content = templateContent ? templateContent : [];
+	send(templateName, to, globalMergeVars) {
 
 		let message = {
-			to        : [to],
-			from_email: EMAIL_SENDER,
+			to          : [to],
+			'from_email': EMAIL_SENDER,
 		};
+
+		if (globalMergeVars && globalMergeVars.length) {
+			message['global_merge_vars'] = globalMergeVars;
+		}
 
 		return new Promise(( res, rej ) => {
 
 			mandrillClient.messages.sendTemplate({
-				'template_name'   : templateName,
-				'template_content': content,
-				message           : message,
+				'template_name': templateName,
+				message        : message,
 			}, onSuccess.bind(null, res), onError.bind(null, rej));
 		});
-
 	}
 };
