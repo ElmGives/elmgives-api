@@ -90,16 +90,5 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
-let schemaPayloadOrder = ['count', 'address', 'amount', 'roundup', 'balance', 'currency', 'limit', 'previous', 'timestamp', 'reference', 'info'];
-
-schema.post('save', function compareHash(doc, next) {
-    doc.payload = JSON.parse(JSON.stringify(doc.payload));
-    next();
-});
-schema.post('find', function compareHash(docs) {
-    docs.map(doc => {
-        doc.payload = JSON.parse(JSON.stringify(doc.payload));
-    });
-});
 
 module.exports = mongoose.model('Transaction', schema);
