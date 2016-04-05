@@ -8,7 +8,7 @@ let AWS = require('aws-sdk');
 let s3 = new AWS.S3({
     accessKeyId: process.env.AWS_S3_KEY,
     secretAccessKey: process.env.AWS_S3_SECRET,
-    ACL: 'public-read'
+    ACL: process.env.AWS_S3_ACL
 });
 
 /**
