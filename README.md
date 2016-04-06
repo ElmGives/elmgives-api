@@ -1,54 +1,16 @@
 # elmgives-api
 
 Node.js backend
+<br /><br />
+## Environment Setup
 
-## Dependencies
-
-### Hard dependencies
+#### Hard dependencies
 
 - nodejs v5.7.0+
 - mongodb 3.x
 
-### Development dependencies
 
-```
-npm install
-```
-
-## Development server
-
-```
-npm start
-```
-
-## API UI <small> (endpoint documentation) </small>
-
-```
-npm run ui
-```
-
-Then open your browser http://localhost:3002
-
-## Production Server
-
-Besides the app server(pm2 recommended):
-Either set `NODE_ENV=production` and `npm install` or run `npm install --production`
-
-Then run it with `npm start-production`
-
-You should include proper env variables to your environment.
-
-## Unit Tests
-
-```
-npm test
-```
-
-## About env variables
-
-Copy `.env.example` to `.env` and set proper values for each env variable
-
-## Update dependencies
+#### Update dependencies
 
 To update / upgrade dependencies just run:
 
@@ -58,16 +20,68 @@ npm run update
 
 and follow instructions. We are using `npm-check` package
 
-## Seed
 
-Only for development. This process will create default:
+#### 1. About env variables
 
-`users` `banks` `npos`
+Copy `.env.example` to `.env` and set proper values for each env variable
+
+#### 2. NPM Dependencies
+
+In order to install the npm dependencies for the project, run the command:
+
+```
+npm install
+```
+
+#### 3. Seed (Only for development)
+After `npm install` it's needed to seed the database with data, this process will create default:
+
+`users`, `banks` and `npos`. Run the command:
 
 
 ```
 npm run seed
 ```
+
+
+## Server
+
+#### Development
+```
+npm start
+```
+
+#### Production
+Besides the app server (pm2 recommended), you have 2 option:
+
+1. set `NODE_ENV=production` and `npm install`  
+2. or run `npm install --production`
+
+Then run:
+
+```
+npm start-production
+```
+
+Note: You should include proper env variables to your environment.
+
+===
+
+## API UI <small> (endpoint documentation) </small>
+
+```
+npm run ui
+```
+
+Then open your browser http://localhost:3002
+
+
+## Unit Tests
+
+```
+npm test
+```
+===
 
 ## Folder structure
 
