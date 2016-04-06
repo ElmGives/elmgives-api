@@ -55,7 +55,8 @@ let log = bunyan.createLogger({
          * This property must be named `req`, DON'T change it! It's an order!
          */
         req: serializer,
-        dbQuery: querySerializer
+        dbQuery: querySerializer,
+        err: bunyan.stdSerializers.err
     },
     streams: streams
 });

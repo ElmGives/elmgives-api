@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Bank model', test => {
-    test.plan(21);
+    test.plan(24);
 
     let bank = new Bank({});
     let values = bank.schema.paths;
@@ -24,7 +24,8 @@ tape('Bank model', test => {
 
     bank.validate(error => {
         let fields = [
-            'userId', 'name', 'description', 'logoUrl', 'email', 'phone'
+            'userId', 'name', 'description', 'logoUrl', 'email', 'phone',
+            'hasMultiFactorAuthentication', 'products', 'type'
         ];
 
         required(fields, error.errors, test);
@@ -36,7 +37,10 @@ tape('Bank model', test => {
         description: 'barfoo',
         logoUrl: 'http://localhost',
         email: 'foo@bar.com',
-        phone: 'some phone'
+        phone: 'some phone',
+        hasMultiFactorAuthentication: true,
+        products: [{}],
+        type: 'foobar'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new Bank({

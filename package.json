@@ -16,21 +16,23 @@
     "UI": "--------------------------------------------------------------------",
     "ui": "superstatic api-ui --port 3002 --host 127.0.0.1",
     "TEST": "------------------------------------------------------------------",
-    "test": "tape tests/unit/**/*.test.js | tap-spec",
+    "test": "tape tests/unit/**/*.test.js | tap-min",
     "start-test": "DB_NAME=elm-test node ./bin/www",
-    "acceptance": "tape tests/acceptance/**/*.js | tap-spec",
+    "acceptance": "tape tests/acceptance/**/*.js | tap-min",
     "roundup": "node ./bin/roundup"
   },
   "engines": {
     "node": "5.9.0"
   },
   "dependencies": {
+    "aws-sdk": "2.2.48",
     "bcrypt": "0.8.5",
     "body-parser": "1.15.0",
     "bunyan": "1.8.0",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
     "express": "4.13.4",
+    "formidable": "1.0.17",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
     "mandrill-api": "^1.0.45",
@@ -46,6 +48,7 @@
     "npm-check": "4.1.4",
     "request": "2.69.0",
     "superstatic": "4.0.2",
+    "tap-min": "1.1.0",
     "tap-spec": "4.1.1",
     "tape": "4.5.1"
   }
