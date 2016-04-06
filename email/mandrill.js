@@ -3,21 +3,26 @@
  */
 'use strict';
 
-const API_KEY         = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
+const logger = require('../logger');
+
+// NOTE: this is the default email sender
 const EMAIL_SENDER    = 'danny@elmgives.com';
 
+const API_KEY         = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
 const mandrill        = require('mandrill-api/mandrill');
 const mandrillClient  = new mandrill.Mandrill(API_KEY);
 
-function onSuccess( res, result ) {
-	res( result );
+function onSuccess(res, result) {
+	res(result);
 }
 
-function onError( rej, e ) {
-	rej('A mandrill error occurred: ' + e.name + ' - ' + e.message);
+function onError(rej, error) {
+	logger.error({ err: error });
+
+	rej('A mandrill error occurred: ' + error.name + ' - ' + error.message);
 }
 
-module.exports = {
+const Mandrill = {
 
 	/**
 	 * Just pings Mandriil server.
@@ -68,10 +73,15 @@ module.exports = {
 
 		return new Promise(( res, rej ) => {
 
-			mandrillClient.messages.sendTemplate({
-				'template_name': templateName,
-				message        : message,
-			}, onSuccess.bind(null, res), onError.bind(null, rej));
+			const options = {
+				'template_name'   : templateName,
+				'template_content': [],
+				message           : message,
+			};
+
+			mandrillClient.messages.sendTemplate(options, onSuccess.bind(null, res), onError.bind(null, rej));
 		});
 	}
 };
+
+module.exports = Mandrill;
