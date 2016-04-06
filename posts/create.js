@@ -6,9 +6,17 @@
 const defaultResponse = require('../helpers/defaultResponse');
 const Post = require('./post');
 const Npo = require('../npos/npo');
+const validMedia = require('../helpers/validMedia');
 
 module.exports = function create(request, response, next) {
     request.body.userId = request.session._id;
+
+    if (!validMedia(request.body.images) || !validMedia(request.body.videos)) {
+        let error = new Error();
+        error.status = 422;
+        error.message = 'Invalid images/videos object';
+        return next(error);
+    }
 
     const query = {
         _id: request.body.npoId
