@@ -9,6 +9,7 @@ const upload = require('./upload');
 function parseForm(request, response, next) {
     var form = new formidable.IncomingForm();
     form.promises = [];
+    form._images = [];
 
     form.multiples = true;
     form.maxFields = 2;
@@ -26,9 +27,9 @@ function parseForm(request, response, next) {
     form.on('end', () => {
         Promise
             .all(form.promises)
-            .then(done => {
+            .then(() => {
                 return response.json({
-                    data: done
+                    data: form._images
                 });
             }, error => {
                 return next(error);
@@ -42,6 +43,7 @@ function parseForm(request, response, next) {
             return this.handlePart(part);
         }
 
+        form._images.push(`${part.name}/${part.filename}`);
         form.promises.push(upload(part));
     };
 
