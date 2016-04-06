@@ -3,5 +3,8 @@
     "description": "An American bank",
     "logoUrl": "http://localhost/",
     "phone": "123",
-    "email": "bank@bank.com"
+    "email": "bank@bank.com",
+    "products": [{}],
+    "hasMultiFactorAuthentication": true,
+    "type": "sometype"
 }]
