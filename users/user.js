@@ -61,6 +61,21 @@ let schema = new mongoose.Schema({
         type: String
     },
 
+    plaid: {
+        tokens: {
+            connect: {
+                type: Object,
+                default: {}
+            }
+        }
+    },
+
+    stripe: {
+        token: {
+            type: String
+        }
+    },
+
     /**
      * Special status for 'deleted' users
      */
