@@ -27,7 +27,32 @@ function all(promises) {
         .all(promises)
         .then(values => {
             values.map(role => console.log(`role found/created ${role.title}`));
-            process.exit(0);
+            Role
+                .findOne({
+                    title: 'admin'
+                })
+                .then(role => {
+                    console.log(role);
+                    return User.update({
+                        email: {
+                            $in: ['homer@elm.com', 'brice@elm.com', 'daniel@elm.com']
+                        }
+                    }, {
+                        $set: {
+                            roleId: role._id
+                        }
+                    }, {
+                        multi: true
+                    });
+                })
+                .then(updated => {
+                    console.log('updated', updated);
+                    process.exit(0);
+                })
+                .catch(error => {
+                    console.log('error on updating roles', error);
+                    process.exit(1);
+                });
         }, reason => {
             console.log(reason);
             process.exit(1);
@@ -45,30 +70,4 @@ User
 
         let promises = updated.map(role => findOrInsert(role));
         all(promises);
-    });
-
-Role
-    .findOne({
-        title: 'admin'
-    })
-    .then(role => {
-        return User.update({
-            email: {
-                $in: ['homer@elm.com', 'brice@elm.com', 'daniel@elm.com']
-            }
-        }, {
-            $set: {
-                roleId: role._id
-            }
-        }, {
-            multi: true
-        });
-    })
-    .then(updated => {
-        console.log('updated', updated);
-        process.exit(0);
-    })
-    .catch(error => {
-        console.log(error);
-        process.exit(1);
     });
