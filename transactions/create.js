@@ -4,9 +4,10 @@
 'use strict';
 
 const Transaction = require('./plaidTransaction');
+const logger      = require('../logger');
 
 module.exports = (transaction) => {
     return new Transaction(transaction)
         .save()
-        .catch(err => console.log(err));
+        .catch(logger.error);
 };

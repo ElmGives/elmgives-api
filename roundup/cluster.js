@@ -6,123 +6,80 @@
 'use strict';
 
 const cluster = require('cluster');
-const Users = require('../users/user');
+const User    = require('../users/user');
+const logger  = require('../logger');
 
-// TODO: remove this test code when tests end
-// const Users = {
-//     find() {
-//         return this;
-//     },
-//
-//     toArray(callback) {
-//
-//         callback(null, [
-//             {
-//                 _id: 1,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 2,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 3,
-//             },
-//             {
-//                 _id: 4,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//             {
-//                 _id: 5,
-//             },
-//             {
-//                 _id: 6,
-//                 plaid: {
-//                     tokens: {
-//                         connect: {
-//                             wells: 'test_wells',
-//                         },
-//                     },
-//                 },
-//             },
-//         ]);
-//     }
-// };
-
-module.exports = {
+const Cluster = {
 
     /**
-     * Run workers in order to process all work.
+     * Run [numberCpus] workers in order to process all work.
      * @param {number} numberCpus The number of workers this cluster can spawn
      */
     runWith(numberCpus) {
 
-        Users.find({ active: true }).toArray((err, people) => {
+        const query = {
+            active                : true,
+            plaid                 : { $exists: true },
+            'plaid.tokens.connect': { $exists: true, $ne: {} },
+        };
 
-            if (err) {
-                console.log(err);
-                return;
-            }
+        const selector = {
+            _id  : 1,
+            plaid: 1,
+        };
+
+        User.find(query, selector).then(people => {
 
             if (!people || people.length === 0) {
-                console.log('There is no people information to process');
+                logger.log('There is no people information to process');
                 return;
             }
-
-            // we need the list of people that has the plaid access_token inside in order to request transaction history
-            people = people.filter(person => (person.plaid && person.plaid.tokens && person.plaid.tokens.connect && Object.keys(person.plaid.tokens.connect).length));
 
             for (let i = 0; i < numberCpus; i += 1) {
                 let worker = cluster.fork();
 
-                worker.on('exit', () => {
-
-                    if (Object.keys(cluster.workers).length === 0) {
-                        console.log('There are no workers left');
-                        process.exit(0);
-                    }
-                });
-
-                worker.on('message', (msg) => {
-
-                    if (msg === 'ready') {
-                        const person = people.pop();
-
-                        if (person) {
-
-                            // We assume user has only one banck account registered on the application
-                            const bankType = Object.keys(person.plaid.tokens.connect)[0];
-
-                            // we send just what the worker needs
-                            worker.send({
-                                _id: person._id,
-                                token: person.plaid.tokens.connect[bankType],
-                            });
-                        }
-                        else {
-                            worker.send('finish');
-                        }
-                    }
-                });
+                worker.on('message', this.assignWork.bind(this, worker, people));
+                worker.on('exit',    this.exitIfNoMoreWorkersLeft());
             }
         });
     },
+
+    exitIfNoMoreWorkersLeft() {
+
+        // Active workers live on cluster.workers Array
+        if (Object.keys(cluster.workers).length === 0) {
+            process.exit(0);
+        }
+    },
+
+    /**
+     * When worker has no job, It sends a 'ready' message.
+     * We check if there are more people to work on. If we do, we send one person to process
+     * If we ran out of people, we send a message to worker to end its process
+     * @param {object} worker A worker instance
+     * @param {Array}  people
+     * @param {string} msg    The message received from worker
+     */
+    assignWork(worker, people, msg) {
+
+        if (msg === 'ready') {
+            const person = people.pop();
+
+            if (person) {
+
+                // We assume user has only one bank account registered on the application
+                const bankType = Object.keys(person.plaid.tokens.connect)[0];
+
+                // we send just what the worker needs
+                worker.send({
+                    _id  : person._id,
+                    token: person.plaid.tokens.connect[bankType],
+                });
+            } else {
+                worker.send('finish');
+            }
+        }
+    },
 };
+
+module.exports = Cluster;

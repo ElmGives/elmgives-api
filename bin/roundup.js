@@ -6,12 +6,13 @@
 
 const fork = require('child_process').fork;
 
-const INTERVAL = 1000 * 60 * 60 * 24; // 24 hours in milliseconds
+// 24 hours in milliseconds
+const INTERVAL = 1000 * 60 * 60 * 24;
 
 function run() {
     fork('./roundup/supervisor.js');
 
-//    setTimeout(() => run(), INTERVAL);    // TODO: Activate this timeOut when ready for production
+    setTimeout(() => run(), INTERVAL);
 }
 
 run();

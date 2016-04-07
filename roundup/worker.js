@@ -4,39 +4,53 @@
 
 'use strict';
 
-const querystring = require('querystring');
-const https = require('https');
-const create = require('../transactions/create');
+const querystring       = require('querystring');
+const https             = require('https');
+const logger            = require('../logger');
+const create            = require('../transactions/create');
+const padNumber         = require('../helpers/padNumber');
+const roundup           = require('../helpers/roundup');
+const transactionFilter = require('../helpers/plaidTransactionFilter');
 
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
+const yesterdate  = new Date(Date.now() - (1000 * 60 * 60 * 24));
+const YESTERDAY   = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
+
 const options = {
-    host: PLAID_SERVER,
-    method: 'POST',
-    path: '/connect/get',
+    host   : PLAID_SERVER,
+    method : 'POST',
+    path   : '/connect/get',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
     },
 };
 
-module.exports = {
+const Worker = {
 
     /**
      * Add eventListener to supervisor in order to request information to Plaid with userData sent by
      * supervisor
      */
     init() {
+        process.on('message', this.askForWork.bind(this));
 
-        process.on('message', (msg) => {
-
-            if (msg === 'finish') {
-                process.exit(0);
-                return;
-            }
-
-            this.request(msg);
-        });
+        // Tell main process I'm ready to work
         process.send('ready');
+    },
+
+    /**
+     * If I receive a 'finish' String, it's time to exist. Otherwise I received a person and I have to analize it
+     * @param {string|object} msg 'finish' or an object with '_id' and 'token' properties
+     */
+    askForWork(msg) {
+
+        if (msg === 'finish') {
+            process.exit(0);
+            return;
+        }
+
+        this.request(msg);
     },
 
     /**
@@ -49,84 +63,79 @@ module.exports = {
             'client_id'   : process.env.PLAID_CLIENTID || 'test_id',
             'secret'      : process.env.PLAID_SECRET || 'test_secret',
             'access_token': personData.token,
+            'options'     : {
+              'gte':  YESTERDAY,
+            }
         });
 
-        let req = https.request(options, function (res) {
-            // TODO: Remove headers log when accepted
-//            console.log(`STATUS: ${res.statusCode}`);
-//            console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+        let req = https.request(options, this.requestHandler.bind(this, personData._id));
 
-            res.setEncoding('utf8');
-
-            res.on('data', chunk => this.result = chunk);
-
-            res.on('end', () => {
-
-                if (res.statusCode !== 200) {
-                    console.log('There was an error');
-                    console.log(this.result);
-
-                    this.result = '';
-                    return;
-                }
-
-                this.processData(this.result, personData);
-                this.result = '';
-
-                process.send('ready');
-            });
-        }.bind(this));
-
-        req.on('error', (e) => {
-            console.log(`problem with request: ${e.message}`);
-        });
-
-        // write data to request body
+        req.on('error', logger.error);
         req.write(postData);
         req.end();
+    },
+
+    requestHandler(personDataId, res) {
+        res.setEncoding('utf8');
+
+        this.result = '';
+
+        res.on('data', chunk => this.result += chunk);
+
+        res.on('end', () => {
+
+            if (res.statusCode !== 200) {
+                logger.error({ err: this.result }, 'There was an error with the https request');
+                this.result = '';
+                return;
+            }
+            this.processData(this.result, personDataId);
+
+            this.result = '';
+
+            // We tell main process we are ready for more work
+            process.send('ready');
+        });
     },
 
     /**
      * We take the transactions array from plaid and filter out those that we don't need and that are not pending.
      * On the remaining data, we round up and save this new transaction
-     * @param {object}  data       The response from Plaid
-     * @param {object} personData User information
+     * @param {object} data         The response from Plaid
+     * @param {string} personDataId User ID
      */
-    processData(data, personData) {
+    processData(data, personDataId) {
 
-        // From the JSON received by Plaid we find useful the types 'place' and 'digital'
-        // because they are what we are ineterested in
-        JSON.parse(data).transactions
-            .filter(transaction => {
-                return (transaction.type.primary === 'place' || transaction.type.primary === 'digital') &&  (transaction.pending === false);
-            })
-            .forEach(transaction => {
-                let roundup = this.roundup(transaction.amount);
+        try {
 
-                this.save({
-                    transactionId: transaction._id,
-                    userId: personData._id,
-                    amount: transaction.amount,
-                    roundup: roundup,
-                    date: transaction.date,
-                    name:  transaction.name,
-                    summed: false,    // This one is to know if we have already ran the process on this transaction
-                });
-            });
+            JSON.parse(data).transactions
+                .filter(transactionFilter)
+                .forEach(this.roundUpAndSave.bind(this, personDataId));
+        }
+        catch (error) {
+            logger.error({ err: error });
+        }
     },
 
     /**
-     * We receive the amount and use multiplication because the way Javascript handles float point arithmetic
-     * @param   {number|string} amount The amount to be rounded up
-     * @returns {number}
+     * Takes a transaction, rounds up the amount and save this as a plaidTransaction for later processing
+     * @param {string} personDataId
+     * @param {object} transaction
      */
-    roundup(amount) {
-        // This is necessary because JavaScript float point arithmetic
-        let number  = parseFloat(amount);
-        let ceil    = Math.ceil(number);
-        let hundred = (ceil * 100 ) - (number * 100);
+    roundUpAndSave(personDataId, transaction) {
+        let roundupValue = roundup(transaction.amount);
 
-        return hundred / 100;
+        let plaidTransaction = {
+            userId       : personDataId,
+            transactionId: transaction._id,
+            amount       : transaction.amount,
+            date         : transaction.date,
+            name         : transaction.name,
+            roundup      : roundupValue,
+            summed       : false,    // This one is to know if we have already ran the process on this transaction
+        };
+
+        this.save(plaidTransaction);
     },
 
     /**
@@ -134,8 +143,8 @@ module.exports = {
      * @param {object} transaction
      */
     save(transaction) {
-        // console.log(`Amount: ${transaction.amount}, Rounded: ${transaction.roundup}`);
-        // console.log('transaction: ', transaction);
        create(transaction);
     },
 };
+
+module.exports = Worker;

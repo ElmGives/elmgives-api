@@ -4,14 +4,16 @@
 
 'use strict';
 
-const cluster = require('cluster');
-const CPUs = require('os').cpus().length;
+const CORES_AVAILABLE = require('os').cpus().length;
 
+const cluster = require('cluster');
 const Cluster = require('./cluster');
-const Worker = require('./worker');
+const Worker  = require('./worker');
 
 if (cluster.isMaster) {
-    Cluster.runWith(1);    // TODO: Determine how many workers the cluster can spawn
+
+    // TODO: Determine how many workers the cluster can spawn
+    Cluster.runWith(CORES_AVAILABLE);
 }
 else {
     const worker = Object.create(Worker);
