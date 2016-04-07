@@ -5,21 +5,18 @@
 
 const logger = require('../logger');
 
-// NOTE: this is the default email sender
-const EMAIL_SENDER    = 'danny@elmgives.com';
-
 const API_KEY         = process.env.MANDRILL_API_KEY || 'kTuHhDcTRIO4DHq0l6Gjcg';
 const mandrill        = require('mandrill-api/mandrill');
 const mandrillClient  = new mandrill.Mandrill(API_KEY);
 
-function onSuccess(res, result) {
-	res(result);
+function onSuccess(resolve, result) {
+	resolve(result);
 }
 
-function onError(rej, error) {
+function onError(reject, error) {
 	logger.error({ err: error });
 
-	rej('A mandrill error occurred: ' + error.name + ' - ' + error.message);
+	reject('A mandrill error occurred: ' + error.name + ' - ' + error.message);
 }
 
 const Mandrill = {
@@ -30,9 +27,9 @@ const Mandrill = {
 	 */
 	ping() {
 
-		return new Promise(( res, rej ) => {
+		return new Promise((resolve, reject) => {
 
-			mandrillClient.users.ping2({}, onSuccess.bind(null, res), onError.bind(null, rej));
+			mandrillClient.users.ping2({}, onSuccess.bind(null, resolve), onError.bind(null, reject));
 		});
 
 	},
@@ -43,16 +40,16 @@ const Mandrill = {
 	 */
 	listTemplates() {
 
-		return new Promise(( res, rej ) => {
+		return new Promise((resolve, reject) => {
 
-			mandrillClient.templates.list({}, onSuccess.bind(null, res), onError.bind(null, rej));
+			mandrillClient.templates.list({}, onSuccess.bind(null, resolve), onError.bind(null, reject));
 		});
 	},
 
 	/**
 	 * Send a template email to specified recipient
 	 * @param   {string}          templateName
-	 * @param   {object}          to              An object with at least an email property. Other property is 'name'
+	 * @param   {array}           to              An Array with objects with at least an email property. Other property to use is 'name' inside these objects
 	 * @param   {Array}           globalMergeVars If the template has vars then It's an Array with name and content property. Assuming we use handlebars
 	 *                                            objects. Example: [{
 													"name": "name variable",
@@ -63,15 +60,15 @@ const Mandrill = {
 	send(templateName, to, globalMergeVars) {
 
 		let message = {
-			to          : [to],
-			'from_email': EMAIL_SENDER,
+			to          : to,
+			'from_email': process.env.MANDRILL_EMAIL_SENDER,
 		};
 
 		if (globalMergeVars && globalMergeVars.length) {
 			message['global_merge_vars'] = globalMergeVars;
 		}
 
-		return new Promise(( res, rej ) => {
+		return new Promise((resolve, reject) => {
 
 			const options = {
 				'template_name'   : templateName,
@@ -79,7 +76,7 @@ const Mandrill = {
 				message           : message,
 			};
 
-			mandrillClient.messages.sendTemplate(options, onSuccess.bind(null, res), onError.bind(null, rej));
+			mandrillClient.messages.sendTemplate(options, onSuccess.bind(null, resolve), onError.bind(null, reject));
 		});
 	}
 };

@@ -1,13 +1,14 @@
 'use strict';
 
-const email           = require('./mandrill');
+const email  = require('./mandrill');
+const logger = require('../logger');
 
 // NOTE: Write your email address to receive the test mail
 const TEST_RECIPIENT  = 'mail@service.provider.com';
 
-const TO = {
+const TO = [{
 	email: TEST_RECIPIENT,
-};
+}];
 
 const MAIL_HANDLEBARS_VARS = [{
 	name   : 'testVars',
@@ -25,10 +26,10 @@ const TEMPLATE_NAME = 'testtemplateone';
 // Then show Mandrill confirmation JSON object
 // Then exist the app if everything is OK.
 email.listTemplates()
-	.then(msg => console.log(msg))
+	.then(msg => logger.info(msg))
 	.then(() => email.send(TEMPLATE_NAME, TO, MAIL_HANDLEBARS_VARS))
-	.then(msg => console.log(msg))
+	.then(msg => logger.info(msg))
     .then(() => email.send(TEMPLATE_NAME, TO))
-    .then(msg => console.log(msg))
+    .then(msg => logger.info(msg))
 	.then(() => process.exit(0))
-	.catch(err => console.log(err));
+	.catch(err => logger.info(err));
