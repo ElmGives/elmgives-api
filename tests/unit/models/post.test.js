@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Post model', test => {
-    test.plan(15);
+    test.plan(14);
 
     let post = new Post({});
     let values = post.schema.paths;
@@ -18,7 +18,7 @@ tape('Post model', test => {
     types(['videos', 'images'], values, test, 'Array');
 
     post.validate(error => {
-        required(['userId', 'npoId', 'textContent'], error.errors, test);
+        required(['userId', 'npoId'], error.errors, test);
     });
 
     new Post({

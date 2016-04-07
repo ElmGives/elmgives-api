@@ -5,6 +5,8 @@
 
 const Npo = require('../npos/npo');
 const Post = require('./post');
+const validMedia = require('../helpers/validMedia');
+
 const options = {
     runValidators: true
 };
@@ -15,6 +17,13 @@ const options = {
  * after valdiate existence of both, update and respond with proper data
  */
 module.exports = function update(request, response, next) {
+
+    if (!validMedia(request.body.images) || !validMedia(request.body.videos)) {
+        let error = new Error();
+        error.status = 422;
+        error.message = 'Invalid images/videos object';
+        return next(error);
+    }
 
     const npoQuery = {
         _id: request.body.npoId
