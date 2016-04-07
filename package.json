@@ -35,6 +35,7 @@
     "formidable": "1.0.17",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
+    "mandrill-api": "^1.0.45",
     "mongoose": "4.4.7",
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2",
