@@ -4,13 +4,16 @@
 
 'use strict';
 
-const querystring       = require('querystring');
-const https             = require('https');
-const logger            = require('../logger');
-const create            = require('../transactions/create');
-const padNumber         = require('../helpers/padNumber');
-const roundup           = require('../helpers/roundup');
-const transactionFilter = require('../helpers/plaidTransactionFilter');
+const querystring             = require('querystring');
+const https                   = require('https');
+const logger                  = require('../logger');
+const create                  = require('../transactions/create');
+const getTransaction          = require('../transactions/chain/read');
+const padNumber               = require('../helpers/padNumber');
+const roundup                 = require('../helpers/roundup');
+const transactionFilter       = require('../helpers/plaidTransactionFilter');
+const AWSQueue                = require('../lib/awsQueue');
+const createTransactionChain  = require('../lib/createTransactionChain');
 
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
@@ -68,14 +71,14 @@ const Worker = {
             }
         });
 
-        let req = https.request(options, this.requestHandler.bind(this, personData._id));
+        let req = https.request(options, this.requestHandler.bind(this, personData));
 
         req.on('error', logger.error);
         req.write(postData);
         req.end();
     },
 
-    requestHandler(personDataId, res) {
+    requestHandler(personData, res) {
         res.setEncoding('utf8');
 
         this.result = '';
@@ -89,44 +92,60 @@ const Worker = {
                 this.result = '';
                 return;
             }
-            this.processData(this.result, personDataId);
 
-            this.result = '';
+            this.processData(this.result, personData).then(() => {
 
-            // We tell main process we are ready for more work
-            process.send('ready');
+                this.result = '';
+
+                // We tell main process we are ready for more work
+                process.send('ready');
+            }).catch(logger.error);
+
         });
     },
 
     /**
      * We take the transactions array from plaid and filter out those that we don't need and that are not pending.
      * On the remaining data, we round up and save this new transaction
+     * With all analized transactions we sign them and send them to AWS queue for later retrieval
      * @param {object} data         The response from Plaid
-     * @param {string} personDataId User ID
+     * @param {string} personData User ID
      */
-    processData(data, personDataId) {
+    processData(data, personData) {
+
+		let plaidTransactions = null;
 
         try {
 
-            JSON.parse(data).transactions
+            plaidTransactions = JSON.parse(data).transactions
                 .filter(transactionFilter)
-                .forEach(this.roundUpAndSave.bind(this, personDataId));
+                .map(this.roundUpAndSave.bind(this, personData));
         }
         catch (error) {
             logger.error({ err: error });
+        }
+
+		if (plaidTransactions) {
+
+			return this.getPreviousChain(plaidTransactions)
+                .then(previousChain => createTransactionChain(personData.address, previousChain, plaidTransactions))
+                .then(this.sendToQueue)
+                .catch(logger.error);
+		} else {
+            return Promise.resolve();
         }
     },
 
     /**
      * Takes a transaction, rounds up the amount and save this as a plaidTransaction for later processing
-     * @param {string} personDataId
+     * @param {string} personData
      * @param {object} transaction
      */
-    roundUpAndSave(personDataId, transaction) {
+    roundUpAndSave(personData, transaction) {
         let roundupValue = roundup(transaction.amount);
 
         let plaidTransaction = {
-            userId       : personDataId,
+            userId       : personData._id,
             transactionId: transaction._id,
             amount       : transaction.amount,
             date         : transaction.date,
@@ -135,16 +154,38 @@ const Worker = {
             summed       : false,    // This one is to know if we have already ran the process on this transaction
         };
 
-        this.save(plaidTransaction);
+        this.save(plaidTransaction, personData);
+
+		return plaidTransaction;
     },
 
     /**
      * We pass transaction to be saved on DB
-     * @param {object} transaction
+     * @param {object} plaidTransaction
      */
-    save(transaction) {
-       create(transaction);
+    save(plaidTransaction) {
+       create(plaidTransaction);
     },
+
+	/**
+	 * Get previous transaction on transaction chain
+	 * @param   {object}               personData person information
+	 * @returns {promise<object|null>} Previous transaction object
+	 */
+	getPreviousChain(personData) {
+		return getTransaction({ _id: personData.latestTransaction});
+	},
+
+	/**
+	 * Sends signed transactions to AWS queue
+	 * @param   {Array}   transactionChain Signed transactions array
+	 * @returns {promise}
+	 */
+	sendToQueue(transactionChain) {
+        const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
+
+		return AWSQueue.sendMessage(transactionChain, params);
+	},
 };
 
 module.exports = Worker;

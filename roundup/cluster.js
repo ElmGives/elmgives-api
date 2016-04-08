@@ -21,11 +21,14 @@ const Cluster = {
             active                : true,
             plaid                 : { $exists: true },
             'plaid.tokens.connect': { $exists: true, $ne: {} },
+//			wallet                : { $exists: true },
+//			'wallet.addresses'    : { $exists: true },
         };
 
         const selector = {
-            _id  : 1,
-            plaid: 1,
+            _id   : 1,
+            plaid : 1,
+			wallet: 1,
         };
 
         User.find(query, selector).then(people => {
@@ -67,13 +70,17 @@ const Cluster = {
 
             if (person) {
 
-                // We assume user has only one bank account registered on the application
+                // NOTE: We assume user has only one bank account registered on the application
                 const bankType = Object.keys(person.plaid.tokens.connect)[0];
+
+				// NOTE: We assume user can donate to one NPO at a time
+				const walletAddress = Object.keys(person.wallet.addresses)[0];
 
                 // we send just what the worker needs
                 worker.send({
-                    _id  : person._id,
-                    token: person.plaid.tokens.connect[bankType],
+                    _id    : person._id,
+                    token  : person.plaid.tokens.connect[bankType],
+					address: person.wallet.addresses[walletAddress],
                 });
             } else {
                 worker.send('finish');
