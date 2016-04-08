@@ -6,24 +6,6 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
-const crypto = require('crypto');
-
-let signature = new mongoose.Schema({
-    header: {
-        alg: {
-            type: String,
-            required: true
-        },
-        kid: {
-            type: String,
-            required: true
-        }
-    },
-    signature: {
-        type: String,
-        required: true
-    }
-});
 
 let schema = new mongoose.Schema({
     hash: {
@@ -69,8 +51,7 @@ let schema = new mongoose.Schema({
             required: true
         },
         previous: {
-            type: String,
-            required: true
+            type: String
         },
         timestamp: {
             type: String,
@@ -84,7 +65,7 @@ let schema = new mongoose.Schema({
             type: String
         }
     },
-    signatures: [signature]
+    signatures: []
 }, {
     versionKey: false,
 });
