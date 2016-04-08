@@ -14,15 +14,14 @@ module.exports = {
 };
 
 function createTransactionChain(address, previous, transactions) {
-  if (!validateTransactionProperties(previous)) {
-    return Promise.reject({error: 'invalid-previous-transaction'});
-  } else if (address !== previous.payload.address) {
-    return Promise.reject({error: 'address-mismatch'});
+  if (address !== previous.payload.address) {
+    return P.reject(new Error('address-mismatch'));
   }
 
   let transactionChain = [];
 
-  return P.each(transactions, function (transaction, index) {
+  return validatePreviousTransaction(previous)
+  .then(() => P.each(transactions, function (transaction, index) {
     previous = (index === 0) ? previous : transactionChain[index - 1];
     let previousHash = (index === 0) ? previous.hash.value : transactionChain[index - 1].hash.value;
 
@@ -35,13 +34,11 @@ function createTransactionChain(address, previous, transactions) {
 
     return new P((resolve, reject) => {
       newTransaction.validate(invalid => {
-        return invalid ? reject('invalid-transaction-record') : resolve(newTransaction);
+        return invalid ? reject(new Error('invalid-transaction-record')) : resolve();
       });
     });
-  })
-  .then(() => {
-    return Promise.all(transactionChain.map(transaction => transaction.save()));
-  });
+  }))
+  .then(() => transactionChain);
 }
 
 function createTransactionData(transaction, previous, previousHash) {
@@ -54,9 +51,9 @@ function createTransactionData(transaction, previous, previousHash) {
     payload: {
       count: previous.payload.count + 1,
       address: previous.payload.address,
-      amount: transaction.amount.toFixed(2),
-      roundup: transaction.roundup.toFixed(2),
-      balance: newBalance,
+      amount: parseFloat(transaction.amount.toFixed(2)),
+      roundup: parseFloat(transaction.roundup.toFixed(2)),
+      balance: parseFloat(newBalance),
       currency: previous.payload.currency,
       limit: previous.payload.limit,
       previous: previousHash,
@@ -68,24 +65,25 @@ function createTransactionData(transaction, previous, previousHash) {
   };
 }
 
-function validateTransactionProperties(transaction) {
-  let validationError = transaction.validateSync();
-  if (validationError) {
-    return false;
-  }
+function validatePreviousTransaction(transaction) {
+  return new P((resolve, reject) => {
+    transaction.validate(invalid => {
+      if (invalid) {return reject(new Error('invalid-previous-transaction'));}
 
-  /* Hash validation */
-  let digest;
-  try {
-    let json = JSON.stringify(transaction.payload);
-    digest = crypto.createHash(transaction.hash.type).update(json).digest('hex');
-  } catch (e) {
-    return false;
-  } finally {
-    if (transaction.hash.value !== digest) {
-      return false;
-    }
-  }
+      /* Hash validation */
+      let digest;
+      try {
+        let json = JSON.stringify(transaction.payload);
+        digest = crypto.createHash(transaction.hash.type).update(json).digest('hex');
+      } catch (e) {
+        return reject(e);
+      } finally {
+        if (transaction.hash.value !== digest) {
+          return reject(new Error('previous-transaction-hash-mismatch'));
+        }
+      }
 
-  return true;
+      return resolve(true);
+    });
+  });
 }

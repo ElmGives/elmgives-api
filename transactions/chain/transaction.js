@@ -32,14 +32,15 @@ let schema = new mongoose.Schema({
             required: true
         },
         amount: {
-            type: String
+            type: Number,
+            required: true
         },
         roundup: {
-            type: String,
+            type: Number,
             required: true
         },
         balance: {
-            type: String,
+            type: Number,
             required: true
         },
         currency: {
@@ -47,7 +48,7 @@ let schema = new mongoose.Schema({
             required: true
         },
         limit: {
-            type: String,
+            type: Number,
             required: true
         },
         previous: {
