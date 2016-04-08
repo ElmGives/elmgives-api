@@ -2,15 +2,20 @@
  * Valdiate images / videos arrays
  */
 'use strict';
-module.exports = function validMedia(array) {
+
+module.exports = function validMedia(data) {
 
     /**
      * Allow admin user to create a post without images or videos, therefore
-     * empty array is a valid option
+     * empty data is a valid option
      */
-    if (!array || !array.length) {
+    if (!data || !data.length) {
         return true;
     }
 
-    return array.some(item => item.source && item.order);
+    if (typeof data === 'string') {
+        data = [data];
+    }
+
+    return data.some(item => item.source && item.order);
 };

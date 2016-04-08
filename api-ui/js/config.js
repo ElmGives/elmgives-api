@@ -171,7 +171,7 @@ var images = {
             'description': '',
             'params': {
                 'auth_token': 'string',
-                'images': 'file'
+                'logos': 'file'
             },
             'url': API + '/images',
             'wrapper': '',
