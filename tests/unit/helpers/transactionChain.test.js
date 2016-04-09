@@ -82,7 +82,8 @@ let previous = new Transaction({
   },
   signatures: []
 });
-previous.hash.value = crypto.createHash('sha256').update(JSON.stringify(previous.payload)).digest('hex');
+previous.hash.value = crypto.createHash('sha256')
+  .update(JSON.stringify(previous.payload, chain.transactionSchemaOrder)).digest('hex');
 
 var transactions = amounts.map((amount, index) => {
   return new PlaidTransaction({

@@ -7,11 +7,26 @@ const crypto = require('crypto');
 const P      = require('bluebird');
 
 const Transaction = require('../transactions/chain/transaction');
+const transactionSchemaOrder = [
+  'count',
+  'address',
+  'amount',
+  'roundup',
+  'balance',
+  'currency',
+  'limit',
+  'previous',
+  'timestamp',
+  'reference',
+  'info'
+];
 
 module.exports = {
   create: createTransactionChain,
-  createTransaction: createTransactionData
+  createTransaction: createTransactionData,
+  transactionSchemaOrder: transactionSchemaOrder
 };
+
 
 function createTransactionChain(address, previous, transactions) {
   if (address !== previous.payload.address) {
@@ -73,7 +88,7 @@ function validatePreviousTransaction(transaction) {
       /* Hash validation */
       let digest;
       try {
-        let json = JSON.stringify(transaction.payload);
+        let json = JSON.stringify(transaction.payload, transactionSchemaOrder);
         digest = crypto.createHash(transaction.hash.type).update(json).digest('hex');
       } catch (e) {
         return reject(e);
