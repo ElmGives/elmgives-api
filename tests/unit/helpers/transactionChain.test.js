@@ -77,7 +77,7 @@ tape('Transaction Chain (invalid)', test => {
         chain.create(address, previous, transactions)
           .then(() => test.fail('did not reject non-object transaction input'))
           .catch(error => {
-            test.equal(error.message, 'invalid-transaction-input', 'rejects non-object transaction input')
+            test.equal(error.message, 'invalid-transaction-input', 'rejects non-object transaction input');
             next(++index);
           });
       },
@@ -86,7 +86,7 @@ tape('Transaction Chain (invalid)', test => {
         chain.create(address, previous, transactions)
           .then(() => test.fail('did not reject on missing amount'))
           .catch(error => {
-            test.equal(error.message, 'invalid-transaction-amount', 'rejects on missing amount')
+            test.equal(error.message, 'invalid-transaction-amount', 'rejects on missing amount');
             next(++index);
           });
       },
@@ -95,7 +95,7 @@ tape('Transaction Chain (invalid)', test => {
         chain.create(address, previous, transactions)
           .then(() => test.fail('did not reject on missing roundup'))
           .catch(error => {
-            test.equal(error.message, 'invalid-transaction-roundup', 'rejects on missing roundup')
+            test.equal(error.message, 'invalid-transaction-roundup', 'rejects on missing roundup');
             next(++index);
           });
       },
@@ -104,7 +104,7 @@ tape('Transaction Chain (invalid)', test => {
         chain.create(address, previous, transactions)
           .then(() => test.fail('did not reject on previous hash mismatch'))
           .catch(error => {
-            test.equal(error.message, 'previous-transaction-hash-mismatch', 'rejects on previous hash mismatch')
+            test.equal(error.message, 'previous-transaction-hash-mismatch', 'rejects on previous hash mismatch');
             next(++index);
           });
       },
@@ -113,7 +113,7 @@ tape('Transaction Chain (invalid)', test => {
         chain.create(address, previous, transactions)
           .then(() => test.fail('did not reject invalid previous transaction'))
           .catch(error => {
-            test.equal(error.message, 'invalid-previous-transaction', 'rejects invalid previous transaction')
+            test.equal(error.message, 'invalid-previous-transaction', 'rejects invalid previous transaction');
             next(++index);
           });
       }
@@ -127,7 +127,7 @@ tape('Transaction Chain (invalid)', test => {
 });
 
 /* INPUT TRANSACTIONS */
-let previous = new Transaction({
+var previous = new Transaction({
   hash: {
     type: 'sha256'
   },
