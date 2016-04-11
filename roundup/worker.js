@@ -13,7 +13,7 @@ const padNumber               = require('../helpers/padNumber');
 const roundup                 = require('../helpers/roundup');
 const transactionFilter       = require('../helpers/plaidTransactionFilter');
 const AWSQueue                = require('../lib/awsQueue');
-const createTransactionChain  = require('../lib/createTransactionChain');
+const transactionChain        = require('../helpers/transactionChain');
 
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
@@ -128,7 +128,7 @@ const Worker = {
 		if (plaidTransactions) {
 
 			return this.getPreviousChain(plaidTransactions)
-                .then(previousChain => createTransactionChain(personData.address, previousChain, plaidTransactions))
+                .then(previousChain => transactionChain.create(personData.address, previousChain, plaidTransactions))
                 .then(this.sendToQueue)
                 .catch(logger.error);
 		} else {
