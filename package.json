@@ -27,6 +27,7 @@
   "dependencies": {
     "aws-sdk": "2.2.48",
     "bcrypt": "0.8.5",
+    "bluebird": "^3.3.4",
     "body-parser": "1.15.0",
     "bunyan": "1.8.0",
     "cors": "2.7.1",
