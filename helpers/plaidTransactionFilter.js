@@ -8,7 +8,7 @@
 
 module.exports = function plaidTransactionFilter(transaction) {
 
-    return (transaction && transaction.type && transaction.type.primary && transaction.pending) &&
+    return (transaction && transaction.type && transaction.type.primary && 'pending' in transaction) &&
         (transaction.type.primary === 'place' || transaction.type.primary === 'digital') &&
         (transaction.pending === false);
 };

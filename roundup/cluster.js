@@ -42,7 +42,7 @@ const Cluster = {
                 let worker = cluster.fork();
 
                 worker.on('message', this.assignWork.bind(this, worker, people));
-                worker.on('exit',    this.exitIfNoMoreWorkersLeft());
+                worker.on('exit',    this.exitIfNoMoreWorkersLeft);
             }
         });
     },
