@@ -4,6 +4,8 @@
 
 'use strict';
 
+require('dotenv').config();
+
 const CORES_AVAILABLE = require('os').cpus().length;
 
 const cluster = require('cluster');
