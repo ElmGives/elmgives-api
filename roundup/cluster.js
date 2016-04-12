@@ -5,6 +5,16 @@
 
 'use strict';
 
+/**
+ * Load environment variables
+ */
+require('dotenv').config();
+
+/**
+ * MongoDB configuration
+ */
+require('../config/database');
+
 const cluster = require('cluster');
 const User    = require('../users/user');
 const logger  = require('../logger');
@@ -44,7 +54,7 @@ const Cluster = {
                 worker.on('message', this.assignWork.bind(this, worker, people));
                 worker.on('exit',    this.exitIfNoMoreWorkersLeft);
             }
-        });
+        }).catch(logger.error);
     },
 
     exitIfNoMoreWorkersLeft() {
@@ -74,7 +84,7 @@ const Cluster = {
                 const bankType = Object.keys(person.plaid.tokens.connect)[0];
 
 				// NOTE: We assume user can donate to one NPO at a time
-				const walletAddress = Object.keys(person.wallet.addresses)[0];
+				const walletAddress = person.wallet ? Object.keys(person.wallet.addresses)[0] : null;
 
                 // we send just what the worker needs
                 worker.send({

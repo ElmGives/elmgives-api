@@ -4,8 +4,19 @@
 
 'use strict';
 
+/**
+ * Load environment variables
+ */
+require('dotenv').config();
+
+/**
+ * MongoDB configuration
+ */
+require('../config/database');
+
 const querystring             = require('querystring');
 const https                   = require('https');
+const crypto                  = require('crypto');
 const logger                  = require('../logger');
 const create                  = require('../transactions/create');
 const getTransaction          = require('../transactions/chain/read');
@@ -14,6 +25,9 @@ const roundup                 = require('../helpers/roundup');
 const transactionFilter       = require('../helpers/plaidTransactionFilter');
 const AWSQueue                = require('../lib/awsQueue');
 const transactionChain        = require('../helpers/transactionChain');
+
+const elliptic = require('elliptic');
+const ed25519  = new elliptic.ec('25519');
 
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
@@ -128,7 +142,14 @@ const Worker = {
 		if (plaidTransactions) {
 
 			return this.getPreviousChain(plaidTransactions)
-                .then(previousChain => transactionChain.create(personData.address, previousChain, plaidTransactions))
+                .then(previousChain => {
+					return Promise.all([
+						previousChain,
+						personData.address,
+						transactionChain.create(personData.address, previousChain, plaidTransactions),
+					]);
+				})
+				.then(this.sign)
                 .then(this.sendToQueue)
                 .catch(logger.error);
 		} else {
@@ -185,6 +206,54 @@ const Worker = {
         const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
 		return AWSQueue.sendMessage(transactionChain, params);
+	},
+
+	/**
+	 * We create an object for signing ready for AWS to enqueue
+	 * @author Nando
+	 * @param   {Array}           params What comes from transaction chain creation
+	 * @returns {Promise<object>} Signature request object
+	 */
+	sign(params) {
+        // TODO: when nodejs implement destructuring, change params por [previousChain, address, chain]
+        let previousChain = params[0];
+        let address       = params[1];
+        let chain         = params[2];
+
+        let signatureRequestMessage = {
+            hash: {
+                type: 'sha256',
+            },
+            payload: {
+                address : address,
+                previous: {
+                    hash      : previousChain.hash,
+                    payload   : previousChain.payload,
+                    signatures: previousChain.signatures,
+                },
+                transactions: chain,
+            },
+            signatures: [],
+        };
+
+        signatureRequestMessage.hash.value = crypto.createHash('sha256')
+            .update(JSON.stringify(signatureRequestMessage.payload)).digest('hex');
+
+        // If there is no signature, then we can't continue
+        // TODO: Add more checks. Signature process is very picky
+        let signature = ed25519.sign(signatureRequestMessage.hash.value, process.env.SERVER_PRIVATE_KEY, 'hex').toDER('hex');
+
+        if (!signature) return Promise.reject('Invalid signature');
+
+        signatureRequestMessage.signatures.push({
+            header: {
+                alg: 'ed25519',
+                kid: process.env.SERVER_KID,
+            },
+            signature: signature,
+        });
+
+        return Promise.resolve(signatureRequestMessage);
 	},
 };
 
