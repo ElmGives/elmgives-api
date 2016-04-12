@@ -29,8 +29,8 @@ var users = {
     }
 };
 
-var charities = {
-    'name': 'Charities',
+var pledges = {
+    'name': 'Pledges',
     'description': '<p> Manage NPOs associated to an user</p>',
 
     'calls': {
@@ -39,7 +39,7 @@ var charities = {
                 userId: 'string',
                 'auth_token': 'string'
             },
-            'url': API + '/users/[userId]/charities',
+            'url': API + '/users/[userId]/pledges',
             'urlWithId': 'userId',
             'wrapper': '',
             'method': 'GET'
@@ -52,45 +52,45 @@ var charities = {
                 npoId: 'string',
                 montlyLimit: 'number'
             },
-            'url': API + '/users/[userId]/charities',
+            'url': API + '/users/[userId]/pledges',
             'urlWithId': 'userId',
             'wrapper': '',
             'method': 'POST'
         },
-        'single charity': {
-            'description': 'Get single Charity information',
+        'single pledge': {
+            'description': 'Get single Pledge information',
             'params': {
                 'auth_token': 'string',
                 'userId': 'string',
-                'charityId': 'string'
+                'pledgeId': 'string'
             },
-            'url': API + '/users/[userId]/charities/[charityId]',
-            'urlWithId': ['userId', 'charityId'],
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
             'method': 'GET'
         },
-        'update charity': {
-            'description': 'update charity',
+        'update pledge': {
+            'description': 'update pledge',
             'params': {
                 'auth_token': 'string',
                 userId: 'string',
-                charityId: 'string',
+                pledgeId: 'string',
                 bankId: 'string',
                 npoId: 'string',
                 montlyLimit: 'number'
             },
-            'url': API + '/users/[userId]/charities/[charityId]',
-            'urlWithId': ['userId', 'charityId'],
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
             'method': 'PUT'
         },
-        'remove charity': {
-            'description': 'removes charity associated to current user.',
+        'remove pledge': {
+            'description': 'removes pledge associated to current user.',
             'params': {
                 'auth_token': 'string',
                 userId: 'string',
-                charityId: 'string'
+                pledgeId: 'string'
             },
-            'url': API + '/users/[userId]/charities/[charityId]',
-            'urlWithId': ['userId', 'charityId'],
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
             'wrapper': '',
             'method': 'DELETE'
         }
@@ -340,7 +340,7 @@ define([], function() {
         npos: npos,
         posts: posts,
         images: images,
-        charities: charities
+        pledges: pledges
     };
 
     return {

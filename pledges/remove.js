@@ -1,5 +1,5 @@
 /**
- * Middleware to remove charities associated to an user
+ * Middleware to remove pledges associated to an user
  */
 'use strict';
 
@@ -16,9 +16,9 @@ module.exports = function remove(request, response, next) {
 
     let user = request.currentUser;
 
-    let charity = user.charities.id(request.params.charityId);
+    let pledge = user.pledges.id(request.params.pledgeId);
 
-    if (!charity) {
+    if (!pledge) {
         let error = new Error();
         error.status = 422;
         error.message = 'Charity not found';
@@ -26,7 +26,7 @@ module.exports = function remove(request, response, next) {
         return next(error);
     }
 
-    charity.remove();
+    pledge.remove();
 
     user
         .save()

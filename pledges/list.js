@@ -17,6 +17,6 @@ module.exports = (request, response) => {
     let user = request.currentUser;
 
     response.json({
-        data: user.charities
+        data: user.pledges
     });
 };

@@ -16,7 +16,7 @@ var unique = require('mongoose-unique-validator');
 const email = require('../helpers/emailValidator');
 const token = require('../helpers/verificationCode');
 
-const charitySchema = require('../charities/schema');
+const pledgeSchema = require('../pledges/schema');
 
 let schema = new mongoose.Schema({
     roleId: {
@@ -102,7 +102,7 @@ let schema = new mongoose.Schema({
         default: token()
     },
 
-    charities: [charitySchema]
+    pledges: [pledgeSchema]
 }, {
     versionKey: false
 });

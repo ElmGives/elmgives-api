@@ -13,8 +13,8 @@ const verifyToken = require('../lib/verifyJwt');
 const authenticate = require('../lib/authenticate');
 const currentUser = require('../lib/currentUser');
 
-const PATH = '/users/:id/charities';
-const SINGLE = '/users/:id/charities/:charityId';
+const PATH = '/users/:id/pledges';
+const SINGLE = '/users/:id/pledges/:pledgeId';
 
 router
     .get(SINGLE, verifyToken, authenticate, currentUser, single)
