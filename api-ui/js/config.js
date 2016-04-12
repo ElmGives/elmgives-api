@@ -1,0 +1,349 @@
+var API = 'http://localhost:3000';
+
+var users = {
+    'name': 'Users',
+    'description': '<p> Manage users.</p>',
+
+    'calls': {
+        'user list': {
+            'description': 'Users registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/users',
+            'method': 'GET'
+        },
+        'create new user': {
+            'description': 'Posts a user.',
+            'params': {
+                name: 'string',
+                firstName: 'string',
+                lastName: 'string',
+                password: 'string',
+                email: 'string'
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        }
+    }
+};
+
+var pledges = {
+    'name': 'Pledges',
+    'description': '<p> Manage NPOs associated to an user</p>',
+
+    'calls': {
+        'list': {
+            'params': {
+                userId: 'string',
+                'auth_token': 'string'
+            },
+            'url': API + '/users/[userId]/pledges',
+            'urlWithId': 'userId',
+            'wrapper': '',
+            'method': 'GET'
+        },
+        'add new one': {
+            'description': 'Associate NPOs, banks with current user.',
+            'params': {
+                userId: 'string',
+                bankId: 'string',
+                npoId: 'string',
+                montlyLimit: 'number'
+            },
+            'url': API + '/users/[userId]/pledges',
+            'urlWithId': 'userId',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'single pledge': {
+            'description': 'Get single Pledge information',
+            'params': {
+                'auth_token': 'string',
+                'userId': 'string',
+                'pledgeId': 'string'
+            },
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
+            'method': 'GET'
+        },
+        'update pledge': {
+            'description': 'update pledge',
+            'params': {
+                'auth_token': 'string',
+                userId: 'string',
+                pledgeId: 'string',
+                bankId: 'string',
+                npoId: 'string',
+                montlyLimit: 'number'
+            },
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
+            'method': 'PUT'
+        },
+        'remove pledge': {
+            'description': 'removes pledge associated to current user.',
+            'params': {
+                'auth_token': 'string',
+                userId: 'string',
+                pledgeId: 'string'
+            },
+            'url': API + '/users/[userId]/pledges/[pledgeId]',
+            'urlWithId': ['userId', 'pledgeId'],
+            'wrapper': '',
+            'method': 'DELETE'
+        }
+    }
+};
+
+var posts = {
+    'name': 'Posts',
+    'description': '<p> Manage posts.</p>',
+
+    'calls': {
+        'post list': {
+            'description': 'Posts registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/posts',
+            'method': 'GET'
+        },
+        'single post': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new post': {
+            'description': 'Posts a Bank.',
+            'params': {
+                'auth_token': 'string',
+                'npoId': 'string',
+                'images': 'string',
+                'videos': 'string',
+                'textContent': 'string'
+            },
+            'url': API + '/posts',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update post': {
+            'description': 'Updates an Bank.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'npoId': 'string',
+                'images': 'string',
+                'videos': 'string',
+                'textContent': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
+        'remove post': {
+            'description': 'removes a post.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/posts/[id]',
+            'urlWithId': 'id',
+            'method': 'DELETE'
+        },
+    }
+};
+
+
+var images = {
+    'name': 'Images',
+    'description': '<p> Manage posts.</p>',
+
+    'calls': {
+        'upload image': {
+            'description': '',
+            'params': {
+                'auth_token': 'string',
+                'logos': 'file'
+            },
+            'url': API + '/images',
+            'wrapper': '',
+            hasFile: true,
+            'method': 'POST'
+        }
+    }
+};
+
+
+var banks = {
+    'name': 'Banks',
+    'description': '<p> Manage banks.</p>',
+
+    'calls': {
+        'bank list': {
+            'description': 'Banks registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/banks',
+            'method': 'GET'
+        },
+        'single bank': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/banks/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new bank': {
+            'description': 'Posts a Bank.',
+            'params': {
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/banks',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update bank': {
+            'description': 'Updates an Bank.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/banks/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        }
+    }
+};
+
+var npos = {
+    'name': 'NPOs',
+    'description': '<p> Manage npos.</p>',
+
+    'calls': {
+        'npo list': {
+            'description': 'NPOs registered.',
+            'params': {
+                'auth_token': 'string'
+            },
+            'url': API + '/npos',
+            'method': 'GET'
+        },
+        'single npo': {
+            'description': 'Shows the given user info.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/npos/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
+        'create new npo': {
+            'description': 'Posts a NPO.',
+            'params': {
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/npos',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'update npo': {
+            'description': 'Updates an NPO.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                'name': 'string',
+                'description': 'string',
+                'logoUrl': 'string',
+                'email': 'string',
+                'zip': 'string',
+                'phone': 'string'
+            },
+            'url': API + '/npos/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        }
+    }
+};
+
+var sessions = {
+    'name': 'Sessions',
+    'description': '<p> Manage sessions.</p>',
+    calls: {
+        'create new session': {
+            'description': 'Posts a session.',
+            'params': {
+                'email': 'string',
+                'password': 'string',
+            },
+            'url': API + '/sessions',
+            'wrapper': '',
+            'method': 'POST',
+            callback: function(response) {
+                localStorage.setItem('cu', JSON.stringify(response));
+            }
+        },
+        'delete session': {
+            'description': 'Removes a session.',
+            'params': {
+                'id': 'string'
+            },
+            'url': API + '/sessions/[id]',
+            'wrapper': '',
+            'method': 'DELETE',
+            callback: function(response) {
+                localStorage.removeItem('cu');
+            }
+        }
+    }
+};
+
+define([], function() {
+    'use strict';
+
+    var services = {
+        users: users,
+        sessions: sessions,
+        banks: banks,
+        npos: npos,
+        posts: posts,
+        images: images,
+        pledges: pledges
+    };
+
+    return {
+        services: services
+    };
+});

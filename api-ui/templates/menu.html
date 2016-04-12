@@ -1,0 +1,24 @@
+<ul class="sidebar-menu">
+    <li class="header">Endpoints</li>
+
+    <% _.each(services,function(value, key){ %>
+     <li class="treeview">
+     		<a href="#service/<%= key %>">
+                <i class="icon-chevron-right"></i>
+                <%= value.name %>
+            </a>
+		<ul class="treeview-menu">
+	        <% _.each(value.calls,function(value, key){ %>
+	           <li>
+                    <a href="" class="scroll-button" call="<%= key.replace(/ /g,'') %>">
+                        <i class="fa fa-circle-o"></i>
+                        <%= key %>
+                    </a>
+                </li>
+	        <% }) %>
+	    </ul>
+     </li>
+    <% }) %>
+</ul>
+
+

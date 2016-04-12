@@ -1,0 +1,31 @@
+[{
+    "name": "homer",
+    "password": "homer",
+    "firstName": "homer",
+    "email": "homer@elm.com",
+    "active": true
+}, {
+    "name": "brice",
+    "password": "brice",
+    "firstName": "brice",
+    "email": "brice@elm.com",
+    "active": true
+}, {
+    "name": "daniel",
+    "password": "daniel",
+    "firstName": "daniel",
+    "email": "daniel@elm.com",
+    "active": true
+}, {
+    "name": "igor",
+    "password": "igor",
+    "firstName": "igor",
+    "email": "igor@elm.com",
+    "active": true
+}, {
+    "name": "ricardo",
+    "password": "ricardo",
+    "firstName": "ricardo",
+    "email": "ricardo@elm.com",
+    "active": true
+}]
