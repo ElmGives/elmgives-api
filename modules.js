@@ -19,6 +19,7 @@ module.exports = app => {
         .use(posts)
         .use(sessions)
         .use(pledges)
+        .use(transactions)
         .use(plaid)
         .use(users)
         .use(banks)
