@@ -41,6 +41,10 @@ function createTransactionChain(address, previous, transactions) {
     let previousHash = (index === 0) ? previous.hash.value : transactionChain[index - 1].hash.value;
 
     let data = createTransactionData(transaction, previous, previousHash);
+    if (data instanceof Error) {
+      data.index = index;
+      return P.reject(data);
+    }
 
     let json = JSON.stringify(data.payload);
     data.hash.value = crypto.createHash(data.hash.type).update(json).digest('hex');
@@ -57,9 +61,20 @@ function createTransactionChain(address, previous, transactions) {
 }
 
 function createTransactionData(transaction, previous, previousHash) {
-  let newBalance = (parseFloat(previous.payload.balance) - transaction.roundup).toFixed(2);
+  if (typeof transaction !== 'object') {
+    return new Error('invalid-transaction-input');
+  } else if (!transaction.amount || isNaN(transaction.amount)) {
+    return new Error('invalid-transaction-amount');
+  } else if (!transaction.roundup || isNaN(transaction.roundup)) {
+    return new Error('invalid-transaction-roundup');
+  }
 
-  return {
+  let newBalance = (parseFloat(previous.payload.balance) - transaction.roundup).toFixed(2);
+  if (!newBalance || isNaN(newBalance)) {
+    return new Error('balance-calculation-error');
+  }
+
+  let data = {
     hash: {
       type: previous.hash.type
     },
@@ -78,6 +93,8 @@ function createTransactionData(transaction, previous, previousHash) {
     },
     signatures: []
   };
+
+  return data;
 }
 
 function validatePreviousTransaction(transaction) {

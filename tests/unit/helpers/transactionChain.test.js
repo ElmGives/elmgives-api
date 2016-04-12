@@ -63,8 +63,71 @@ tape('Transaction Chain (valid)', test => {
       });
 });
 
+tape('Transaction Chain (invalid)', test => {
+    let length = transactions.length;
+    test.plan(6);
+
+    chain.create('different-address', previous, transactions)
+      .then(() => test.fail('did not reject on address mismatch'))
+      .catch(error => test.equal(error.message, 'address-mismatch', 'rejects on address mismatch'));
+
+    let sequentialTests = [
+      index => {
+        transactions[length - 1] = undefined;
+        chain.create(address, previous, transactions)
+          .then(() => test.fail('did not reject non-object transaction input'))
+          .catch(error => {
+            test.equal(error.message, 'invalid-transaction-input', 'rejects non-object transaction input');
+            next(++index);
+          });
+      },
+      index => {
+        transactions[length - 2].amount = undefined;
+        chain.create(address, previous, transactions)
+          .then(() => test.fail('did not reject on missing amount'))
+          .catch(error => {
+            test.equal(error.message, 'invalid-transaction-amount', 'rejects on missing amount');
+            next(++index);
+          });
+      },
+      index => {
+        transactions[length - 3].roundup = undefined;
+        chain.create(address, previous, transactions)
+          .then(() => test.fail('did not reject on missing roundup'))
+          .catch(error => {
+            test.equal(error.message, 'invalid-transaction-roundup', 'rejects on missing roundup');
+            next(++index);
+          });
+      },
+      index => {
+        previous.hash.value = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+        chain.create(address, previous, transactions)
+          .then(() => test.fail('did not reject on previous hash mismatch'))
+          .catch(error => {
+            test.equal(error.message, 'previous-transaction-hash-mismatch', 'rejects on previous hash mismatch');
+            next(++index);
+          });
+      },
+      index => {
+        previous.payload = {address: address};
+        chain.create(address, previous, transactions)
+          .then(() => test.fail('did not reject invalid previous transaction'))
+          .catch(error => {
+            test.equal(error.message, 'invalid-previous-transaction', 'rejects invalid previous transaction');
+            next(++index);
+          });
+      }
+    ];
+
+    function next(index) {
+      return typeof sequentialTests[index] === 'function' ? sequentialTests[index](index) : undefined;
+    }
+
+    next(0);
+});
+
 /* INPUT TRANSACTIONS */
-let previous = new Transaction({
+var previous = new Transaction({
   hash: {
     type: 'sha256'
   },
