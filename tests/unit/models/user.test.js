@@ -19,7 +19,8 @@ tape('User model', test => {
     let user = new User({});
     let values = user.schema.paths;
     let stringProperties = [
-        'name', 'firstName', 'lastName', 'password', 'phone', 'email', 'zip'
+        'name', 'firstName', 'lastName', 'password', 'phone', 'email', 'zip',
+        'verificationLink'
     ];
 
     types(stringProperties, values, test, 'String');
@@ -27,7 +28,6 @@ tape('User model', test => {
     types(['archived', 'active'], values, test, 'Boolean');
     types(['address'], values, test, 'Mixed');
     types(['pledges'], values, test, 'Array');
-    types(['verificationCode'], values, test, 'Number');
 
     defaults(['active'], user.schema.tree, test, true);
     defaults(['archived'], user.schema.tree, test, false);
@@ -35,7 +35,7 @@ tape('User model', test => {
     index(['email'], user.schema.tree, test);
 
     user.validate(error => {
-        let fields = ['name', 'firstName', 'email', 'verificationCode'];
+        let fields = ['name', 'firstName', 'email', 'verificationLink'];
         required(fields, error.errors, test);
     });
 
@@ -44,7 +44,7 @@ tape('User model', test => {
         firstName: 'barfoo',
         email: 'foo@bar.com',
         password: 'foobar',
-        verificationCode: 1111,
+        verificationLink: 1111,
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new User({
@@ -68,7 +68,7 @@ tape('User model', test => {
                 firstName: 'barfoo',
                 email: 'foo@bar.com',
                 password: 'foobar',
-                verificationCode: 1111
+                verificationLink: 1111
             })
             .save()
             .then(data => {
