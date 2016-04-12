@@ -13,8 +13,8 @@ const bcrypt = require('bcrypt');
 const timestamps = require('mongoose-timestamp');
 var unique = require('mongoose-unique-validator');
 
-const email = require('../helpers/emailValidator');
-const token = require('../helpers/verificationCode');
+const emailValidator = require('../helpers/emailValidator');
+const token = require('../helpers/token');
 
 const pledgeSchema = require('../pledges/schema');
 
@@ -43,7 +43,7 @@ let schema = new mongoose.Schema({
         index: true,
         unique: true,
         validate: {
-            validator: value => email(value),
+            validator: value => emailValidator(value),
             message: '{VALUE} is not a valid email'
         }
     },
@@ -96,8 +96,8 @@ let schema = new mongoose.Schema({
         type: 'Mixed'
     },
 
-    verificationCode: {
-        type: Number,
+    verificationLink: {
+        type: String,
         required: true,
         default: token()
     },
@@ -138,7 +138,7 @@ schema.pre('save', function(next) {
 const virtual = schema.virtual('verified');
 
 virtual.get(function() {
-    return !this.verificationCode;
+    return !this.verificationLink;
 });
 
 module.exports = mongoose.model('User', schema);
