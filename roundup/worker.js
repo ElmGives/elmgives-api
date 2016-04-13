@@ -67,6 +67,11 @@ const Worker = {
             return;
         }
 
+        if ( msg === 'get from AWS') {
+            this.getFromAws();
+            return;
+        }
+
         this.request(msg);
     },
 
@@ -255,6 +260,45 @@ const Worker = {
 
         return Promise.resolve(signatureRequestMessage);
 	},
+
+    getFromAws() {
+        const params = { queue: process.env.AWS_SQS_URL_FROM_SIGNER };
+
+        AWSQueue.receiveMessage(params).then(messages => {
+
+            messages.forEach(function (message) {
+                let transactionChain = null;
+
+                if (message.Body) {
+
+                    try {
+                        transactionChain = JSON.parse(message.Body);
+                    }
+                    catch (error) {
+                        logger.error({ err: error });
+                    }
+                }
+
+                if (transactionChain ) {
+                    // TODO: Implement Address collection
+
+                    Address,findOne(transactionChain.payload.address).then(function( address) {
+                        let publicKey = address.keys.public;
+
+                        let verified = ed25519.verify(transactionChain.hash.value, publicKey);
+
+                        if (verified) {
+                            // TODO: save transaction on Transactions collections
+                        }
+                    });
+
+                }
+
+            });
+
+
+        });
+    },
 };
 
 module.exports = Worker;

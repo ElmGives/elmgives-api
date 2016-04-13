@@ -85,16 +85,21 @@ const Cluster = {
 
 				// NOTE: We assume user can donate to one NPO at a time
 				const walletAddress = person.wallet ? Object.keys(person.wallet.addresses)[0] : null;
+                const address       = walletAddress ? person.wallet.addresses[walletAddress] : null;
 
                 // we send just what the worker needs
                 worker.send({
                     _id    : person._id,
                     token  : person.plaid.tokens.connect[bankType],
-					address: person.wallet.addresses[walletAddress],
+					address: address[0],
                 });
             } else {
-                worker.send('finish');
+                worker.send('get from AWS');
             }
+        }
+
+        if (msg === 'no more on AWS') {
+            worker.send('finish');
         }
     },
 };
