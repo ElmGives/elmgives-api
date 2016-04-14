@@ -18,10 +18,14 @@ const querystring             = require('querystring');
 const https                   = require('https');
 const crypto                  = require('crypto');
 const logger                  = require('../logger');
-const create                  = require('../transactions/create');
+const createPlaidTransaction  = require('../transactions/create');
 const getTransaction          = require('../transactions/chain/read');
+const saveTransaction         = require('../transactions/chain/create');
+const getAddress              = require('../addresses/read');
+const updateAddress           = require('../addresses/update');
 const padNumber               = require('../helpers/padNumber');
 const roundup                 = require('../helpers/roundup');
+const verifySignature         = require('../helpers/verifyJwsSignature');
 const transactionFilter       = require('../helpers/plaidTransactionFilter');
 const AWSQueue                = require('../lib/awsQueue');
 const transactionChain        = require('../helpers/transactionChain');
@@ -68,7 +72,7 @@ const Worker = {
         }
 
         if ( msg === 'get from AWS') {
-            this.getFromAws();
+            this.getFromAws().then( () => process.send('ready'));
             return;
         }
 
@@ -180,7 +184,7 @@ const Worker = {
             summed       : false,    // This one is to know if we have already ran the process on this transaction
         };
 
-        this.save(plaidTransaction, personData);
+        this.savePlaid(plaidTransaction, personData);
 
 		return plaidTransaction;
     },
@@ -189,8 +193,8 @@ const Worker = {
      * We pass transaction to be saved on DB
      * @param {object} plaidTransaction
      */
-    save(plaidTransaction) {
-       create(plaidTransaction);
+    savePlaid(plaidTransaction) {
+       createPlaidTransaction(plaidTransaction);
     },
 
 	/**
@@ -248,7 +252,7 @@ const Worker = {
         // TODO: Add more checks. Signature process is very picky
         let signature = ed25519.sign(signatureRequestMessage.hash.value, process.env.SERVER_PRIVATE_KEY, 'hex').toDER('hex');
 
-        if (!signature) return Promise.reject('Invalid signature');
+        if (!signature) { return Promise.reject('Invalid signature'); }
 
         signatureRequestMessage.signatures.push({
             header: {
@@ -264,40 +268,98 @@ const Worker = {
     getFromAws() {
         const params = { queue: process.env.AWS_SQS_URL_FROM_SIGNER };
 
-        AWSQueue.receiveMessage(params).then(messages => {
+        return AWSQueue.receiveMessage(params)
+            .then(this.handleResponseFromAws.bind(this))
+            .catch(logger.error);
+    },
 
-            messages.forEach(function (message) {
-                let transactionChain = null;
+    handleResponseFromAws(messages) {
 
-                if (message.Body) {
+        // When there is no more messages, Amazon sends us an empty Array
+        if (messages && messages.length === 0) {
+            process.send('ready');
+            return;
+        }
 
-                    try {
-                        transactionChain = JSON.parse(message.Body);
-                    }
-                    catch (error) {
-                        logger.error({ err: error });
-                    }
+        return Promise.all(messages.map(this.extractTransactionChainFromMessage.bind(this)));
+    },
+
+    extractTransactionChainFromMessage(message) {
+        let transactionChain = null;
+
+        if (message.Body) {
+
+            try {
+                transactionChain = JSON.parse(message.Body);
+            }
+            catch (error) {
+                logger.error({ err: error });
+            }
+        }
+
+        if (transactionChain ) {
+
+            return getAddress(transactionChain.payload.address).then(function (addressArray) {
+                let address   = addressArray[0];
+
+                if (!address) {
+                    return Promise.resolve();
                 }
 
-                if (transactionChain ) {
-                    // TODO: Implement Address collection
+                return this.verifySign(address, transactionChain);
+            }.bind(this)).catch(logger.error);
+        }
+    },
 
-                    Address,findOne(transactionChain.payload.address).then(function( address) {
-                        let publicKey = address.keys.public;
+    verifySign(address, transactionChain) {
+        let publicKey = address.keys.public;
 
-                        let verified = ed25519.verify(transactionChain.hash.value, publicKey);
+        return verifySignature(transactionChain, ed25519, publicKey).then(function (verified) {
 
-                        if (verified) {
-                            // TODO: save transaction on Transactions collections
-                        }
-                    });
+            if (!verified) {
+                return Promise.resolve();
+            }
 
+            let latestTransaction = null;
+            transactionChain.transactions.forEach( transaction => {
+
+                this.saveTransaction(transaction);
+
+                if (latestTransaction) {
+
+                    if (latestTransaction.payload.timestamp < transaction.payload.timestamp) {
+                        latestTransaction = transaction;
+                    }
                 }
-
+                else {
+                    latestTransaction = transaction;
+                }
             });
 
+            if (latestTransaction) {
+                return this.updateAddressLatestTransaction(latestTransaction._id, address.address);
+            }
 
-        });
+            return Promise.resolve();
+        }.bind(this)).catch(logger.error);
+    },
+
+    saveTransaction(transaction) {
+        return saveTransaction(transaction);
+    },
+
+    updateAddressLatestTransaction(latestTransactionId, address) {
+        const query = {
+            address: address,
+        };
+
+        const newVal = {
+            $set: {
+                latestTransaction: latestTransactionId,
+            },
+        };
+
+        return updateAddress(query, newVal);
     },
 };
 
