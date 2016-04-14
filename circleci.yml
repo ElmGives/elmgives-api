@@ -1,0 +1,11 @@
+machine:
+  node:
+    version: 5.7.10
+test:
+    pre:
+      - jshint --exclude=./node_modules,./api-ui .
+deployment:
+  staging:
+    branch: develop
+    commands:
+      - ./scripts/deploy_staging.sh
