@@ -98,6 +98,36 @@ const email = require('./email/mandrill');
 email.send('templateName', [{email: 'my email'}], [{name: '', content: ''}])
 ```
 
+### API responses
+
+Based on jsonapi.org
+
+- success response
+
+Should use 2xx status code
+
+```
+{
+    data: [ /* array of objects here */],
+    meta: {
+        total: 1, /* count of available resources based on query */
+        // other fields to be defined like pagination ones
+    }
+}
+```
+
+- Error responses
+
+Should use 4xx status code
+
+```
+{
+    errors: [ /* array of objects here, only available for validation errors */],
+    message: ' error from server'
+    status: 422, /* status code for the response, same as status code header */
+}
+```
+
 ## Folder structure
 
 ```
