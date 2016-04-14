@@ -5,20 +5,20 @@
 'use strict';
 
 const tape = require('tape');
-const charities = require('../../../charities');
+const pledges = require('../../../pledges');
 
 let data = {};
 let middlewares = {};
 
 let options = {
-    'get /users/:id/charities': 'get /users/:id/charities',
-    'post /users/:id/charities': 'post /users/:id/charities',
-    'get /users/:id/charities/:charityId': 'get /users/:id/charities/:charityId',
-    'put /users/:id/charities/:charityId': 'put /users/:id/charities/:charityId',
-    'delete /users/:id/charities/:charityId': 'delete /users/:id/charities/:charityId'
+    'get /users/:id/pledges': 'get /users/:id/pledges',
+    'post /users/:id/pledges': 'post /users/:id/pledges',
+    'get /users/:id/pledges/:pledgeId': 'get /users/:id/pledges/:pledgeId',
+    'put /users/:id/pledges/:pledgeId': 'put /users/:id/pledges/:pledgeId',
+    'delete /users/:id/pledges/:pledgeId': 'delete /users/:id/pledges/:pledgeId'
 };
 
-charities.stack.map(item => {
+pledges.stack.map(item => {
     let method = Object.keys(item.route.methods).join('');
     let path = item.route.path;
     let key = `${method} ${path}`;

@@ -17,6 +17,6 @@ module.exports = function single(request, response) {
     let user = request.currentUser;
 
     response.json({
-        data: [user.charities.id(request.params.charityId)]
+        data: [user.pledges.id(request.params.pledgeId)]
     });
 };

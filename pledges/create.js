@@ -3,11 +3,12 @@
  */
 'use strict';
 
+const Charity = require('./pledge');
 const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
 
-module.exports = function update(request, response, next) {
-    const userId = request.params.id + '';
+module.exports = (request, response, next) => {
+    const userId = request.body.userId + '';
 
     if (request.session.userId + '' !== userId) {
         return response.status(401).json({
@@ -27,12 +28,15 @@ module.exports = function update(request, response, next) {
         _id: request.body.bankId
     });
 
-    let charity = user.charities.id(request.params.charityId);
+    let exist = user.pledges.some(item => {
+        return item.npoId + '' === request.body.npoId &&
+            item.bankId + '' === request.body.bankId;
+    });
 
-    if (!charity) {
+    if (exist) {
         let error = new Error();
         error.status = 422;
-        error.message = 'Charity not found';
+        error.message = 'Charity already exist';
 
         return next(error);
     }
@@ -48,20 +52,26 @@ module.exports = function update(request, response, next) {
                 return next(error);
             }
 
-            charity.montlyLimit = request.body.montlyLimit || charity.montlyLimit;
+            let pledge = {
+                montlyLimit: request.body.montlyLimit,
+                npoId: request.body.npoId,
+                bankId: request.body.bankId,
+                npo: values[0].name,
+                bank: values[1].name,
+                userId: request.session.userId
+            };
 
-            charity.npoId = request.body.npoId || charity.npoId;
-            charity.bankId = request.body.bankId || charity.bankId;
-            charity.npo = values[0].name || charity.npo;
-            charity.bank = values[1].name || charity.bank;
-
-            request.charityId = charity._id;
-            return user.save();
+            return new Charity(pledge);
         }, error => {
             return next(error);
         })
+        .then(pledge => {
+            user.pledges.push(pledge);
+            request.pledgeId = pledge._id;
+            return user.save();
+        })
         .then(( /*user*/ ) => response.json({
-            data: [user.charities.id(request.charityId)]
+            data: [user.pledges.id(request.pledgeId)]
         }))
         .catch(next);
 };

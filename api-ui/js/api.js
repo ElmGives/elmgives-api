@@ -161,10 +161,10 @@ define([
                         });
                     } else {
                         if (paramType === 'file') {
-                            formData.append(call.wrapper + '[image]', self.image);
+                            formData.append(call.wrapper + 'posts', self.image);
                         } else {
-                            var paramInputId = '#input' + callNameId + paramName,
-                                inputObject = $(paramInputId);
+                            var paramInputId = '#input' + callNameId + paramName;
+                            var inputObject = $(paramInputId);
                             formData.append(call.wrapper + '[' + paramName + ']', inputObject.val());
                         }
                     }
