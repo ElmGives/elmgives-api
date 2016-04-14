@@ -1,6 +1,8 @@
 /*
  * Handle Plaid Connect stepConnectUser
  */
+/* jshint camelcase: false */
+
  'use strict';
 
 module.exports = function stepConnectUser(request, response, next) {
@@ -25,7 +27,7 @@ module.exports = function stepConnectUser(request, response, next) {
     error.message = 'Missing MFA parameters';
     return next(error);
   }
-  
+
   mfa.method = mfa.method ? {send_method: {type: mfa.method}} : {};
   plaid.client.stepConnectUser(plaidAccessToken, mfa.answer, mfa.method, function(err, mfaRes) {
     if (err) { return next(err); }

@@ -1,6 +1,8 @@
 /*
  * Handle Plaid Link exchange public token
  */
+/* jshint camelcase: false */
+
  'use strict';
 
 const Bank = require('../../banks/bank');

@@ -12,6 +12,38 @@ var amounts =  [1.23, 4.56, 7.89, 2.34, 5.67, 8.90, 3.45, 6.78, 9.01];
 var roundups = [0.77, 0.44, 0.11, 0.66, 0.33, 0.10, 0.55, 0.22, 0.99];
 var balances = [0.77, 1.21, 1.32, 1.98, 2.31, 2.41, 2.96, 3.18, 4.17].map(num => -num);
 
+/* INPUT TRANSACTIONS */
+var previous = new Transaction({
+    hash: {
+        type: 'sha256'
+    },
+    payload: {
+        count: 0,
+        address: address,
+        amount: 0,
+        roundup: 0,
+        balance: 0,
+        currency: 'USD',
+        limit: -10,
+        previous: null,
+        timestamp: new Date(),
+        reference: 'plaid_transaction_id'
+    },
+    signatures: []
+});
+previous.hash.value = crypto.createHash('sha256')
+    .update(JSON.stringify(previous.payload, chain.transactionSchemaOrder)).digest('hex');
+
+var transactions = amounts.map((amount, index) => {
+    return new PlaidTransaction({
+        transactionId: Math.floor(Math.random()*100000000),
+        amount: amount,
+        roundup: roundups[index],
+        date: new Date(),
+        name: 'info'
+    });
+});
+
 /* TESTS */
 tape('Transaction Chain (valid)', test => {
     test.plan(2 + transactions.length * 9);
@@ -126,34 +158,4 @@ tape('Transaction Chain (invalid)', test => {
     next(0);
 });
 
-/* INPUT TRANSACTIONS */
-var previous = new Transaction({
-  hash: {
-    type: 'sha256'
-  },
-  payload: {
-    count: 0,
-    address: address,
-    amount: 0,
-    roundup: 0,
-    balance: 0,
-    currency: 'USD',
-    limit: -10,
-    previous: null,
-    timestamp: new Date(),
-    reference: 'plaid_transaction_id'
-  },
-  signatures: []
-});
-previous.hash.value = crypto.createHash('sha256')
-  .update(JSON.stringify(previous.payload, chain.transactionSchemaOrder)).digest('hex');
 
-var transactions = amounts.map((amount, index) => {
-  return new PlaidTransaction({
-    transactionId: Math.floor(Math.random()*100000000),
-    amount: amount,
-    roundup: roundups[index],
-    date: new Date(),
-    name: 'info'
-  });
-});

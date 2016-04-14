@@ -39,6 +39,10 @@ module.exports = function addConnectUser(request, response, next) {
       }, function(err, mfaRes, res) {
         if (err) { return next(err); }
         /* Store access_token */
+
+
+
+        /* jshint camelcase: false */
         let accessToken = (mfaRes || res).access_token;
         let query = {};
         query['plaid.tokens.connect.' + bank.type] = accessToken;
