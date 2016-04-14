@@ -1,21 +1,21 @@
 'use strict';
 
 const tape = require('tape');
-const Charity = require('../../../charities/charity');
+const Charity = require('../../../pledges/pledge');
 const types = require('../types');
 const required = require('../required');
 
 tape('Charity model', test => {
     test.plan(13);
 
-    let charity = new Charity({});
-    let values = charity.schema.paths;
+    let pledge = new Charity({});
+    let values = pledge.schema.paths;
 
     types(['montlyLimit'], values, test, 'Number');
     types(['archived', 'disabled'], values, test, 'Boolean');
     types(['userId', 'bankId', 'npoId'], values, test, 'ObjectID');
 
-    charity.validate(error => {
+    pledge.validate(error => {
         let fields = [
             'userId', 'bankId', 'npoId', 'montlyLimit', 'npo', 'bank'
         ];

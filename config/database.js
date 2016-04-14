@@ -24,20 +24,27 @@ mongoose.set('debug', function(coll, method, query, doc, options) {
 });
 
 let db = mongoose.connection;
-let mongoUrl = 'mongodb://user:pass@host:port/name';
+let mongoUrl = 'mongodb://host:port/name';
 
 mongoUrl = mongoUrl
-    .replace('user:', process.env.DB_USER)
-    .replace('pass@', process.env.DB_PASS)
     .replace('host', process.env.DB_HOST)
     .replace('port', process.env.DB_PORT)
     .replace('name', process.env.DB_NAME);
 
-mongoose.connect(mongoUrl, {
+let options = {
+    user: process.env.DB_USER,
+    pass: process.env.DB_PASS,
     server: {
-        'auto_reconnect': true
+        'auto_reconnect': true,
+        poolSize: 5,
+        socketOptions: {
+            keepAlive: 300000,
+            connectTimeoutMS: 30000
+        },
     }
-});
+};
+
+mongoose.connect(mongoUrl, options);
 
 /**
  * Log any connection error

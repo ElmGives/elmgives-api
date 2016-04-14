@@ -54,7 +54,7 @@ npm start
 #### Production
 Besides the app server (pm2 recommended), you have 2 option:
 
-1. set `NODE_ENV=production` and `npm install`  
+1. set `NODE_ENV=production` and `npm install`
 2. or run `npm install --production`
 
 Then run:
@@ -81,7 +81,52 @@ Then open your browser http://localhost:3002
 ```
 npm test
 ```
-===
+
+### Emails
+
+We are using [Mandrill](https://mandrillapp.com/api/docs/messages.nodejs.html)
+In order to send and email,
+
+1. Create a template on Mandrill web site
+2. Require `email/mandrill` file and provide required values to `send` method
+
+```javascript
+const email = require('./email/mandrill');
+
+// Third param is optional and it's related to global merge variables used with
+// Mandrill API
+email.send('templateName', [{email: 'my email'}], [{name: '', content: ''}])
+```
+
+### API responses
+
+Based on jsonapi.org
+
+- success response
+
+Should use 2xx status code
+
+```
+{
+    data: [ /* array of objects here */],
+    meta: {
+        total: 1, /* count of available resources based on query */
+        // other fields to be defined like pagination ones
+    }
+}
+```
+
+- Error responses
+
+Should use 4xx status code
+
+```
+{
+    errors: [ /* array of objects here, only available for validation errors */],
+    message: ' error from server'
+    status: 422, /* status code for the response, same as status code header */
+}
+```
 
 ## Folder structure
 
@@ -161,4 +206,4 @@ npm test
     ├── index.js
     └── user.js
 ```
- 
+
