@@ -9,6 +9,7 @@ const plaid = require('plaid');
 /* Plaid services */
 const link = require('./link');
 const connect = require('./connect');
+const institutions = require('./institutions');
 
 /* Plaid client*/
 plaid.client = new plaid.Client(
@@ -25,6 +26,7 @@ function plaidClient(request, response, next) {
 router
     .use(plaidClient)
     .use(link)
-    .use(connect);
+    .use(connect)
+    .use(institutions);
 
 module.exports = router;
