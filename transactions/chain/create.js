@@ -3,7 +3,7 @@
  */
 
 const Transaction = require('./transaction');
-const logger      = require('../logger');
+const logger      = require('../../logger');
 
 module.exports = function createTransaction(transaction) {
 

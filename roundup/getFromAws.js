@@ -22,7 +22,7 @@ const saveTransaction         = require('../transactions/chain/create');
 const updateAddress           = require('../addresses/update');
 
 const elliptic = require('elliptic');
-const ed25519  = new elliptic.ec('25519');
+const ed25519  = new elliptic.ec('ed25519');
 
 const FromAws = {
 
@@ -38,7 +38,7 @@ const FromAws = {
 
         // When there is no more messages, Amazon sends us an empty Array
         if (messages && messages.length === 0) {
-            process.send('ready');
+            process.send('no more on AWS');
             return;
         }
 
@@ -81,24 +81,20 @@ const FromAws = {
                 return Promise.resolve();
             }
 
-            let latestTransaction = null;
-            transactionChain.transactions.forEach( transaction => {
+            let comparison = transactionChain.payload.previous.payload.count + transactionChain.payload.transactions.length;
 
-                this.saveTransaction(transaction);
+            let latestTransaction = transactionChain.payload.transactons.filter(transaction => transaction.payload.count === comparison);
 
-                if (latestTransaction) {
+            if (latestTransaction && latestTransaction.length === 1) {
 
-                    if (latestTransaction.payload.timestamp < transaction.payload.timestamp) {
-                        latestTransaction = transaction;
+                return verifySignature(latestTransaction[0], ed25519, publicKey).then(function (verifiedLatest) {
+
+                    if (verifiedLatest) {
+                        console.log('cool');
                     }
-                }
-                else {
-                    latestTransaction = transaction;
-                }
-            });
-
-            if (latestTransaction) {
-                return this.updateAddressLatestTransaction(latestTransaction._id, address.address);
+                    // TODO: continue here
+                });
+//                return this.updateAddressLatestTransaction(latestTransaction._id, address.address);
             }
 
             return Promise.resolve();

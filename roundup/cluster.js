@@ -85,7 +85,7 @@ const Cluster = {
 
 				// NOTE: We assume user can donate to one NPO at a time
 				const walletAddress = person.wallet ? Object.keys(person.wallet.addresses)[0] : null;
-                const address       = walletAddress ? person.wallet.addresses[walletAddress] : null;
+                const address       = walletAddress ? person.wallet.addresses[walletAddress][0] : null;
 
                 // we send just what the worker needs
                 worker.send({

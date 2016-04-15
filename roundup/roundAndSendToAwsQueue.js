@@ -27,7 +27,7 @@ const getTransaction          = require('../transactions/chain/read');
 const AWSQueue                = require('../lib/awsQueue');
 
 const elliptic = require('elliptic');
-const ed25519  = new elliptic.ec('25519');
+const ed25519  = new elliptic.ec('ed25519');
 
 const yesterdate  = new Date(Date.now() - (1000 * 60 * 60 * 24));
 const YESTERDAY   = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
