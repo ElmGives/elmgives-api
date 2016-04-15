@@ -11,7 +11,7 @@ module.exports = function verifyJwsSignature(jws, schema, publicKey) {
     let verified  = null;
 
     try {
-        verified = schema.verify(new Buffer(hash), signature, publicKey, 'hex');
+        verified = schema.verify(hash, signature, publicKey, 'hex');
     } catch(error) {
         logger.error({ err: error });
         return Promise.reject(new Error('invalid signature'));
