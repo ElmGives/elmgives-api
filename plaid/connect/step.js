@@ -39,15 +39,20 @@ module.exports = function stepConnectUser(request, response, next) {
     }
 
     multiFactorAuthentication.method = multiFactorAuthentication.method ? 
-      {send_method: {type: multiFactorAuthentication.method}} : {};
+        {send_method: {type: multiFactorAuthentication.method}} : {};
     plaid.client.stepConnectUser(plaidAccessToken, multiFactorAuthentication.answer,
-      multiFactorAuthentication.method, function(error, mfaRes) {
-        if (error) { return next(error); }
-        
+        multiFactorAuthentication.method, function(plaidError, multiFactorAuthenticationResponse) {
+        if (plaidError) {
+            error.status = plaidError.statusCode || 400;
+            error.message = plaidError.message || plaidError.resolve;
+            return next(error);
+        }
+        let multiFactorAuthentication = multiFactorAuthenticationResponse ?
+            multiFactorAuthenticationResponse.mfa : undefined;
         return response.json({
             data: {
-                mfa: mfaRes ? mfaRes.mfa : undefined,
-                done: !mfaRes
+                mfa: multiFactorAuthentication,
+                done: !multiFactorAuthenticationResponse
             }
         });
     });

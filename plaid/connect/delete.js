@@ -17,7 +17,7 @@ module.exports = function deleteConnectUser(request, response, next) {
 
     try {
         plaidAccessToken = request.currentUser.plaid.tokens.connect[institution];
-    } catch (err) {
+    } catch (serverError) {
         error.status = 422;
         error.message = 'error from server';
         return next(error);
@@ -31,11 +31,15 @@ module.exports = function deleteConnectUser(request, response, next) {
 
     plaid.client.deleteConnectUser(plaidAccessToken, {
         /* options */
-    }, function(error, res) {
-        if (error) { return next(error); }
+    }, function(plaidError, plaidResponse) {
+        if (plaidError) {
+            error.status = plaidError.statusCode || 400;
+            error.message = plaidError.message || plaidError.resolve || 'plaid-connect-error';
+            return next(error);
+        }
 
         response.json({
-            data: res
+            data: plaidResponse
         });
     });
 };
