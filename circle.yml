@@ -1,0 +1,8 @@
+test:
+    pre:
+      - jshint --exclude=./node_modules,./api-ui .
+deployment:
+  staging:
+    branch: develop
+    commands:
+      - sh ./scripts/deploy_staging.sh

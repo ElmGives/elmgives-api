@@ -40,7 +40,6 @@ tape('Bank model', test => {
         email: 'foo@bar.com',
         phone: 'some phone',
         hasMultiFactorAuthentication: true,
-        products: [{}],
-        type: 'foobar'
+        products: [{}]
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 });
