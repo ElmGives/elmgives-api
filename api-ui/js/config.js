@@ -25,6 +25,15 @@ var users = {
             'url': API + '/users',
             'wrapper': '',
             'method': 'POST'
+        },
+        'verify account': {
+            'description': 'Verify account',
+            'params': {
+                verificationToken: 'string',
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
         }
     }
 };
