@@ -45,6 +45,52 @@ let transactions = amounts.map((amount, index) => {
 });
 
 /* TESTS */
+tape('Transaction Data', test => {
+    test.plan(19);
+    let error;
+    let data;
+    let input = {
+        amount: 1.23,
+        badAmount: 'a',
+        roundup: 0.77,
+        badRoundup: 'r',
+        date: '2016-04-15T17:00:27.772Z',
+        transactionId: 1
+    };
+    
+    error = chain.createTransaction(undefined, previous, previous.hash.value);
+    test.equal(error.message, 'invalid-transaction-input', 'fails on non-object input');
+
+    error = chain.createTransaction({}, previous, previous.hash.value);
+    test.equal(error.message, 'invalid-transaction-amount', 'fails on missing transaction amount');
+
+    error = chain.createTransaction({amount: input.badAmount}, previous, previous.hash.value);
+    test.equal(error.message, 'invalid-transaction-amount', 'fails on invalid transaction amount');
+
+    error = chain.createTransaction({amount: input.amount}, previous, previous.hash.value);
+    test.equal(error.message, 'invalid-transaction-roundup', 'fails on missing transaction roundup');
+
+    error = chain.createTransaction({amount: input.amount, roundup: input.badRoundup}, previous, previous.hash.value);
+    test.equal(error.message, 'invalid-transaction-roundup', 'fails on invalid transaction roundup');
+
+    data = chain.createTransaction(input, previous, previous.hash.value);
+    test.equal(data instanceof Error, false, 'succeeds with valid amount and roundup');
+    test.equal(data.hash.type, previous.hash.type, 'transaction hash type matches');
+    test.equal(data.payload instanceof Object, true, 'transaction payload is an object');
+    test.equal(data.signatures instanceof Array, true, 'transaction signatures is an array');
+
+    test.equal(data.payload.count, previous.payload.count + 1, `transaction count is ${previous.payload.count + 1}`);
+    test.equal(data.payload.address, address, `transaction amount is ${address}`);
+    test.equal(data.payload.amount, input.amount, `transaction amount is ${input.amount}`);
+    test.equal(data.payload.roundup, input.roundup, `transaction amount is ${input.roundup}`);
+    test.equal(data.payload.balance, previous.payload.balance - data.payload.roundup, `transaction balance is ok`);
+    test.equal(data.payload.currency, previous.payload.currency, `transaction currency is ${previous.payload.currency}`);
+    test.equal(data.payload.limit, previous.payload.limit, `transaction limit is ${previous.payload.limit}`);
+    test.equal(data.payload.previous, previous.hash.value, 'previous transaction hash matches');
+    test.equal(data.payload.timestamp, input.date, `transaction timestamp is ${input.date}`);
+    test.equal(data.payload.reference, input.transactionId, `transaction reference is ${input.transactionId}`);
+});
+
 tape('Transaction Chain (valid)', test => {
     test.plan(2 + transactions.length * 9);
 
