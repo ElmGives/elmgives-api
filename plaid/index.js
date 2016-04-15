@@ -12,14 +12,14 @@ const connect = require('./connect');
 
 /* Plaid client*/
 plaid.client = new plaid.Client(
-  process.env.PLAID_CLIENTID,
-  process.env.PLAID_SECRET,
-  process.env.PLAID_ENV
+    process.env.PLAID_CLIENTID,
+    process.env.PLAID_SECRET,
+    process.env.PLAID_ENV
 );
 
 function plaidClient(request, response, next) {
-  request.plaid = plaid;
-  return next();
+    request.plaid = plaid;
+    return next();
 }
 
 router

@@ -4,30 +4,38 @@
  'use strict';
 
 module.exports = function deleteConnectUser(request, response, next) {
-  let plaid = request.plaid;
-  let institution = request.body.institution;
+    let plaid = request.plaid;
+    let institution = request.body.institution;
+    let plaidAccessToken;
+    let error = new Error();
 
-  let error = new Error();
-  if (!institution) {
-    error.status = 400;
-    error.message = 'Missing institution type';
-    return next(error);
-  }
+    if (!institution) {
+        error.status = 400;
+        error.message = 'Missing institution type';
+        return next(error);
+    }
 
-  let plaidAccessToken = request.currentUser.plaid.tokens.connect[institution];
-  if (!plaidAccessToken) {
-    error.status = 400;
-    error.message = 'Missing Plaid access token. Please obtain one and try again.';
-    return next(error);
-  }
+    try {
+        plaidAccessToken = request.currentUser.plaid.tokens.connect[institution];
+    } catch (err) {
+        error.status = 422;
+        error.message = 'error from server';
+        return next(error);
+    }
 
-  plaid.client.deleteConnectUser(plaidAccessToken, {
+    if (!plaidAccessToken) {
+        error.status = 400;
+        error.message = 'Missing Plaid access token. Please obtain one and try again.';
+        return next(error);
+    }
 
-  }, function(err, res) {
-    if (err) { return next(err); }
+    plaid.client.deleteConnectUser(plaidAccessToken, {
+        /* options */
+    }, function(error, res) {
+        if (error) { return next(error); }
 
-    response.json({
-      data: res
+        response.json({
+            data: res
+        });
     });
-  });
 };
