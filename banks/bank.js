@@ -35,11 +35,7 @@ let schema = new mongoose.Schema({
 
     logoUrl: {
         type: String,
-        required: true,
-        validate: {
-            validator: value => validateUrl(value),
-            message: '{VALUE} is not a valid url'
-        }
+        required: true
     },
 
     email: {
