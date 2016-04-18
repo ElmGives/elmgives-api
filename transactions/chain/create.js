@@ -1,6 +1,7 @@
 /**
  *
  */
+'use strict';
 
 const Transaction = require('./transaction');
 const logger      = require('../../logger');
