@@ -9,7 +9,6 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
-const validateUrl = require('../helpers/validateUrl');
 const email = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
