@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(21);
+    test.plan(20);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
