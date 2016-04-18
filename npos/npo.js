@@ -26,11 +26,11 @@ let schema = new mongoose.Schema({
 
     logoUrl: {
         type: String,
-        required: true,
+        required: true /* TODO - Lester please review if this is needed or not,
         validate: {
             validator: value => validateUrl(value),
             message: '{VALUE} is not a valid url'
-        }
+        } */
     },
 
     email: {
