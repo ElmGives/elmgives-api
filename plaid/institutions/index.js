@@ -10,7 +10,7 @@ const currentUser = require('../../lib/currentUser');
 
 const PATH = '/plaid/institutions';
 
-let getInstitutions = (request, response, next) => {
+function getInstitutions (request, response, next) {
   let plaid = request.plaid;
   plaid.getInstitutions(plaid.environments.production, function(err, res) {
     if (err) { return next(err); }
@@ -19,7 +19,7 @@ let getInstitutions = (request, response, next) => {
       data: res
     });
   });
-};
+}
 
 router
     .get(PATH, verifyToken, authenticate, currentUser, getInstitutions);
