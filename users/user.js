@@ -76,6 +76,12 @@ let schema = new mongoose.Schema({
         }
     },
 
+    wallet: {
+        addresses: {
+
+        }
+    },
+
     /**
      * Special status for 'deleted' users
      */
@@ -96,10 +102,8 @@ let schema = new mongoose.Schema({
         type: 'Mixed'
     },
 
-    verificationLink: {
-        type: String,
-        required: true,
-        default: token()
+    verificationToken: {
+        type: String
     },
 
     pledges: [pledgeSchema]
@@ -131,6 +135,7 @@ schema.pre('save', function(next) {
         }
 
         this.password = hash;
+        this.verificationToken = token();
         return next();
     });
 });
@@ -138,7 +143,7 @@ schema.pre('save', function(next) {
 const virtual = schema.virtual('verified');
 
 virtual.get(function() {
-    return !this.verificationLink;
+    return !this.verificationToken;
 });
 
 module.exports = mongoose.model('User', schema);

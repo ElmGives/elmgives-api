@@ -9,7 +9,6 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
-const validateUrl = require('../helpers/validateUrl');
 const email = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
@@ -35,11 +34,7 @@ let schema = new mongoose.Schema({
 
     logoUrl: {
         type: String,
-        required: true,
-        validate: {
-            validator: value => validateUrl(value),
-            message: '{VALUE} is not a valid url'
-        }
+        required: true
     },
 
     email: {

@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Bank model', test => {
-    test.plan(24);
+    test.plan(23);
 
     let bank = new Bank({});
     let values = bank.schema.paths;
@@ -40,15 +40,6 @@ tape('Bank model', test => {
         email: 'foo@bar.com',
         phone: 'some phone',
         hasMultiFactorAuthentication: true,
-        products: [{}],
-        type: 'foobar'
+        products: [{}]
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
-
-    new Bank({
-        logoUrl: 'http://',
-    }).validate(error => {
-        let expected = 'http:// is not a valid url';
-        let actual = error.errors.logoUrl.message;
-        test.equal(expected, actual, 'valid message for invalid url');
-    });
 });
