@@ -117,6 +117,7 @@ let RoundAndSend = {
 
 			return this.getPreviousChain(plaidTransactions)
                 .then(previousChain => {
+
 					return Promise.all([
 						previousChain,
 						personData.address,

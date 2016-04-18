@@ -4,8 +4,9 @@
 
 'use strict';
 
-const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
-const fromAws = require('./getFromAws');
+const roundAndSendToAmazon  = require('./roundAndSendToAwsQueue');
+const fromAws               = require('./getFromAws');
+const logger                = require('../logger');
 
 const Worker = {
 
@@ -32,7 +33,15 @@ const Worker = {
         }
 
         if ( msg === 'get from AWS') {
-            fromAws.get().then( () => process.send('ready'));
+
+            fromAws.get()
+				.then( () => process.send('ready'))
+                .catch( error => {
+					logger.error({ err: error });
+
+                    process.send('ready');
+                });
+
             return;
         }
 

@@ -31,8 +31,8 @@ const Cluster = {
             active                : true,
             plaid                 : { $exists: true },
             'plaid.tokens.connect': { $exists: true, $ne: {} },
-//			wallet                : { $exists: true },
-//			'wallet.addresses'    : { $exists: true },
+			wallet                : { $exists: true },
+			'wallet.addresses'    : { $exists: true },
         };
 
         const selector = {
@@ -91,7 +91,7 @@ const Cluster = {
                 worker.send({
                     _id    : person._id,
                     token  : person.plaid.tokens.connect[bankType],
-					address: address[0],
+					address: address,
                 });
             } else {
                 worker.send('get from AWS');
