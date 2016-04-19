@@ -11,14 +11,16 @@ const currentUser = require('../../lib/currentUser');
 const PATH = '/plaid/institutions';
 
 function getInstitutions (request, response, next) {
-  let plaid = request.plaid;
-  plaid.getInstitutions(plaid.environments.production, function(err, res) {
-    if (err) { return next(err); }
+    let plaid = request.plaid;
+    plaid.getInstitutions(process.env.PLAID_ENV, function(error, plaidResponse) {
+        if (error) {
+            return next(error);
+        }
 
-    response.json({
-      data: res
+        response.json({
+            data: plaidResponse
+        });
     });
-  });
 }
 
 router
