@@ -4,9 +4,9 @@
 
 'use strict';
 
-const roundAndSendToAmazon  = require('./roundAndSendToAwsQueue');
-const fromAws               = require('./getFromAws');
-const logger                = require('../logger');
+const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
+const fromAws = require('./getFromAws');
+const logger = require('../logger');
 
 const Worker = {
 

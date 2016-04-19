@@ -14,15 +14,15 @@ require('dotenv').config();
  */
 require('../config/database');
 
-const logger                  = require('../logger');
-const AWSQueue                = require('../lib/awsQueue');
-const getAddress              = require('../addresses/read');
-const verifySignature         = require('../helpers/verifyJwsSignature');
-const saveTransaction         = require('../transactions/chain/create');
-const updateAddress           = require('../addresses/update');
+const logger = require('../logger');
+const AWSQueue = require('../lib/awsQueue');
+const getAddress = require('../addresses/read');
+const verifySignature  = require('../helpers/verifyJwsSignature');
+const updateTransaction  = require('../transactions/chain/update');
+const updateAddress  = require('../addresses/update');
 
 const elliptic = require('elliptic');
-const ed25519  = new elliptic.ec('ed25519');
+const ed25519 = new elliptic.ec('ed25519');
 
 const FromAws = {
 
@@ -119,9 +119,9 @@ const FromAws = {
      * @returns {promise}
      */
     checkTransactionPayload(address, transactionChain) {
-        let publicKey         = address.keys.public;
-        let chainPayload      = transactionChain.payload;
-        let comparison        = chainPayload.previous.payload.count + chainPayload.transactions.length;
+        let publicKey = address.keys.public;
+        let chainPayload = transactionChain.payload;
+        let comparison = chainPayload.previous.payload.count + chainPayload.transactions.length;
         let latestTransaction = null;
 
         chainPayload.transactons.forEach(function (transaction) {
@@ -149,7 +149,17 @@ const FromAws = {
     },
 
     saveTransaction(transaction) {
-        return saveTransaction(transaction);
+        const query = {
+            'hash.value': transaction.hash.value,
+        };
+        
+        const newValue = {
+            $set: {
+                signatures: transaction.signatures,
+            },
+        };
+        
+        return updateTransaction(query, newValue);
     },
 
     updateAddressLatestTransaction(latestTransactionId, address) {

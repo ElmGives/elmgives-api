@@ -16,8 +16,8 @@ require('dotenv').config();
 require('../config/database');
 
 const cluster = require('cluster');
-const User    = require('../users/user');
-const logger  = require('../logger');
+const User = require('../users/user');
+const logger = require('../logger');
 
 const Cluster = {
 
@@ -28,16 +28,16 @@ const Cluster = {
     runWith(numberCpus) {
 
         const query = {
-            active                : true,
-            plaid                 : { $exists: true },
+            active: true,
+            plaid: { $exists: true },
             'plaid.tokens.connect': { $exists: true, $ne: {} },
-			wallet                : { $exists: true },
-			'wallet.addresses'    : { $exists: true },
+			wallet: { $exists: true },
+			'wallet.addresses': { $exists: true },
         };
 
         const selector = {
-            _id   : 1,
-            plaid : 1,
+            _id: 1,
+            plaid: 1,
 			wallet: 1,
         };
 
@@ -85,12 +85,12 @@ const Cluster = {
 
 				// NOTE: We assume user can donate to one NPO at a time
 				const walletAddress = person.wallet ? Object.keys(person.wallet.addresses)[0] : null;
-                const address       = walletAddress ? person.wallet.addresses[walletAddress][0] : null;
+                const address = walletAddress ? person.wallet.addresses[walletAddress][0] : null;
 
                 // we send just what the worker needs
                 worker.send({
-                    _id    : person._id,
-                    token  : person.plaid.tokens.connect[bankType],
+                    _id: person._id,
+                    token: person.plaid.tokens.connect[bankType],
 					address: address,
                 });
             } else {

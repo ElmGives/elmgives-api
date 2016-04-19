@@ -14,29 +14,31 @@ require('dotenv').config();
  */
 require('../config/database');
 
-const https                   = require('https');
-const querystring             = require('querystring');
-const crypto                  = require('crypto');
-const logger                  = require('../logger');
-const padNumber               = require('../helpers/padNumber');
-const transactionFilter       = require('../helpers/plaidTransactionFilter');
-const transactionChain        = require('../helpers/transactionChain');
-const roundup                 = require('../helpers/roundup');
-const createPlaidTransaction  = require('../transactions/create');
-const getTransaction          = require('../transactions/chain/read');
-const AWSQueue                = require('../lib/awsQueue');
+const https = require('https');
+const querystring = require('querystring');
+const crypto = require('crypto');
+const logger = require('../logger');
+const padNumber = require('../helpers/padNumber');
+const transactionFilter = require('../helpers/plaidTransactionFilter');
+const transactionChain = require('../helpers/transactionChain');
+const roundup = require('../helpers/roundup');
+const createPlaidTransaction = require('../transactions/create');
+const getTransaction = require('../transactions/chain/read');
+const createTransaction = require('../transactions/chain/create');
+const getAddress = require('../addresses/read');
+const AWSQueue = require('../lib/awsQueue');
 
 const elliptic = require('elliptic');
-const ed25519  = new elliptic.ec('ed25519');
+const ed25519 = new elliptic.ec('ed25519');
 
-const yesterdate  = new Date(Date.now() - (1000 * 60 * 60 * 24));
-const YESTERDAY   = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
+const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
+const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
 const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
 const options = {
-    host   : PLAID_SERVER,
-    method : 'POST',
-    path   : '/connect/get',
+    host: PLAID_SERVER,
+    method: 'POST',
+    path: '/connect/get',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
     },
@@ -51,10 +53,10 @@ let RoundAndSend = {
     request(personData) {
 
         const postData = querystring.stringify({
-            'client_id'   : process.env.PLAID_CLIENTID || 'test_id',
-            'secret'      : process.env.PLAID_SECRET || 'test_secret',
+            'client_id': process.env.PLAID_CLIENTID || 'test_id',
+            'secret': process.env.PLAID_SECRET || 'test_secret',
             'access_token': personData.token,
-            'options'     : {
+            'options': {
               'gte':  YESTERDAY,
             }
         });
@@ -115,7 +117,7 @@ let RoundAndSend = {
 
 		if (plaidTransactions) {
 
-			return this.getPreviousChain(plaidTransactions)
+			return this.getPreviousChain(personData)
                 .then(previousChain => {
 
 					return Promise.all([
@@ -124,6 +126,7 @@ let RoundAndSend = {
 						transactionChain.create(personData.address, previousChain, plaidTransactions),
 					]);
 				})
+                .then(this.saveTransactions)
 				.then(this.sign)
                 .then(this.sendToQueue)
                 .catch(logger.error);
@@ -141,16 +144,16 @@ let RoundAndSend = {
         let roundupValue = roundup(transaction.amount);
 
         let plaidTransaction = {
-            userId       : personData._id,
+            userId: personData._id,
             transactionId: transaction._id,
-            amount       : transaction.amount,
-            date         : transaction.date,
-            name         : transaction.name,
-            roundup      : roundupValue,
-            summed       : false,    // This one is to know if we have already ran the process on this transaction
+            amount: transaction.amount,
+            date: transaction.date,
+            name: transaction.name,
+            roundup: roundupValue,
+            summed: false,    // This one is to know if we have already ran the process on this transaction
         };
 
-        this.savePlaid(plaidTransaction, personData);
+        this.savePlaid(plaidTransaction);
 
 		return plaidTransaction;
     },
@@ -169,7 +172,16 @@ let RoundAndSend = {
 	 * @returns {promise<object|null>} Previous transaction object
 	 */
 	getPreviousChain(personData) {
-		return getTransaction({ _id: personData.latestTransaction});
+        
+        return getAddress({ address: personData.address })
+            .then(address => {
+        
+                if (!address || address.length === 0) {
+                    return Promise.reject('There is no address to get the previous transaction');
+                }
+
+                return getTransaction({ _id: address[0].latestTransaction});
+            });
 	},
 
 	/**
@@ -182,6 +194,24 @@ let RoundAndSend = {
 
 		return AWSQueue.sendMessage(transactionChain, params);
 	},
+    
+    /**
+     * Creates a new transaction based on what was created on transaction chain.
+     * We save this in order to verify transactions in case there is something wrong with
+     * address server
+     * @param   {Array} params  It has the previousChain, the address and the chain that we need to save
+     * @returns {Array}         We just pass the array to the next function
+     */
+    saveTransactions(params) {
+        // TODO: when nodejs implement destructuring, change params por [previousChain, address, chain]
+        // let previousChain = params[0];
+        // let address = params[1];
+        let chain = params[2];
+        
+        chain.forEach(transaction => createTransaction (transaction));
+        
+        return params;
+    },
 
 	/**
 	 * We create an object for signing ready for AWS to enqueue
@@ -192,18 +222,18 @@ let RoundAndSend = {
 	sign(params) {
         // TODO: when nodejs implement destructuring, change params por [previousChain, address, chain]
         let previousChain = params[0];
-        let address       = params[1];
-        let chain         = params[2];
+        let address = params[1];
+        let chain = params[2];
 
         let signatureRequestMessage = {
             hash: {
                 type: 'sha256',
             },
             payload: {
-                address : address,
+                address: address,
                 previous: {
-                    hash      : previousChain.hash,
-                    payload   : previousChain.payload,
+                    hash: previousChain.hash,
+                    payload: previousChain.payload,
                     signatures: previousChain.signatures,
                 },
                 transactions: chain,
