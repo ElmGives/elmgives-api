@@ -28,4 +28,15 @@
     "firstName": "ricardo",
     "email": "ricardo@elm.com",
     "active": true
+}, {
+    "name": "johndoe",
+    "password": "p@55w0rd",
+    "firstName": "john",
+    "email": "john@example.com",
+    "active": true,
+    "wallet": {
+        "addresses": {
+            "npoExample": ["wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"]
+        }
+    }
 }]
