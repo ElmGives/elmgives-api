@@ -8,5 +8,6 @@ ssh elmgives@stage-admin.elmgives.com << EOF
   git reset --hard
   git pull
 
+  npm install --production
   pm2 restart all
 EOF
