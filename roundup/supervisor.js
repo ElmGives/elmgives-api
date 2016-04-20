@@ -4,6 +4,8 @@
 
 'use strict';
 
+require('dotenv').config();
+
 const CORES_AVAILABLE = require('os').cpus().length;
 
 const cluster = require('cluster');
@@ -16,6 +18,6 @@ if (cluster.isMaster) {
     Cluster.runWith(CORES_AVAILABLE);
 }
 else {
-    const worker = Object.create(Worker);
+    const worker = Worker.create();
     worker.init();
 }
