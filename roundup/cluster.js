@@ -102,7 +102,7 @@ function assignWork(worker, people, message) {
 }
 
 const Cluster = {
-    runWith,
+    runWith: runWith,
 };
 
 module.exports = Cluster;

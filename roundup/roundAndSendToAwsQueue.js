@@ -33,10 +33,9 @@ const ed25519 = new elliptic.ec('ed25519');
 
 const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
 const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
-const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
 const options = {
-    host: PLAID_SERVER,
+    host: process.env.PLAID_ENV.replace('https://', ''),
     method: 'POST',
     path: '/connect/get',
     headers: {
@@ -53,8 +52,8 @@ let _result = '';
 function request(personData) {
 
     const postData = querystring.stringify({
-        'client_id': process.env.PLAID_CLIENTID || 'test_id',
-        'secret': process.env.PLAID_SECRET || 'test_secret',
+        'client_id': process.env.PLAID_CLIENTID,
+        'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
         'options': {
             'gte':  YESTERDAY,
@@ -112,7 +111,7 @@ function processData(data, personData) {
 
         plaidTransactions = JSON.parse(data).transactions
             .filter(transactionFilter)
-            .map(roundUpAndSave(null, personData));
+            .map(roundUpAndSave.bind(null, personData));
     }
     catch (error) {
         return Promise.reject(error);
@@ -268,7 +267,7 @@ function sign(params) {
 }
 
 let RoundAndSend = {
-    request,
+    request: request,
 };
 
 module.exports = RoundAndSend;

@@ -22,19 +22,29 @@ let schema = new mongoose.Schema({
     },
     latestTransaction: {
         type: String,
-        required: true,
+        default: '',
     },
     // A signed document where is associate an address with a pledge ID
     statement: {
         signatures: [],
         payload: {
-            address: String,
-            reference: String,
-            nonce: Number,
+            address: {
+                type: String,
+            },
+            reference: {
+                type: String,
+            },
+            nonce: {
+                type: Number,
+            },
         },
         hash: {
-            type: String,
-            value: String,
+            type: {
+                type: String,
+            },
+            value: {
+                type: String,
+            },
         },
     },
 }, {

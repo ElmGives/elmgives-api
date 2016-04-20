@@ -178,7 +178,7 @@ function updateAddressLatestTransaction(latestTransactionId, address) {
 }
 
 const FromAws = {
-    get,	
+    get: get,	
 };
 
 module.exports = FromAws;
