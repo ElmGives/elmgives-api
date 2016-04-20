@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(21);
+    test.plan(20);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -41,12 +41,4 @@ tape('Npo model', test => {
         email: 'foo@bar.com',
         phone: 'some phone',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
-
-    new Npo({
-        logoUrl: 'http://',
-    }).validate(error => {
-        let expected = 'http:// is not a valid url';
-        let actual = error.errors.logoUrl.message;
-        test.equal(expected, actual, 'valid message for invalid url');
-    });
 });

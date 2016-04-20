@@ -6,7 +6,7 @@
 const User = require('./user');
 const email = require('../email/mandrill');
 const CLIENT_URL = process.env.CLIENT_URL;
-const MANDRILL_VERIFY_ACCOUNT = process.env.MANDRILL_VERIFY_ACCOUNT;
+const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
 const validateAccount = require('./validateAccount');
 
 const logger = require('../logger');
@@ -29,7 +29,7 @@ module.exports = function create(request, response, next) {
                 content: `${CLIENT_URL}${user.verificationLink}`
             }];
 
-            return email.send(MANDRILL_VERIFY_ACCOUNT, to, options);
+            return email.send(TEMPLATE, to, options);
         })
         .then((sent) => {
             logger.info({
