@@ -14,7 +14,6 @@ require('dotenv').config();
  */
 require('../config/database');
 
-const logger = require('../logger');
 const AWSQueue = require('../lib/awsQueue');
 const getAddress = require('../addresses/read');
 const verifySignature  = require('../helpers/verifyJwsSignature');
