@@ -67,6 +67,19 @@ require('./modules')(app);
  */
 
 app.all('*', (request, response) => {
+
+    //
+    //  Lester, Some thoughts to consider
+    //
+    //  a couple of things of note here, can we please check to see if this is a POST or a GET before
+    //  returning a 405?  If we're going to return a 405, we should be returning ALLOWS headers for what is allowable
+    //
+    //  An easier implementation would be to return a 404 here and not worry about the ALLOWS
+    //
+    //  Additionally, do we have HTTP_CONST_CODES defined somewhere that can be used here instead of magic number 405?
+    //
+    //  And finally, rather than an empty response, we need to return a standard API response with valid stat code/messages/etc
+    //
     return response.status(405).send();
 });
 
