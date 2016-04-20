@@ -18,6 +18,6 @@ if (cluster.isMaster) {
     Cluster.runWith(CORES_AVAILABLE);
 }
 else {
-    const worker = Object.create(Worker);
+    const worker = Worker.create();
     worker.init();
 }
