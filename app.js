@@ -62,12 +62,13 @@ app.use(bodyParser.urlencoded({
  */
 require('./modules')(app);
 
+const NOT_FOUND_STATUS_CODE = 404;
+
 /**
  * Reject any other request to any other endpoint
  * If we get to this point, means no handler is defined for the current request
- * route. We must return method not allowed.
- *
- * @see  http://www.checkupdown.com/status/E405.html
+ * route.
+ * We are going to return NOT FOUND response, as per requirements
  */
 app.all('*', (request, response) => {
 
@@ -80,12 +81,9 @@ app.all('*', (request, response) => {
     //  An easier implementation would be to return a 404 here and not worry about the ALLOWS
     //
     //  Additionally, do we have HTTP_CONST_CODES defined somewhere that can be used here instead of magic number 405?
-    //
-    //  And finally, rather than an empty response, we need to return a standard API response with valid stat code/messages/etc
-    //
-    return response.status(405).json({
+    return response.status(NOT_FOUND_STATUS_CODE).json({
         message: 'Request handler not found',
-        status: 405
+        status: NOT_FOUND_STATUS_CODE
     });
 });
 
