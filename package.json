@@ -26,23 +26,23 @@
     "node": "5.9.0"
   },
   "dependencies": {
-    "aws-sdk": "2.2.48",
+    "aws-sdk": "2.3.4",
     "bcrypt": "0.8.5",
     "bluebird": "^3.3.4",
     "body-parser": "1.15.0",
     "bunyan": "1.8.0",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
+    "elliptic": "6.2.3",
     "express": "4.13.4",
-    "formidable": "1.0.17",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
     "mandrill-api": "^1.0.45",
     "mongoose": "4.4.7",
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2",
-    "plaid": "1.0.10",
-	  "elliptic": "6.2.3"
+    "multiparty": "4.1.2",
+    "plaid": "1.0.10"
   },
   "devDependencies": {
     "jshint": "2.9.1",
