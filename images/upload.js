@@ -3,7 +3,15 @@
  */
 'use strict';
 
+/**
+ * @see https://github.com/aws/aws-sdk-js
+ */
 let AWS = require('aws-sdk');
+
+/**
+ * @see  https://github.com/aws/aws-sdk-js/
+ */
+AWS.config.setPromisesDependency(Promise);
 
 let s3 = new AWS.S3({
     accessKeyId: process.env.AWS_S3_KEY,
@@ -21,25 +29,24 @@ let availableFolders = {
 };
 
 /**
- * image = formidable 'part'
+ * image = multiparty 'part'
  */
 module.exports = function upload(image) {
     let object = {
         Bucket: process.env.AWS_S3_BUCKET,
         Key: `${image.name}/${image.filename}`,
-        ACL: 'public-read'
+        ACL: 'public-read',
+        Body: image,
+        ContentLength: image.byteCount,
+        ContentType: image.headers['content-type']
     };
 
-    return new Promise((resolve, reject) => {
+    if (!image.name || !availableFolders[image.name]) {
+        let error = new Error();
+        error.message = 'Field name is required';
 
-        if (!image.name || !availableFolders[image.name]) {
-            let error = new Error();
-            error.message = 'Field name is required';
-            return reject(error);
-        }
+        return Promise.reject(error);
+    }
 
-        s3.putObject(object, (error, data) => {
-            return error ? reject(error) : resolve(data);
-        });
-    });
+    return s3.putObject(object).promise();
 };
