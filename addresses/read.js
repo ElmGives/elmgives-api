@@ -15,6 +15,7 @@ module.exports = function readAddress(query) {
 
     return Address
         .findOne(query)
+        .exec()
         .then(address => {
             
             if (!address) {

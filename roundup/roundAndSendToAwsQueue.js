@@ -15,6 +15,7 @@ require('dotenv').config();
 require('../config/database');
 
 const https = require('https');
+const http = require('http');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const logger = require('../logger');
@@ -130,7 +131,8 @@ function processData(data, personData) {
             })
             .then(saveTransactions)
             .then(sign)
-            .then(sendToQueue);
+            .then(sendToQueue)
+            .then(sendPostToAws);
     } else {
         return Promise.resolve();
     }
@@ -182,7 +184,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ _id: address[0].latestTransaction});
+            return getTransaction({ 'hash.value': address[0].latestTransaction});
         });
 }
 
@@ -195,6 +197,35 @@ function sendToQueue(transactionChain) {
     const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
     return AWSQueue.sendMessage(transactionChain, params);
+}
+
+/**
+ * We send a triggger to AWS for signing to be done on signing server
+ * @returns {promise}
+ */
+function sendPostToAws() {
+    const options = {
+        host: '52.39.116.53',
+        port: 3000,
+        path: '/aws/sqs',
+        method: 'POST',
+    };
+    
+    return new Promise(function (resolve, reject) {
+        
+        let request = http.request(options, function (response) {
+            response.setEncoding('utf8');
+            
+            response.on('data', function (chunk) {
+                logger.info(chunk);
+            });
+            
+            response.on('error', reject);
+            response.on('end', resolve);
+        });
+        
+        request.end();
+    });
 }
     
 /**

@@ -138,7 +138,7 @@ function checkTransactionPayload(address, transactionChain) {
         return verifySignature(latestTransaction[0], ed25519, publicKey).then(function (verifiedLatest) {
 
             if (verifiedLatest) {
-                return updateAddressLatestTransaction(latestTransaction._id, address.address);
+                return updateAddressLatestTransaction(latestTransaction.hash.value, address.address);
             }
 
             let error = new Error('Signature for last transaction is incorrect');
