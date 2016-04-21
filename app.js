@@ -64,8 +64,11 @@ require('./modules')(app);
 
 /**
  * Reject any other request to any other endpoint
+ * If we get to this point, means no handler is defined for the current request
+ * route. We must return method not allowed.
+ *
+ * @see  http://www.checkupdown.com/status/E405.html
  */
-
 app.all('*', (request, response) => {
 
     //
@@ -80,7 +83,10 @@ app.all('*', (request, response) => {
     //
     //  And finally, rather than an empty response, we need to return a standard API response with valid stat code/messages/etc
     //
-    return response.status(405).send();
+    return response.status(405).json({
+        message: 'Request handler not found',
+        status: 405
+    });
 });
 
 /**
