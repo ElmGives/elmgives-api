@@ -94,7 +94,7 @@ function extractTransactionChainFromMessage(message) {
  * @returns {promise}
  */
 function verifySign(address, transactionChain) {
-    let publicKey = address.keys.public;
+    let publicKey = process.env.SIGNER_PUBLIC_KEY;
 
     return verifySignature(transactionChain, ed25519, publicKey).then(function (verified) {
 
@@ -124,7 +124,7 @@ function checkTransactionPayload(address, transactionChain) {
     let comparison = chainPayload.previous.payload.count + chainPayload.transactions.length;
     let latestTransaction = null;
 
-    chainPayload.transactons.forEach(function (transaction) {
+    chainPayload.transactions.forEach(function (transaction) {
 
         saveTransaction(transaction);
 

@@ -11,5 +11,6 @@ module.exports = function updateTransaction(query, newValues) {
     
     return Transaction
         .update(query, newValues)
+        .exec()
         .catch(logger.error);
 };

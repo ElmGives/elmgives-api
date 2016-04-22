@@ -204,9 +204,11 @@ function sendToQueue(transactionChain) {
  * @returns {promise}
  */
 function sendPostToAws() {
+    let url = process.env.SIGNER_URL.split(':');
+    
     const options = {
-        host: '52.39.116.53',
-        port: 3000,
+        host: url[0],
+        port: url[1],
         path: '/aws/sqs',
         method: 'POST',
     };
