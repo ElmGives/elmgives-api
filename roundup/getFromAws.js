@@ -78,7 +78,14 @@ function extractTransactionChainFromMessage(message) {
                 return Promise.reject(error);
             }
 
-            return verifySign(address, transactionChain);
+            return verifySign(address, transactionChain)
+                .then( () => {
+                    // This code run when every transaction is processed
+                    // we use message saved throught closure
+                    const queue = process.env.AWS_SQS_URL_TO_SIGNER;
+                    
+                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
+                });
         });
     }
 
