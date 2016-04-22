@@ -8,8 +8,6 @@ const uid2 = require('uid2');
 const crypto = require('crypto');
 const elliptic = require('elliptic');
 const httpRequest = require('request');
-const joi = require('joi');
-const TransactionJoi = require('../joi/transaction');
 const Transaction = require('../transactions/chain/transaction');
 const Address = require('../addresses/address');
 
@@ -17,7 +15,7 @@ const schemes = {
   ed25519: new elliptic.ec('ed25519')
 };
 
-module.exports = function requestWalletAddress(request, response, next) {
+function requestWalletAddress(request, response, next) {
     let user = request.currentUser;
     let pledgeId = request.pledgeId;
     let pledge = user.pledges[0];
@@ -53,50 +51,50 @@ module.exports = function requestWalletAddress(request, response, next) {
         .sign(body.hash.value, privateKey, 'hex').toDER('hex');
 
     let postUrl = url.resolve(process.env.SIGNER_URL, '/addresses');
+    return requestWalletAddress.makeHttpRequest('POST', postUrl, body)
+        .then(data => {
+            return Transaction.create(data.statement)
+                .then(transaction => {
+                    console.log(transaction);
+                    let newAddress = {
+                        address: data.address,
+                        keys: data.keys,
+                        latestTransaction: transaction.hash.value
+                    };
+                    return Address.create(newAddress);
+                })
+                .then(address => {
+                    console.log(address);
+                    pledge.addresses.unshift(address.address);
+                    return user.save();
+                });
+        });
+};
+
+requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, body, options) {
+    options = options || {};
 
     return new Promise((resolve, reject) => {
-        httpRequest.post({
-            url: postUrl,
+        httpRequest({
+            method: method,
+            url: url,
             body: body,
-            json: true
-        }, (error, res) => {
+            json: true,
+            headers: options.headers
+        }, (error, response) => {
             if (error) {
-                // PENDING: trigger error
-                return;
+                return reject(error);
             }
-            if (!res.body || !res.body.data) {
+            if (!response.body || typeof response.body.data !== 'object') {
                 let err = new Error();
                 err.status = 422;
-                err.message = 'Empty response';
-                // PENDING: trigger error
-                return;
+                err.message = 'bad-response';
+                return reject(err);
             }
 
-            let data = res.body.data;
-            joi.validate(data.statement, TransactionJoi, (error, statement) => {
-                if (error) {
-                    // PENDING: trigger error
-                    return;
-                }
-
-                pledge.addresses.unshift(statement.payload.address);
-
-                return user.save()
-                    .then(() => {
-                        return Transaction.create(statement);
-                    })
-                    .then(transaction => {
-                        let newAddress = {
-                            address: data.address,
-                            keys: data.keys,
-                            latestTransaction: statement.hash.value
-                        };
-                        return Address.create(newAddress);
-                    })
-                    .catch(error => {
-                        // PENDING: trigger error
-                    });
-            });
+            return resolve(response.body.data);
         });
     });
-};
+}
+
+module.exports = requestWalletAddress;
