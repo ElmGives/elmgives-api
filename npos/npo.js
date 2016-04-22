@@ -6,6 +6,8 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const REGION = process.env.AWS_S3_REGION;
+const BUCKET = process.env.AWS_S3_BUCKET;
 
 let schema = new mongoose.Schema({
     userId: {
@@ -66,4 +68,9 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
+
+schema.post('init', function(doc) {
+    doc.logoUrl = `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrl}`;
+});
+
 module.exports = mongoose.model('Npo', schema);
