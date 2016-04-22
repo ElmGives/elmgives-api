@@ -31,6 +31,7 @@ let required = [
     'JWT_SECRET',
     'AWS_S3_KEY',
     'AWS_S3_SECRET',
+    'AWS_S3_REGION',
     'AWS_S3_ACL',
     'MANDRILL_API_KEY',
     'MANDRILL_EMAIL_SENDER',
