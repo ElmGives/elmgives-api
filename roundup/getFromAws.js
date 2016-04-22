@@ -133,9 +133,9 @@ function checkTransactionPayload(address, transactionChain) {
         }
     });
 
-    if (latestTransaction && latestTransaction.length === 1) {
+    if (latestTransaction) {
 
-        return verifySignature(latestTransaction[0], ed25519, publicKey).then(function (verifiedLatest) {
+        return verifySignature(latestTransaction, ed25519, publicKey).then(function (verifiedLatest) {
 
             if (verifiedLatest) {
                 return updateAddressLatestTransaction(latestTransaction.hash.value, address.address);

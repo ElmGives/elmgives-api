@@ -9,10 +9,12 @@ const logger  = require('../logger');
 module.exports = function updateAddress(query, newValues) {
 
     if (!query || !newValues) {
-        return Promise.reject('invalid parameters');
+        let error = new Error('invalid parameters');
+        return Promise.reject(error);
     }
 
     return Address
         .update(query, newValues)
+        .exec()
         .catch(logger.error);
 };
