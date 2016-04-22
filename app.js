@@ -19,6 +19,11 @@ require('dotenv').config();
 require('./config/database');
 
 /**
+ * Make sure we have proper values for required environment variables
+ */
+require('./scripts/requiredVariables');
+
+/**
  * Fast, unopinionated, minimalist web framework for node
  * https://github.com/strongloop/express
  */
