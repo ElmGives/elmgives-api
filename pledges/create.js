@@ -73,5 +73,6 @@ module.exports = (request, response, next) => {
         .then(( /*user*/ ) => response.json({
             data: [user.pledges.id(request.pledgeId)]
         }))
+        .then(() => next())
         .catch(next);
 };
