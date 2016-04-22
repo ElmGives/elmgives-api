@@ -31,7 +31,7 @@ let schema = new mongoose.Schema({
         required: true
     },
 
-    montlyLimit: {
+    monthlyLimit: {
         type: Number,
         required: true
     },
