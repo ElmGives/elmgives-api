@@ -5,7 +5,10 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const log = require('../logger');
+const logger = require('../logger');
+const DB_CONNECTION_TIMEOUT = process.env.DB_CONNECTION_TIMEOUT || 5000;
+
+let timeout = 0;
 
 mongoose.Promise = global.Promise;
 
@@ -18,7 +21,7 @@ mongoose.set('debug', function(coll, method, query, doc, options) {
         options: options
     };
 
-    log.info({
+    logger.info({
         dbQuery: set
     });
 });
@@ -46,29 +49,52 @@ let options = {
 
 mongoose.connect(mongoUrl, options);
 
+db.on('connecting', () => {
+    logger.info('connecting to MongoDB...');
+});
+
 /**
  * Log any connection error
  */
 db.on('error', function(error) {
-    log.info({error: error});
+    logger.error({
+        err: error
+    });
+
+    mongoose.disconnect();
 });
 
 db.once('open', function callback() {
-    console.log('MongoDB connection is established');
+    logger.info('Mongo DB connection established');
 });
 
 /**
  * Need more detail on this
  */
 db.on('disconnected', function() {
-    console.log('MongoDB disconnected!');
-    mongoose.connect(process.env.MONGO_URL, {
-        server: {
-            'auto_reconnect': true
-        }
-    });
+    logger.warn('MongoDB disconnected!');
+
+    if (timeout) {
+        clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(function() {
+        logger.info(`Trying to connect again : ${DB_CONNECTION_TIMEOUT}/s`);
+        mongoose.connect(mongoUrl, options);
+    }, DB_CONNECTION_TIMEOUT);
 });
 
 db.on('reconnected', function() {
-    console.info('MongoDB reconnected!');
+    clearTimeout(timeout);
+    logger.info('Mongo DB reconnected');
+});
+
+/**
+ * http://stackoverflow.com/questions/16226472/mongoose-autoreconnect-option
+ */
+process.on('SIGINT', function() {
+    mongoose.connection.close(function() {
+        logger.info('Force to close the MongoDB conection');
+        process.exit(0);
+    });
 });
