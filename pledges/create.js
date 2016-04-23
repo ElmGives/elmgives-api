@@ -75,7 +75,7 @@ module.exports = (request, response, next) => {
             data: [user.pledges.id(request.pledgeId)]
         }))
         .then(() => {
-            return aws.sendMessage({
+            aws.sendMessage({
                 userId: userId,
                 pledgeId: String(request.pledgeId)
             }, {

@@ -3,25 +3,93 @@
  */
 'use strict';
 
+const P = require('bluebird');
 const url = require('url');
 const uid2 = require('uid2');
 const crypto = require('crypto');
 const elliptic = require('elliptic');
 const httpRequest = require('request');
-const Transaction = require('../transactions/chain/transaction');
+// const User = require('../users/user');
 const Address = require('../addresses/address');
+const Transaction = require('../transactions/chain/transaction');
+const amazonWebServicesQueue = require('../lib/awsQueue');
 
 const schemes = {
   ed25519: new elliptic.ec('ed25519')
 };
 
-function requestWalletAddress(request, response, next) {
-    let user = request.currentUser;
-    let pledgeId = request.pledgeId;
-    let pledge = user.pledges[0];
+/**
+ * Sets up the task to run every few minutes
+ * @return {Object} - A setInterval object (for possible use with clearInterval)
+ */
+function startPledgeAddressManager() {
+    let envInterval = process.env.AWS_SQS_ADDRESS_REQUESTS_INTERVAL;
+    let interval = isNaN(envInterval) || envInterval < 1 ?
+        10 : envInterval; // 1 minute minimum
+    interval *= 1000; // convert seconds to miliseconds
+    return setInterval(pollAwsQueueForMessages, interval);
+}
+
+/**
+ * Recursively polls an Amazon Web Services Queue for available messages
+ */
+function pollAwsQueueForMessages() {
+    let params = {
+        queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
+    };
+
+    (function checkAndRequestMessages() {
+        let available = 0;
+        amazonWebServicesQueue.getQueueAttributes(params)
+            .then(attributes => {
+                available = attributes.ApproximateNumberOfMessages;
+                return amazonWebServicesQueue.receiveMessage(params);
+            })
+            .then(messages => {
+                return parsePledgeAddressRequests(messages)
+                    .map(message => {
+                        // requestWalletAddress(message.userId, message.pledgeId);
+                        // .then(() => {
+                        //     return amazonWebServicesQueue.deleteMessage(
+                        //         message.amazonWebServicesHandle,
+                        //         params
+                        //     );
+                        // });
+                    }, {concurrency: 10})
+                    .then(() => {
+                        if (messages.length < available) {
+                            return checkAndRequestMessages();
+                        }
+                    });
+            });
+    })();
+}
+
+function parsePledgeAddressRequests(messages) {
+    /* Parse properly formatted JSON request messages */
+    return P.map(messages, message => {
+        let body;
+
+        try {
+            body = JSON.parse(message.Body);
+        } catch (e) {
+            return {};
+        }
+
+        body.amazonWebServicesHandle = message.ReceiptHandle;
+        return body;
+    }).filter(message => {
+        return message.userId && message.pledgeId;
+    });
+}
+
+function requestWalletAddress(userId, pledgeId) {
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
     let nonce = uid2(10);
+
+    let user; //db.findOne
+    let pledge; // user.pledges[0]
 
     /* Build request body */
     let body = {
@@ -30,7 +98,7 @@ function requestWalletAddress(request, response, next) {
         },
         payload: {
             type: 'pledge-address',
-            reference: String(pledgeId),
+            reference: pledgeId,
             limit: pledge.montlyLimit,
             nonce: nonce
         },
@@ -55,7 +123,6 @@ function requestWalletAddress(request, response, next) {
         .then(data => {
             return Transaction.create(data.statement)
                 .then(transaction => {
-                    console.log(transaction);
                     let newAddress = {
                         address: data.address,
                         keys: data.keys,
@@ -64,7 +131,6 @@ function requestWalletAddress(request, response, next) {
                     return Address.create(newAddress);
                 })
                 .then(address => {
-                    console.log(address);
                     pledge.addresses.unshift(address.address);
                     return user.save();
                 });
@@ -97,4 +163,4 @@ requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, bod
     });
 };
 
-module.exports = requestWalletAddress;
+module.exports = startPledgeAddressManager;
