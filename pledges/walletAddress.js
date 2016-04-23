@@ -69,7 +69,7 @@ function requestWalletAddress(request, response, next) {
                     return user.save();
                 });
         });
-};
+}
 
 requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, body, options) {
     options = options || {};
@@ -95,6 +95,6 @@ requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, bod
             return resolve(response.body.data);
         });
     });
-}
+};
 
 module.exports = requestWalletAddress;

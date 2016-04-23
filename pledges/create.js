@@ -6,6 +6,7 @@
 const Charity = require('./pledge');
 const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
+const aws = require('../lib/awsQueue');
 
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
@@ -73,6 +74,13 @@ module.exports = (request, response, next) => {
         .then(( /*user*/ ) => response.json({
             data: [user.pledges.id(request.pledgeId)]
         }))
-        .then(() => next())
+        .then(() => {
+            return aws.sendMessage({
+                userId: userId,
+                pledgeId: String(request.pledgeId)
+            }, {
+                queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
+            });
+        })
         .catch(next);
 };
