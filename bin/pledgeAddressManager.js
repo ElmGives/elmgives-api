@@ -13,6 +13,7 @@ const Address = require('../addresses/address');
 const Transaction = require('../transactions/chain/transaction');
 const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
+const stringify = require('json-stable-stringify');
 
 const schemes = {
   ed25519: new elliptic.ec('ed25519')
@@ -122,7 +123,7 @@ function requestWalletAddress(user, pledgeId, nonce) {
 
     /* Generate a cryptographic hash of the payload */
     body.hash.value = crypto.createHash(body.hash.type)
-        .update(JSON.stringify(body.payload)).digest('hex');
+        .update(stringify(body.payload)).digest('hex');
 
     /* Sign the hash of the payload */
     body.signatures[0].signature = schemes[scheme]
