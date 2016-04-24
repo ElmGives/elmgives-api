@@ -11,7 +11,7 @@ let schema = new mongoose.Schema({
         required: true,
     },
     keys: {
-        schema: {
+        scheme: {
             type: String,
             default: 'ed25519',
         },
