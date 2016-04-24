@@ -14,7 +14,7 @@ const transactions = require('./transactions/chain');
 const posts = require('./posts');
 const images = require('./images');
 
-require('./bin/pledgeAddressManager')();
+require('./bin/pledgeAddressManager').start();
 
 module.exports = app => {
     app

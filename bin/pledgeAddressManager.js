@@ -5,17 +5,22 @@
 
 const P = require('bluebird');
 const url = require('url');
-const uid2 = require('uid2');
 const crypto = require('crypto');
 const elliptic = require('elliptic');
 const httpRequest = require('request');
-// const User = require('../users/user');
+const User = require('../users/user');
 const Address = require('../addresses/address');
 const Transaction = require('../transactions/chain/transaction');
+const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
 
 const schemes = {
   ed25519: new elliptic.ec('ed25519')
+};
+
+module.exports = {
+    start: startPledgeAddressManager,
+    requestAddress: requestWalletAddress
 };
 
 /**
@@ -48,13 +53,17 @@ function pollAwsQueueForMessages() {
             .then(messages => {
                 return parsePledgeAddressRequests(messages)
                     .map(message => {
-                        // requestWalletAddress(message.userId, message.pledgeId);
-                        // .then(() => {
-                        //     return amazonWebServicesQueue.deleteMessage(
-                        //         message.amazonWebServicesHandle,
-                        //         params
-                        //     );
-                        // });
+                        return User.findOne({
+                            '_id': new ObjectId(message.userId),
+                            'pledges._id': new ObjectId(message.pledgeId)
+                        })
+                        .then(user => requestWalletAddress(user, message.pledgeId, message.nonce))
+                        .then(() => {
+                            return amazonWebServicesQueue.deleteMessage(
+                                message.amazonWebServicesHandle,
+                                params
+                            );
+                        });
                     }, {concurrency: 10})
                     .then(() => {
                         if (messages.length < available) {
@@ -79,17 +88,18 @@ function parsePledgeAddressRequests(messages) {
         body.amazonWebServicesHandle = message.ReceiptHandle;
         return body;
     }).filter(message => {
-        return message.userId && message.pledgeId;
+        return message.userId && message.pledgeId && message.limit && message.nonce;
     });
 }
 
-function requestWalletAddress(userId, pledgeId) {
+function requestWalletAddress(user, pledgeId, nonce) {
+    if (!user) {
+        return Promise.reject(new Error('user-not-found'));
+    }
+
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
-    let nonce = uid2(10);
-
-    let user; //db.findOne
-    let pledge; // user.pledges[0]
+    let pledge = user.pledges.id(pledgeId);
 
     /* Build request body */
     let body = {
@@ -98,8 +108,8 @@ function requestWalletAddress(userId, pledgeId) {
         },
         payload: {
             type: 'pledge-address',
-            reference: pledgeId,
-            limit: pledge.montlyLimit,
+            reference: pledge._id,
+            limit: pledge.monthlyLimit,
             nonce: nonce
         },
         signatures: [{
@@ -162,5 +172,3 @@ requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, bod
         });
     });
 };
-
-module.exports = startPledgeAddressManager;
