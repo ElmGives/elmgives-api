@@ -58,7 +58,13 @@ function pollAwsQueueForMessages() {
                             '_id': new ObjectId(message.userId),
                             'pledges._id': new ObjectId(message.pledgeId)
                         })
-                        .then(user => requestWalletAddress(user, message.pledgeId, message.nonce))
+                        .then(user => {
+                            if (!user) {
+                                return Promise.reject(new Error('user-not-found'));
+                            }
+                            return requestWalletAddress(user, message.pledgeId, message.nonce)
+                                .then(models => P.map(models, model => model.save()));
+                        })
                         .then(() => {
                             return amazonWebServicesQueue.deleteMessage(
                                 message.amazonWebServicesHandle,
@@ -94,10 +100,6 @@ function parsePledgeAddressRequests(messages) {
 }
 
 function requestWalletAddress(user, pledgeId, nonce) {
-    if (!user) {
-        return Promise.reject(new Error('user-not-found'));
-    }
-
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
     let pledge = user.pledges.id(pledgeId);
@@ -132,18 +134,21 @@ function requestWalletAddress(user, pledgeId, nonce) {
     let postUrl = url.resolve(process.env.SIGNER_URL, '/addresses');
     return requestWalletAddress.makeHttpRequest('POST', postUrl, body)
         .then(data => {
-            return Transaction.create(data.statement)
-                .then(transaction => {
-                    let newAddress = {
-                        address: data.address,
-                        keys: data.keys,
-                        latestTransaction: transaction.hash.value
-                    };
-                    return Address.create(newAddress);
-                })
-                .then(address => {
+            let transaction = new Transaction(data.statement);
+            let address = new Address({
+                address: data.address,
+                keys: data.keys,
+                latestTransaction: data.statement.hash.value
+            });
+
+            return P.all([transaction, address])
+                .spread((transaction, address) => {
                     pledge.addresses.unshift(address.address);
-                    return user.save();
+                    return [
+                        user,
+                        transaction,
+                        address
+                    ];
                 });
         });
 }
