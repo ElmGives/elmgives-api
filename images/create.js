@@ -3,18 +3,17 @@
  */
 'use strict';
 
-const formidable = require('formidable');
+/**
+ * Using multiparty instead of formidable to stream directly to S3
+ * @see  https://github.com/andrewrk/node-multiparty
+ */
+const multiparty = require('multiparty');
 const upload = require('./upload');
 
 function parseForm(request, response, next) {
-    var form = new formidable.IncomingForm();
-    form.promises = [];
-    form._images = [];
-
-    form.multiples = true;
-    form.maxFields = 2;
-    form.keepExtensions = true;
-    form.uploadDir = '/tmp';
+    var form = new multiparty.Form({
+        autoFields: true
+    });
 
     form.on('error', (error) => {
         return next(error);
@@ -24,28 +23,20 @@ function parseForm(request, response, next) {
         return next(error);
     });
 
-    form.on('end', () => {
-        Promise
-            .all(form.promises)
-            .then(() => {
-                return response.json({
-                    data: form._images
-                });
-            }, error => {
-                return next(error);
-            });
-    });
-
-    form.onPart = function(part) {
+    form.on('part', function(part) {
 
         if (!part.filename) {
-            // Handle non file parts
-            return this.handlePart(part);
+            return console.log(' no file name');
         }
 
-        form._images.push(`${part.name}/${part.filename}`);
-        form.promises.push(upload(part));
-    };
+        upload(part)
+            .then(() => {
+                return response.json({
+                    data: [`${part.name}/${part.filename}`]
+                });
+            })
+            .catch(next);
+    });
 
     form.parse(request);
 }

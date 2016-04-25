@@ -47,13 +47,13 @@ module.exports = (request, response, next) => {
             if (!values[0] || !values[1]) {
                 let error = new Error();
                 error.status = 422;
-                error.message = 'Proper fields values requiered';
+                error.message = 'Proper fields values required';
 
                 return next(error);
             }
 
             let pledge = {
-                montlyLimit: request.body.montlyLimit,
+                monthlyLimit: request.body.monthlyLimit,
                 npoId: request.body.npoId,
                 bankId: request.body.bankId,
                 npo: values[0].name,

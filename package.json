@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npm i && nodemon ./bin/www | bunyan",
+    "dev": "nodemon ./bin/www | bunyan",
     "start-production": "node ./bin/www | bunyan",
     "lint": "jshint --exclude=./node_modules,./api-ui .",
     "update": "npm-check -u",
@@ -27,15 +28,15 @@
     "node": "5.9.0"
   },
   "dependencies": {
-    "aws-sdk": "2.2.48",
+    "aws-sdk": "2.3.4",
     "bcrypt": "0.8.5",
     "bluebird": "^3.3.4",
     "body-parser": "1.15.0",
     "bunyan": "1.8.0",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
+    "elliptic": "6.2.3",
     "express": "4.13.4",
-    "formidable": "1.0.17",
     "hat": "0.0.3",
     "jsonwebtoken": "5.7.0",
     "mandrill-api": "^1.0.45",
@@ -43,8 +44,8 @@
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2",
     "plaid": "1.0.10",
-	  "elliptic": "6.2.3",
-    "json-stable-stringify": "1.0.1"
+    "json-stable-stringify": "1.0.1",
+    "multiparty": "4.1.2"
   },
   "devDependencies": {
     "jshint": "2.9.1",

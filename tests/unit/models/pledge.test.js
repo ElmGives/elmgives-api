@@ -11,13 +11,13 @@ tape('Charity model', test => {
     let pledge = new Charity({});
     let values = pledge.schema.paths;
 
-    types(['montlyLimit'], values, test, 'Number');
+    types(['monthlyLimit'], values, test, 'Number');
     types(['archived', 'disabled'], values, test, 'Boolean');
     types(['userId', 'bankId', 'npoId'], values, test, 'ObjectID');
 
     pledge.validate(error => {
         let fields = [
-            'userId', 'bankId', 'npoId', 'montlyLimit', 'npo', 'bank'
+            'userId', 'bankId', 'npoId', 'monthlyLimit', 'npo', 'bank'
         ];
         required(fields, error.errors, test);
     });
@@ -28,6 +28,6 @@ tape('Charity model', test => {
         bankId: 'x'.repeat(24),
         npo: 'foobar',
         bank: 'barfoo',
-        montlyLimit: 50
+        monthlyLimit: 50
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 });
