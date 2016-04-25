@@ -28,11 +28,12 @@ const getTransaction = require('../transactions/chain/read');
 const createTransaction = require('../transactions/chain/create');
 const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
+const stringify = require('json-stable-stringify');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
 
-const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
+const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 48));
 const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
 
 const options = {
@@ -277,7 +278,7 @@ function sign(params) {
     };
 
     signatureRequestMessage.hash.value = crypto.createHash('sha256')
-        .update(JSON.stringify(signatureRequestMessage.payload)).digest('hex');
+        .update(stringify(signatureRequestMessage.payload)).digest('hex');
 
     // If there is no signature, then we can't continue
     // TODO: Add more checks. Signature process is very picky
