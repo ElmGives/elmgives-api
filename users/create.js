@@ -8,12 +8,17 @@ const email = require('../email/mandrill');
 const CLIENT_URL = process.env.CLIENT_URL;
 const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
 const validateAccount = require('./validateAccount');
+const requestPassword = require('./requestPassword');
 
 const logger = require('../logger');
 
 module.exports = function create(request, response, next) {
     if (request.body.verificationToken) {
         return validateAccount(request, response, next);
+    }
+
+    if(request.body.requestPassword){
+        return requestPassword(request, response, next);
     }
 
     return new User(request.body)
