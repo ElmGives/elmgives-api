@@ -15,6 +15,7 @@ require('dotenv').config();
 require('../config/database');
 
 const https = require('https');
+const http = require('http');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const logger = require('../logger');
@@ -27,16 +28,16 @@ const getTransaction = require('../transactions/chain/read');
 const createTransaction = require('../transactions/chain/create');
 const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
+const stringify = require('json-stable-stringify');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
 
-const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
+const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 48));
 const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
-const PLAID_SERVER = process.env.PLAID_ENV || 'tartan.plaid.com';
 
 const options = {
-    host: PLAID_SERVER,
+    host: process.env.PLAID_ENV.replace('https://', ''),
     method: 'POST',
     path: '/connect/get',
     headers: {
@@ -53,8 +54,8 @@ let _result = '';
 function request(personData) {
 
     const postData = querystring.stringify({
-        'client_id': process.env.PLAID_CLIENTID || 'test_id',
-        'secret': process.env.PLAID_SECRET || 'test_secret',
+        'client_id': process.env.PLAID_CLIENTID,
+        'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
         'options': {
             'gte':  YESTERDAY,
@@ -112,7 +113,7 @@ function processData(data, personData) {
 
         plaidTransactions = JSON.parse(data).transactions
             .filter(transactionFilter)
-            .map(roundUpAndSave(null, personData));
+            .map(roundUpAndSave.bind(null, personData));
     }
     catch (error) {
         return Promise.reject(error);
@@ -131,7 +132,8 @@ function processData(data, personData) {
             })
             .then(saveTransactions)
             .then(sign)
-            .then(sendToQueue);
+            .then(sendToQueue)
+            .then(sendPostToAws);
     } else {
         return Promise.resolve();
     }
@@ -183,7 +185,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ _id: address[0].latestTransaction});
+            return getTransaction({ 'hash.value': address[0].latestTransaction});
         });
 }
 
@@ -196,6 +198,37 @@ function sendToQueue(transactionChain) {
     const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
     return AWSQueue.sendMessage(transactionChain, params);
+}
+
+/**
+ * We send a triggger to AWS for signing to be done on signing server
+ * @returns {promise}
+ */
+function sendPostToAws() {
+    let url = process.env.SIGNER_URL.split(':');
+    
+    const options = {
+        host: url[0],
+        port: url[1],
+        path: '/aws/sqs',
+        method: 'POST',
+    };
+    
+    return new Promise(function (resolve, reject) {
+        
+        let request = http.request(options, function (response) {
+            response.setEncoding('utf8');
+            
+            response.on('data', function (chunk) {
+                logger.info(chunk);
+            });
+            
+            response.on('error', reject);
+            response.on('end', resolve);
+        });
+        
+        request.end();
+    });
 }
     
 /**
@@ -245,7 +278,7 @@ function sign(params) {
     };
 
     signatureRequestMessage.hash.value = crypto.createHash('sha256')
-        .update(JSON.stringify(signatureRequestMessage.payload)).digest('hex');
+        .update(stringify(signatureRequestMessage.payload)).digest('hex');
 
     // If there is no signature, then we can't continue
     // TODO: Add more checks. Signature process is very picky
@@ -268,7 +301,7 @@ function sign(params) {
 }
 
 let RoundAndSend = {
-    request,
+    request: request,
 };
 
 module.exports = RoundAndSend;

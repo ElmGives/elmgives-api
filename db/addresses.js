@@ -10,7 +10,7 @@ let addresses = require('./addresses.json');
 let findOrInsert = (data) => {
 
     const query = {
-        'hash.value': data.hash.value
+        'address': data.address,
     };
 
     return Address
