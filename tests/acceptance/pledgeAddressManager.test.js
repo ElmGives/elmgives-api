@@ -6,9 +6,9 @@ process.env.SERVER_PRIVATE_KEY = '0f39d2a6982da1cdfbadfaa530c83bffba832de5ac4dd0
 const tape = require('tape');
 const sinon = require('sinon');
 const mongoose = require('mongoose');
-const manager = require('../../../bin/pledgeAddressManager');
-const Pledge = require('../../../pledges/pledge');
-const User = require('../../../users/user');
+const manager = require('../../bin/pledgeAddressManager');
+const Pledge = require('../../pledges/pledge');
+const User = require('../../users/user');
 
 
 sinon.stub(manager.requestAddress, 'makeHttpRequest');

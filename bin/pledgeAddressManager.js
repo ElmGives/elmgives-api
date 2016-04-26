@@ -14,6 +14,7 @@ const Transaction = require('../transactions/chain/transaction');
 const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
+const logger = require('../logger');
 
 const schemes = {
   ed25519: new elliptic.ec('ed25519')
@@ -88,8 +89,9 @@ function parsePledgeAddressRequests(messages) {
 
         try {
             body = JSON.parse(message.Body);
-        } catch (e) {
-            return {};
+        } catch (error) {
+            logger.error(error);
+            return error;
         }
 
         body.amazonWebServicesHandle = message.ReceiptHandle;
