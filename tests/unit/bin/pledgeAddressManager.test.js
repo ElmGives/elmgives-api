@@ -10,8 +10,9 @@ const manager = require('../../../bin/pledgeAddressManager');
 const Pledge = require('../../../pledges/pledge');
 const User = require('../../../users/user');
 
+
 sinon.stub(manager.requestAddress, 'makeHttpRequest');
-let response = {
+let responseBody = {
     address: 'wi6d4171bHpasXSGhgrWYf6CVhgL15mYpG',
     keys: {
         scheme: 'ed25519',
@@ -41,11 +42,11 @@ let response = {
         }]
     }
 };
-manager.requestAddress.makeHttpRequest.returns(Promise.resolve(response));
+manager.requestAddress.makeHttpRequest.returns(Promise.resolve(responseBody));
 
 /* TESTS */
 tape('Pledge Address request message structure', test => {
-    test.plan(1);
+    test.plan(6);
 
     let user = new User({
         name: 'john',
@@ -74,10 +75,15 @@ tape('Pledge Address request message structure', test => {
             return manager.requestAddress(user, pledge.id, 'nonceValue');
         })
         .then(data => {
-            test.equal(1,1,'equal');
-            // let user = data[0];
-            // let transaction = data[1];
-            // let address = data[2];
-            // actual tests go here
+            let user = data[0];
+            let transaction = data[1];
+            let address = data[2];
+
+            test.equal(user.pledges.length, 1, 'a pledge is created for the user');
+            test.equal(user.pledges[0].addresses.length, 1, 'an address is created for the pledge');
+            test.equal(address.address, responseBody.address, 'the proper address is created');
+            test.equal(address.keys.public, responseBody.keys.public, 'the proper public key is associated to the address');
+            test.equal(address.latestTransaction, transaction.hash.value, 'latest transaction is set for the address');
+            test.equal(transaction.payload.limit, -pledge.monthlyLimit, 'the genesis transaction states the proper limit');
         });
 });
