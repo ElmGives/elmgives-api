@@ -35,13 +35,11 @@ tape('User model', test => {
     index(['email'], user.schema.tree, test);
 
     user.validate(error => {
-        let fields = ['name', 'firstName', 'email'];
+        let fields = ['email'];
         required(fields, error.errors, test);
     });
 
     new User({
-        name: 'foobar',
-        firstName: 'barfoo',
         email: 'foo@bar.com',
         password: 'foobar',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
@@ -63,8 +61,6 @@ tape('User model', test => {
         }
 
         new User({
-                name: 'foobar',
-                firstName: 'barfoo',
                 email: 'foo@bar.com',
                 password: 'foobar',
                 verificationToken: 1111
