@@ -14,7 +14,7 @@ mockgoose(mongoose);
 
 
 tape('User model', test => {
-    test.plan(25);
+    test.plan(23);
 
     let user = new User({});
     let values = user.schema.paths;
