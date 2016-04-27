@@ -24,13 +24,11 @@ let schema = new mongoose.Schema({
     },
 
     name: {
-        type: String,
-        required: true
+        type: String
     },
 
     firstName: {
-        type: String,
-        required: true
+        type: String
     },
 
     lastName: {
