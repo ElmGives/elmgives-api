@@ -69,11 +69,13 @@ function exitIfNoMoreWorkersLeft() {
  * If we ran out of people, we send a message to worker to end its process
  * @param {object} worker A worker instance
  * @param {Array}  people
- * @param {string} message    The message received from worker
+ * @param {string} message          The message received from worker. NOTE: With Node version 6+, this parameter
+ *                                  is replaced by the Worker instance
+ * @param {string} possibleMessage  From Node version 6+ this will be the message
  */
-function assignWork(worker, people, message) {
+function assignWork(worker, people, message, possibleMessage) {
 
-    if (message === 'ready') {
+    if (message === 'ready' || possibleMessage === 'ready') {
         const person = people.pop();
 
         if (person) {
@@ -96,7 +98,7 @@ function assignWork(worker, people, message) {
         }
     }
 
-    if (message === 'no more on AWS') {
+    if (message === 'no more on AWS' || possibleMessage === 'no more on AWS') {
         worker.send('finish');
     }
 }
