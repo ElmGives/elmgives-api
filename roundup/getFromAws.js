@@ -78,7 +78,14 @@ function extractTransactionChainFromMessage(message) {
                 return Promise.reject(error);
             }
 
-            return verifySign(address, transactionChain);
+            return verifySign(address, transactionChain)
+                .then( () => {
+                    // This code run when every transaction is processed
+                    // we use message saved throught closure
+                    const queue = process.env.AWS_SQS_URL_TO_SIGNER;
+                    
+                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
+                });
         });
     }
 
@@ -94,7 +101,7 @@ function extractTransactionChainFromMessage(message) {
  * @returns {promise}
  */
 function verifySign(address, transactionChain) {
-    let publicKey = address.keys.public;
+    let publicKey = process.env.SIGNER_PUBLIC_KEY;
 
     return verifySignature(transactionChain, ed25519, publicKey).then(function (verified) {
 
@@ -124,7 +131,7 @@ function checkTransactionPayload(address, transactionChain) {
     let comparison = chainPayload.previous.payload.count + chainPayload.transactions.length;
     let latestTransaction = null;
 
-    chainPayload.transactons.forEach(function (transaction) {
+    chainPayload.transactions.forEach(function (transaction) {
 
         saveTransaction(transaction);
 
@@ -133,12 +140,12 @@ function checkTransactionPayload(address, transactionChain) {
         }
     });
 
-    if (latestTransaction && latestTransaction.length === 1) {
+    if (latestTransaction) {
 
-        return verifySignature(latestTransaction[0], ed25519, publicKey).then(function (verifiedLatest) {
+        return verifySignature(latestTransaction, ed25519, publicKey).then(function (verifiedLatest) {
 
             if (verifiedLatest) {
-                return updateAddressLatestTransaction(latestTransaction._id, address.address);
+                return updateAddressLatestTransaction(latestTransaction.hash.value, address.address);
             }
 
             let error = new Error('Signature for last transaction is incorrect');
@@ -178,7 +185,7 @@ function updateAddressLatestTransaction(latestTransactionId, address) {
 }
 
 const FromAws = {
-    get,	
+    get: get,	
 };
 
 module.exports = FromAws;
