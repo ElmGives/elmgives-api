@@ -34,43 +34,47 @@ function startPledgeAddressManager() {
     let interval = isNaN(envInterval) || envInterval < 1 ?
         10 : envInterval; // 1 minute minimum
     interval *= 1000; // convert seconds to miliseconds
-    return setInterval(pollAwsQueueForMessages.bind(null, amazonWebServicesQueue), interval);
+    let params = {
+        queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
+    };
+    return setInterval(pollAwsQueueForMessages.bind(null, amazonWebServicesQueue, params), interval);
 }
 
 /**
  * Recursively polls an Amazon Web Services Queue for available messages
+ * @param {Object} queue - An Amazon Simple Queue Service queue
+ * @param {Object} params - A set parameters for message queueing
  */
-function pollAwsQueueForMessages(queue) {
-    let params = {
-        queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
-    };
-
-    /* Recursively poll messages from a queue until there are no more available messages */
-    (function checkAndRequestMessages() {
-        let available = 0;
-        /* Check available messages before polling the queue */
-        queue.getQueueAttributes(params)
-            .then(attributes => {
-                available = attributes.ApproximateNumberOfMessages;
-                /* Poll messages from the queue */
-                return queue.receiveMessage(params);
-            })
-            .then(messages => {
-                return parsePledgeAddressRequests(messages)
-                    .map(message => {
-                        return handlePledgeAddressRequest(message, queue, params);
-                    }, {concurrency: 10})
-                    .then(() => messages);
-            })
-            .then(messages => {
-                /* Poll the queue again if there are available messages left */
-                if (messages.length < available) {
-                    return checkAndRequestMessages();
-                }
-            });
-    })();
+function pollAwsQueueForMessages(queue, params) {
+    let available = 0;
+    /* Check available messages before polling the queue */
+    queue.getQueueAttributes(params)
+        .then(attributes => {
+            available = attributes.ApproximateNumberOfMessages;
+            /* Poll messages from the queue */
+            return queue.receiveMessage(params);
+        })
+        .then(messages => {
+            /* Parse messages and request a new pledge address when applicable */
+            return parsePledgeAddressRequests(messages)
+                .map(message => {
+                    return handlePledgeAddressRequest(message, queue, params);
+                }, {concurrency: 10})
+                .then(() => messages);
+        })
+        .then(messages => {
+            /* Poll the queue again if not all available messages were received */
+            if (messages.length < available) {
+                return pollAwsQueueForMessages(queue, params);
+            }
+        });
 }
 
+/**
+ * Parses and filters messages according to the expected properties
+ * @param  {String[]} messages - An array of messages received from a queue
+ * @return {String[]} A filtered array of valid parsed messages
+ */
 function parsePledgeAddressRequests(messages) {
     /* Parse properly formatted JSON request messages */
     return P.map(messages, message => {
