@@ -34,50 +34,39 @@ function startPledgeAddressManager() {
     let interval = isNaN(envInterval) || envInterval < 1 ?
         10 : envInterval; // 1 minute minimum
     interval *= 1000; // convert seconds to miliseconds
-    return setInterval(pollAwsQueueForMessages, interval);
+    return setInterval(pollAwsQueueForMessages.bind(null, amazonWebServicesQueue), interval);
 }
 
 /**
  * Recursively polls an Amazon Web Services Queue for available messages
  */
-function pollAwsQueueForMessages() {
+function pollAwsQueueForMessages(queue) {
     let params = {
         queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
     };
 
+    /* Recursively poll messages from a queue until there are no more available messages */
     (function checkAndRequestMessages() {
         let available = 0;
-        amazonWebServicesQueue.getQueueAttributes(params)
+        /* Check available messages before polling the queue */
+        queue.getQueueAttributes(params)
             .then(attributes => {
                 available = attributes.ApproximateNumberOfMessages;
-                return amazonWebServicesQueue.receiveMessage(params);
+                /* Poll messages from the queue */
+                return queue.receiveMessage(params);
             })
             .then(messages => {
                 return parsePledgeAddressRequests(messages)
                     .map(message => {
-                        return User.findOne({
-                            '_id': new ObjectId(message.userId),
-                            'pledges._id': new ObjectId(message.pledgeId)
-                        })
-                        .then(user => {
-                            if (!user) {
-                                return Promise.reject(new Error('user-not-found'));
-                            }
-                            return requestWalletAddress(user, message.pledgeId, message.nonce)
-                                .then(models => P.map(models, model => model.save()));
-                        })
-                        .then(() => {
-                            return amazonWebServicesQueue.deleteMessage(
-                                message.amazonWebServicesHandle,
-                                params
-                            );
-                        });
+                        return handlePledgeAddressRequest(message, queue, params);
                     }, {concurrency: 10})
-                    .then(() => {
-                        if (messages.length < available) {
-                            return checkAndRequestMessages();
-                        }
-                    });
+                    .then(() => messages);
+            })
+            .then(messages => {
+                /* Poll the queue again if there are available messages left */
+                if (messages.length < available) {
+                    return checkAndRequestMessages();
+                }
             });
     })();
 }
@@ -98,6 +87,29 @@ function parsePledgeAddressRequests(messages) {
         return body;
     }).filter(message => {
         return message.userId && message.pledgeId && message.limit && message.nonce;
+    });
+}
+
+function handlePledgeAddressRequest(message, queue, queueParams) {
+    return User.findOne({
+        '_id': new ObjectId(message.userId),
+        'pledges._id': new ObjectId(message.pledgeId)
+    })
+    .then(user => {
+        if (!user) {
+            return Promise.reject(new Error('user-not-found'));
+        }
+        return requestWalletAddress(user, message.pledgeId, message.nonce)
+            .then(models => P.map(models, model => model.save()));
+    })
+    .then(() => {
+        return queue.deleteMessage(
+            message.amazonWebServicesHandle,
+            queueParams
+        );
+    })
+    .catch(error => {
+        logger.error(error);
     });
 }
 
