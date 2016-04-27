@@ -13,6 +13,16 @@ var users = {
             'url': API + '/users',
             'method': 'GET'
         },
+        'single user': {
+            'description': 'Single user information.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
         'create new user': {
             'description': 'Posts a user.',
             'params': {
