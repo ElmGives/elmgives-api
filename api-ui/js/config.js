@@ -331,7 +331,8 @@ var sessions = {
             'wrapper': '',
             'method': 'POST',
             callback: function(response) {
-                localStorage.setItem('cu', JSON.stringify(response));
+                var data = response.data || [];
+                localStorage.setItem('cu', JSON.stringify(data[0]));
             }
         },
         'delete session': {
