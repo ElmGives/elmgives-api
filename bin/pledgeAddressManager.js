@@ -20,35 +20,40 @@ const schemes = {
   ed25519: new elliptic.ec('ed25519')
 };
 
-module.exports = {
-    start: startPledgeAddressManager,
-    requestAddress: requestWalletAddress
-};
+/**
+ * Pledge Address Manager
+ */
+function PledgeAddressManager() {
+    let envInterval = process.env.AWS_SQS_ADDRESS_REQUESTS_INTERVAL;
+    this.interval = isNaN(envInterval) || envInterval < 1 ?
+        10 : envInterval; // 1 minute minimum
+    this.interval *= 1000; // convert seconds to miliseconds
+    this.models = {
+        user: User
+    };
+}
 
 /**
  * Sets up the task to run every few minutes
  * @return {Object} - A setInterval object (for possible use with clearInterval)
  */
-function startPledgeAddressManager() {
-    let envInterval = process.env.AWS_SQS_ADDRESS_REQUESTS_INTERVAL;
-    let interval = isNaN(envInterval) || envInterval < 1 ?
-        10 : envInterval; // 1 minute minimum
-    interval *= 1000; // convert seconds to miliseconds
+PledgeAddressManager.prototype.start = function () {
     let params = {
         queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
     };
-    return setInterval(pollAwsQueueForMessages.bind(null, amazonWebServicesQueue, params), interval);
-}
+    let pollQueue = this.pollQueue.bind(this, amazonWebServicesQueue, params);
+    return setInterval(pollQueue, this.interval);
+};
 
 /**
  * Recursively polls an Amazon Web Services Queue for available messages
  * @param {Object} queue - An Amazon Simple Queue Service queue
  * @param {Object} params - A set parameters for message queueing
  */
-function pollAwsQueueForMessages(queue, params) {
+PledgeAddressManager.prototype.pollQueue = function (queue, params) {
     let available = 0;
     /* Check available messages before polling the queue */
-    queue.getQueueAttributes(params)
+    return queue.getQueueAttributes(params)
         .then(attributes => {
             available = attributes.ApproximateNumberOfMessages;
             /* Poll messages from the queue */
@@ -56,26 +61,26 @@ function pollAwsQueueForMessages(queue, params) {
         })
         .then(messages => {
             /* Parse messages and request a new pledge address when applicable */
-            return parsePledgeAddressRequests(messages)
+            return this.parsePledgeAddressRequests(messages)
                 .map(message => {
-                    return handlePledgeAddressRequest(message, queue, params);
+                    return this.handlePledgeAddressRequest(message, queue, params);
                 }, {concurrency: 10})
                 .then(() => messages);
         })
         .then(messages => {
             /* Poll the queue again if not all available messages were received */
             if (messages.length < available) {
-                return pollAwsQueueForMessages(queue, params);
+                return this.pollQueue(queue, params);
             }
         });
-}
+};
 
 /**
  * Parses and filters messages according to the expected properties
  * @param  {String[]} messages - An array of messages received from a queue
  * @return {String[]} A filtered array of valid parsed messages
  */
-function parsePledgeAddressRequests(messages) {
+PledgeAddressManager.prototype.parsePledgeAddressRequests = function (messages) {
     /* Parse properly formatted JSON request messages */
     return P.map(messages, message => {
         let body;
@@ -92,10 +97,10 @@ function parsePledgeAddressRequests(messages) {
     }).filter(message => {
         return message.userId && message.pledgeId && message.limit && message.nonce;
     });
-}
+};
 
-function handlePledgeAddressRequest(message, queue, queueParams) {
-    return User.findOne({
+PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, queue, queueParams) {
+    return this.models.user.findOne({
         '_id': new ObjectId(message.userId),
         'pledges._id': new ObjectId(message.pledgeId)
     })
@@ -103,7 +108,7 @@ function handlePledgeAddressRequest(message, queue, queueParams) {
         if (!user) {
             return Promise.reject(new Error('user-not-found'));
         }
-        return requestWalletAddress(user, message.pledgeId, message.nonce)
+        return this.requestWalletAddress(user, message.pledgeId, message.nonce)
             .then(models => P.map(models, model => model.save()));
     })
     .then(() => {
@@ -115,9 +120,9 @@ function handlePledgeAddressRequest(message, queue, queueParams) {
     .catch(error => {
         logger.error(error);
     });
-}
+};
 
-function requestWalletAddress(user, pledgeId, nonce) {
+PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, nonce) {
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
     let pledge = user.pledges.id(pledgeId);
@@ -150,7 +155,7 @@ function requestWalletAddress(user, pledgeId, nonce) {
         .sign(body.hash.value, privateKey, 'hex').toDER('hex');
 
     let postUrl = url.resolve(process.env.SIGNER_URL, '/addresses');
-    return requestWalletAddress.makeHttpRequest('POST', postUrl, body)
+    return this.makeHttpRequest('POST', postUrl, body)
         .then(data => {
             let transaction = new Transaction(data.statement);
             let address = new Address({
@@ -169,9 +174,9 @@ function requestWalletAddress(user, pledgeId, nonce) {
                     ];
                 });
         });
-}
+};
 
-requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, body, options) {
+PledgeAddressManager.prototype.makeHttpRequest = function makeHttpRequest(method, url, body, options) {
     options = options || {};
 
     return new Promise((resolve, reject) => {
@@ -196,3 +201,5 @@ requestWalletAddress.makeHttpRequest = function makeHttpRequest(method, url, bod
         });
     });
 };
+
+module.exports = new PledgeAddressManager();

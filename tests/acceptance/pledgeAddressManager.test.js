@@ -11,12 +11,11 @@ const Pledge = require('../../pledges/pledge');
 const User = require('../../users/user');
 
 
-sinon.stub(manager.requestAddress, 'makeHttpRequest');
+sinon.stub(manager, 'makeHttpRequest');
 let responseBody = {
     address: 'wi6d4171bHpasXSGhgrWYf6CVhgL15mYpG',
     keys: {
         scheme: 'ed25519',
-        private: '04fd9823dd98e84451349cb13e2ee4984247fdbd0d31db2401166c1e38e9d40d',
         public: '047d4e86e79989e56fc08fac5a6ca0ced42a6218b6836147833171cd9e8001c7bb3e521c3558b377d0ef05c7515d094a314ecefef82c0bf797d246d546ec60fb87'
     },
     statement: {
@@ -42,7 +41,7 @@ let responseBody = {
         }]
     }
 };
-manager.requestAddress.makeHttpRequest.returns(Promise.resolve(responseBody));
+manager.makeHttpRequest.returns(Promise.resolve(responseBody));
 
 /* TESTS */
 tape('Pledge Address request message structure', test => {
@@ -72,7 +71,7 @@ tape('Pledge Address request message structure', test => {
                 test.fail('Error creating user and/or pledge');
             }
             user.pledges.push(pledge);
-            return manager.requestAddress(user, pledge.id, 'nonceValue');
+            return manager.requestWalletAddress(user, pledge.id, 'nonceValue');
         })
         .then(data => {
             let user = data[0];
