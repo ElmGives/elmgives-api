@@ -28,7 +28,8 @@ module.exports = function show(request, response, next) {
             return response.json({
                 data: [{
                     name: found.name,
-                    email: found.email
+                    email: found.email,
+                    _id: found._id
                 }]
             });
         })

@@ -22,7 +22,7 @@ module.exports = function list(request, response, next) {
 
             return response.json({
                 data: data,
-                metadata: {
+                meta: {
                     count: users.length
                 }
             });
