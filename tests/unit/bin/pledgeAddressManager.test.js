@@ -16,17 +16,18 @@ let queue = {
 let params = {
     queue: 'QueueUrl'
 };
-let messages = [{
+let message = {
   userId: mongoose.Types.ObjectId(),
   pledgeId: mongoose.Types.ObjectId(),
   limit: 10,
   nonce: 'nonce'
-}];
+};
+let messages = [message];
 
 
 
 tape.only('Pledge Address Manager methods', test => {
-    test.plan(3);
+    test.plan(10);
 
     /* #pollQueue */
     sinon.stub(manager, 'parsePledgeAddressRequests').returns(P.resolve(messages));
@@ -39,10 +40,27 @@ tape.only('Pledge Address Manager methods', test => {
                 true, 'parsePledgeAddressRequests is called with an array of messages');
             test.deepEqual(manager.handlePledgeAddressRequest.getCall(0).args[0],
                 messages[0], 'handlePledgeAddressRequest is called with a message');
+        })
+        .then(() => {
+            manager.parsePledgeAddressRequests.restore();
+            messages[0] = {Body: JSON.stringify(message)};
+            messages.push({Body:'{}'}); // empty JSON
+            messages.push({Body:'{:}'}); // bad JSON
+            messages.push({Body:'{"userId":"1", "pledgeId": "2", "limit": 10}'}); // missing properties
+            return manager.parsePledgeAddressRequests(messages);
+        })
+        .then(messages => {
+            delete messages[0].amazonWebServicesHandle;
+            test.equal(messages[0].userId, String(message.userId), 'message userId is present');
+            test.equal(messages[0].pledgeId, String(message.pledgeId), 'message pledgeId is present');
+            test.equal(messages[0].limit, message.limit, 'message limit is present');
+            test.equal(messages[0].nonce, message.nonce, 'message nonce is present');
+            test.equal(messages[1], undefined, 'ignores empty JSON messages');
+            test.equal(messages[2], undefined, 'ignores badly formatted JSON');
+            test.equal(messages[3], undefined, 'ignores on missing properties');
+        })
+        .then(() => {
+            /* #handlePledgeAddressRequest */
+
         });
-
-    /* #parsePledgeAddressRequests */
-    
-    /* #handlePledgeAddressRequest */
-
 });
