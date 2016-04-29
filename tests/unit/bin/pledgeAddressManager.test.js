@@ -26,12 +26,13 @@ let messages = [message];
 
 
 
-tape.only('Pledge Address Manager methods', test => {
-    test.plan(10);
+tape('Pledge Address Manager methods', test => {
+    test.plan(16);
 
     /* #pollQueue */
     sinon.stub(manager, 'parsePledgeAddressRequests').returns(P.resolve(messages));
     sinon.stub(manager, 'handlePledgeAddressRequest').returns(Promise.resolve());
+    sinon.stub(manager, 'requestWalletAddress').returns(Promise.resolve([]));
     manager.pollQueue(queue, params)
         .then(() => {
             test.deepEqual(queue.receiveMessage.getCall(0).args[0],
@@ -60,7 +61,19 @@ tape.only('Pledge Address Manager methods', test => {
             test.equal(messages[3], undefined, 'ignores on missing properties');
         })
         .then(() => {
-            /* #handlePledgeAddressRequest */
-
+            manager.handlePledgeAddressRequest.restore();
+            let user = {name: 'john', lastName: 'doe'};
+            manager.models.user = {
+                findOne: sinon.stub().returns(P.resolve(user))
+            };
+            return manager.handlePledgeAddressRequest(message, queue, params);
+        })
+        .then(() => {
+            test.equal(manager.models.user.findOne.calledOnce, true, 'the User model is queried');
+            test.equal(manager.requestWalletAddress.calledOnce, true, '#requestWalletAddress was called');
+            test.equal(manager.requestWalletAddress.getCall(0).args[1], message.pledgeId, '#requestWalletAddress was called with the pledgeId');
+            test.equal(manager.requestWalletAddress.getCall(0).args[2], message.nonce, '#requestWalletAddress was called with the nonce');
+            test.equal(queue.deleteMessage.calledOnce, true, 'queue#deleteMessage was called');
+            test.deepEqual(queue.deleteMessage.getCall(0).args[1], params, '#deleteMessage was called with params');
         });
 });
