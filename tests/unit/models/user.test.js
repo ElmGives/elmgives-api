@@ -9,18 +9,17 @@ const index = require('../index');
 const defaults = require('../defaults');
 const mongoose = require('mongoose');
 const mockgoose = require('mockgoose');
+const logger = require('../../../logger');
 
 mockgoose(mongoose);
 
-
 tape('User model', test => {
-    test.plan(23);
+    test.plan(22);
 
     let user = new User({});
     let values = user.schema.paths;
     let stringProperties = [
-        'name', 'firstName', 'lastName', 'password', 'phone', 'email', 'zip',
-        'verificationToken'
+        'name', 'password', 'phone', 'email', 'zip', 'verificationToken'
     ];
 
     types(stringProperties, values, test, 'String');
@@ -34,10 +33,7 @@ tape('User model', test => {
     unique(['email'], user.schema.tree, test);
     index(['email'], user.schema.tree, test);
 
-    user.validate(error => {
-        let fields = ['email'];
-        required(fields, error.errors, test);
-    });
+    user.validate(error => required(['email', 'password'], error.errors, test));
 
     new User({
         email: 'foo@bar.com',
@@ -57,7 +53,9 @@ tape('User model', test => {
      */
     mongoose.connect('mongodb://example.com/TestingDB', function(error) {
         if (error) {
-            return console.log('error on fake db test', error);
+            return logger.error({
+                err: error
+            });
         }
 
         new User({
@@ -77,7 +75,9 @@ tape('User model', test => {
                 mongoose.connection.close(function() {});
             })
             .catch(error => {
-                console.log('error on test user', error);
+                logger.error({
+                    err: error
+                });
                 mockgoose.reset(function() {});
                 mongoose.connection.close(function() {});
             });
