@@ -16,7 +16,21 @@ const currentUser = require('../lib/currentUser');
 const PATH = '/users/:id/pledges';
 const SINGLE = '/users/:id/pledges/:pledgeId';
 
+/* Plaid client*/
+const plaid = require('plaid');
+plaid.client = new plaid.Client(
+    process.env.PLAID_CLIENTID,
+    process.env.PLAID_SECRET,
+    process.env.PLAID_ENV
+);
+
+function plaidClient(request, response, next) {
+    request.plaid = plaid;
+    return next();
+}
+
 router
+    .use(plaidClient)
     .get(SINGLE, verifyToken, authenticate, currentUser, single)
     .put(SINGLE, verifyToken, authenticate, currentUser, update)
     .delete(SINGLE, verifyToken, authenticate, currentUser, remove)

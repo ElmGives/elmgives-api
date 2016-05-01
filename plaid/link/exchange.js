@@ -7,7 +7,7 @@
 
 const Bank = require('../../banks/bank');
 
-module.exports = function patchConnectUser(request, response, next) {
+module.exports = function exchangePublicToken(request, response, next) {
     let plaid = request.plaid;
     let publicToken = request.body.public_token;
     let accountID = request.body.account_id;
