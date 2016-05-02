@@ -24,6 +24,7 @@ const logger = require('../logger');
  * @param {number} numberCpus The number of workers this cluster can spawn
  */
 function runWith(numberCpus) {
+    console.assert(!!numberCpus, 'At last one core is needed to perform the round up process');
 
     const query = {
         active: true,
@@ -42,7 +43,7 @@ function runWith(numberCpus) {
     User.find(query, selector).then(people => {
 
         if (!people || people.length === 0) {
-            logger.log('There is no people information to process');
+            logger.info('There is no people information to process');
             return;
         }
 
