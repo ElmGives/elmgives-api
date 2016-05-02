@@ -7,7 +7,7 @@ const Charity = require('./pledge');
 const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
 const aws = require('../lib/awsQueue');
-const uid2 = require('uid2');
+const logger = require('../logger');
 
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
@@ -80,9 +80,12 @@ module.exports = (request, response, next) => {
                 userId: userId,
                 pledgeId: String(request.pledgeId),
                 limit: request.body.monthlyLimit,
-                nonce: uid2(10) // random string of length 10
+                nonce: String((new Date()).getTime())
             }, {
                 queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
+            })
+            .catch(error => {
+                logger.error(error);
             });
         })
         .catch(next);
