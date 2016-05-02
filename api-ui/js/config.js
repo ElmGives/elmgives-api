@@ -50,6 +50,17 @@ var users = {
             'wrapper': '',
             'method': 'PUT'
         },
+        'delete user': {
+            'description': 'Removes an user.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'DELETE'
+        },
         'verify account': {
             'description': 'Verify account',
             'params': {
