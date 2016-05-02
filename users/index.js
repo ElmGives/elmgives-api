@@ -15,6 +15,7 @@ const create = require('./create');
 const list = require('./list');
 const show = require('./show');
 const update = require('./update');
+const remove = require('./remove');
 const adminOrOwner = require('./adminOrOwner');
 
 const PATH = '/users';
@@ -41,6 +42,7 @@ router
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
     .get(PATH, defaultMiddlewares, isAdmin, list)
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
+    .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
     .post(PATH, adminOrUser);
 
 module.exports = router;
