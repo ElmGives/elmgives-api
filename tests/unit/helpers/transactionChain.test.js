@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const chain = require('../../../helpers/transactionChain');
 const Transaction = require('../../../transactions/chain/transaction');
 const PlaidTransaction = require('../../../transactions/plaidTransaction');
+const stringify = require('json-stable-stringify');
 
 let address = 'wVdC5KxsQe2PNtHfk2vvurCiWACHWetNb4';
 let amounts =  [1.23, 4.56, 7.89, 2.34, 5.67, 8.90, 3.45, 6.78, 9.01];
@@ -32,7 +33,7 @@ let previous = new Transaction({
     signatures: []
 });
 previous.hash.value = crypto.createHash('sha256')
-    .update(JSON.stringify(previous.payload, chain.transactionSchemaOrder)).digest('hex');
+    .update(stringify(previous.payload)).digest('hex');
 
 let transactions = amounts.map((amount, index) => {
     return new PlaidTransaction({
