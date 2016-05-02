@@ -151,7 +151,6 @@ function roundUpAndSave(personData, transaction) {
     console.assert('amount' in transaction && typeof transaction.amount === 'number', 'Transaction amount is needed for saving Plaid Transaction');
     console.assert(transaction.date, 'Transaction date is needed for saving Plaid Transaction');
     console.assert(transaction.name, 'Transaction name is needed for saving Plaid Transaction');
-    console.assert(typeof roundup === 'number', 'Roundup is needed for saving Plaid Transaction');
     
     let roundupValue = roundup(transaction.amount);
 
@@ -196,7 +195,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ 'hash.value': address[0].latestTransaction});
+            return getTransaction({ 'hash.value': address.latestTransaction});
         });
 }
 
