@@ -11,7 +11,7 @@ let schema = new mongoose.Schema({
         required: true,
     },
     keys: {
-        schema: {
+        scheme: {
             type: String,
             default: 'ed25519',
         },
@@ -22,31 +22,8 @@ let schema = new mongoose.Schema({
     },
     latestTransaction: {
         type: String,
-        default: '',
-    },
-    // A signed document where is associate an address with a pledge ID
-    statement: {
-        signatures: [],
-        payload: {
-            address: {
-                type: String,
-            },
-            reference: {
-                type: String,
-            },
-            nonce: {
-                type: Number,
-            },
-        },
-        hash: {
-            type: {
-                type: String,
-            },
-            value: {
-                type: String,
-            },
-        },
-    },
+        required: true,
+    }
 }, {
     versionKey: false,
 });

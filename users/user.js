@@ -66,12 +66,6 @@ let schema = new mongoose.Schema({
         }
     },
 
-    wallet: {
-        addresses: {
-
-        }
-    },
-
     /**
      * Special status for 'deleted' users
      */
