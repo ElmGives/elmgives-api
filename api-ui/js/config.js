@@ -36,6 +36,20 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
+        'update user': {
+            'description': 'Updates user owned by current  user or any user from admin.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                name: 'string',
+                phone: 'string',
+                zip: 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
         'verify account': {
             'description': 'Verify account',
             'params': {
