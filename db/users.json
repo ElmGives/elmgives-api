@@ -34,6 +34,13 @@
     "firstName": "john",
     "email": "john@example.com",
     "active": true,
+    "plaid": {
+        "tokens": {
+            "connect": {
+                "wells": "test_wells"
+            }
+        }
+    },
     "wallet": {
         "addresses": {
             "npoExample": ["wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"]

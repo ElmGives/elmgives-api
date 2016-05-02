@@ -13,6 +13,16 @@ var users = {
             'url': API + '/users',
             'method': 'GET'
         },
+        'single user': {
+            'description': 'Single user information.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'method': 'GET'
+        },
         'create new user': {
             'description': 'Posts a user.',
             'params': {
@@ -25,6 +35,31 @@ var users = {
             'url': API + '/users',
             'wrapper': '',
             'method': 'POST'
+        },
+        'update user': {
+            'description': 'Updates user owned by current  user or any user from admin.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                name: 'string',
+                phone: 'string',
+                zip: 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
+        'delete user': {
+            'description': 'Removes an user.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'DELETE'
         },
         'verify account': {
             'description': 'Verify account',
@@ -321,7 +356,8 @@ var sessions = {
             'wrapper': '',
             'method': 'POST',
             callback: function(response) {
-                localStorage.setItem('cu', JSON.stringify(response));
+                var data = response.data || [];
+                localStorage.setItem('cu', JSON.stringify(data[0]));
             }
         },
         'delete session': {

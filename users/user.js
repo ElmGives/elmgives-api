@@ -24,16 +24,6 @@ let schema = new mongoose.Schema({
     },
 
     name: {
-        type: String,
-        required: true
-    },
-
-    firstName: {
-        type: String,
-        required: true
-    },
-
-    lastName: {
         type: String
     },
 
@@ -73,12 +63,6 @@ let schema = new mongoose.Schema({
     stripe: {
         token: {
             type: String
-        }
-    },
-
-    wallet: {
-        addresses: {
-
         }
     },
 

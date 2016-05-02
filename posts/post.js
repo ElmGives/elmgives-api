@@ -6,6 +6,8 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const REGION = process.env.AWS_S3_REGION;
+const BUCKET = process.env.AWS_S3_BUCKET;
 
 let schema = new mongoose.Schema({
     userId: {
@@ -45,4 +47,15 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
+
+/**
+ * Defined in this way because client side requests full url for images.
+ * Do not scale for other clients but that's how it's required right now.
+ */
+schema.post('init', function(doc) {
+    doc.images.map(item => {
+        item.source = `https://${REGION}.amazonaws.com/${BUCKET}/${item.source}`;
+    });
+});
+
 module.exports = mongoose.model('Post', schema);

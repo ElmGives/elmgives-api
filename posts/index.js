@@ -18,7 +18,7 @@ const Post = require('./post');
 const create = require('./create');
 const remove = require('./remove');
 const update = require('./update');
-const list = require('../lib/list');
+const list = require('./list');
 const show = require('../lib/show');
 
 const PATH = '/posts';

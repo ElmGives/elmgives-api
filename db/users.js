@@ -13,17 +13,6 @@ let findOrInsert = (data) => {
         email: data.email
     };
 
-    // For testing plaid service
-    if (Math.random() * 10 < 5) {
-        data.plaid = {
-            tokens: {
-                connect: {
-                    wells: 'test_wells',
-                },
-            },
-        };
-    }
-
     return User
         .findOne(query)
         .then(user => user ? user : new User(data).save())

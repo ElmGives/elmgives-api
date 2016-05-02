@@ -50,7 +50,7 @@ const Worker = {
     
     create() {
         return {
-            init,
+            init: init,
         };
     },
 };
