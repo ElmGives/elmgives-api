@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(29);
+    test.plan(23);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -42,7 +42,6 @@ tape('Npo model', test => {
         email: 'foo@bar.com',
         phone: 'some phone',
         backgroundColor: '#000',
-        node: 'A'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new Npo({
@@ -62,20 +61,5 @@ tape('Npo model', test => {
         let actual = error.errors.backgroundColor.message;
 
         test.equal(expected, actual, 'invalid backgroundColor');
-    });
-
-    new Npo({
-        node: 'foobar'
-    }).validate(error => {
-        let expected = '`foobar` is not a valid enum value for path `node`.';
-        let actual = error.errors.node.message;
-
-        test.equal(expected, actual, 'invalid node');
-    });
-
-    ['A', 'B', 'C', 'D', 'E'].map(node => {
-        new Npo({
-            node: node
-        }).validate(error => test.equal(!!error, true, `valid node: ${node}`));
     });
 });
