@@ -8,11 +8,12 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const hashPassword = require('../helpers/hashPassword');
 
 const timestamps = require('mongoose-timestamp');
 var unique = require('mongoose-unique-validator');
 
+const logger = require('../logger');
 const emailValidator = require('../helpers/emailValidator');
 const token = require('../helpers/token');
 
@@ -110,18 +111,22 @@ schema.pre('save', function(next) {
         return next();
     }
 
-    bcrypt.hash(this.password, 8, (error, hash) => {
+    hashPassword(this.password)
+        .then(hash => {
+            this.password = hash;
+            this.verificationToken = token();
+            return next();
+        })
+        .catch(error => {
+            logger.error({
+                err: error
+            });
 
-        if (error) {
             let saltError = new Error();
             saltError.message = 'Cant process request';
-            return next(saltError);
-        }
 
-        this.password = hash;
-        this.verificationToken = token();
-        return next();
-    });
+            return next(saltError);
+        });
 });
 
 const virtual = schema.virtual('verified');

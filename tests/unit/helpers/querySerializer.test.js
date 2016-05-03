@@ -16,7 +16,7 @@ tape('Query Serializer helper', test => {
         options: {}
     };
 
-    let expected = `db.rabits.find({"color":"white"}, {});`;
+    let expected = `db.rabits.find({"color":"white"});`;
     let actual = querySerializer(data);
 
     test.equal(expected, actual, 'should serialize query from object');

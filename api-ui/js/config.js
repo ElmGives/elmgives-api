@@ -27,8 +27,6 @@ var users = {
             'description': 'Posts a user.',
             'params': {
                 name: 'string',
-                firstName: 'string',
-                lastName: 'string',
                 password: 'string',
                 email: 'string'
             },
@@ -65,6 +63,36 @@ var users = {
             'description': 'Verify account',
             'params': {
                 verificationToken: 'string',
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'request password change': {
+            'description': 'Ask API for a token to change password',
+            'params': {
+                changePassword: 'string ( email ) ',
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'request new password': {
+            'description': 'Ask API token to change password',
+            'params': {
+                changePassword: 'string(email)',
+                code: 'string ( four digits code )'
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'change password': {
+            'description': 'Ask API for password change',
+            'params': {
+                changePassword: 'string(email)',
+                token: 'string ( big token )',
+                password: 'string ( new password )'
             },
             'url': API + '/users',
             'wrapper': '',

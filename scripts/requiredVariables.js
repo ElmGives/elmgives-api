@@ -39,7 +39,8 @@ let required = [
     'SERVER_KID',
     'SERVER_PRIVATE_KEY',
     'CLIENT_URL',
-    'MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE'
+    'MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE',
+    'MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE'
 ];
 
 let notFound = required.filter(option => {
