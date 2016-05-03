@@ -1,9 +1,8 @@
 /**
- * Middleware to create resource based on model and body provided
+ * Middleware to create post based on npo and and media provided
  */
 'use strict';
 
-const defaultResponse = require('../helpers/defaultResponse');
 const Post = require('./post');
 const Npo = require('../npos/npo');
 const validMedia = require('../helpers/validMedia');
@@ -15,6 +14,7 @@ module.exports = function create(request, response, next) {
         let error = new Error();
         error.status = 422;
         error.message = 'Invalid images/videos object';
+
         return next(error);
     }
 
@@ -29,12 +29,15 @@ module.exports = function create(request, response, next) {
                 let error = new Error();
                 error.status = 404;
                 error.message = 'NPO not found';
+
                 return Promise.reject(error);
             }
 
             return new Post(request.body).save();
         })
-        .then(defaultResponse(response))
+        .then(post => response.json({
+            data: post
+        }))
         .catch(next);
 
 };

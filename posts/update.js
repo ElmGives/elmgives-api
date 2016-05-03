@@ -58,7 +58,7 @@ module.exports = function update(request, response, next) {
         })
         .then(() => {
             return response.json({
-                data: []
+                data: {}
             });
         })
         .catch(next);

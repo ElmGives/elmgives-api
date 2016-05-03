@@ -3,24 +3,24 @@
  */
 'use strict';
 
-const defaultResponse = require('../helpers/defaultResponse');
+const Post = require('./post');
 const defaultQuery = {
     archived: false
 };
 
-/**
- * Model is an instance of mongoose model
- */
-module.exports = (Model, query) => {
-    return function list(request, response, next) {
+module.exports = function list(request, response, next) {
+    let query;
 
-        if(request.query.npoId){
-            query.npoId = request.query.npoId;
-        }
+    if (request.query.npoId) {
+        query = {};
+        query.npoId = request.query.npoId;
+    }
 
-        return Model
-            .find(query || defaultQuery)
-            .then(defaultResponse(response))
-            .catch(next);
-    };
+
+    return Post
+        .find(query || defaultQuery)
+        .then(list => response.json({
+            data: list
+        }))
+        .catch(next);
 };
