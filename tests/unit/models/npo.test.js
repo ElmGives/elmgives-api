@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(23);
+    test.plan(29);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -41,7 +41,8 @@ tape('Npo model', test => {
         logoUrl: 'http://localhost',
         email: 'foo@bar.com',
         phone: 'some phone',
-        backgroundColor: '#000'
+        backgroundColor: '#000',
+        node: 'A'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new Npo({
@@ -55,12 +56,26 @@ tape('Npo model', test => {
     }).validate(error => test.equal(true, !!error, 'invalid email'));
 
     new Npo({
-        userId: 'x'.repeat(24),
-        name: 'foobar',
-        description: 'barfoo',
-        logoUrl: 'http://localhost',
-        email: 'foo@bar.com',
-        phone: 'some phone',
-        backgroundColor: '#000000'
-    }).validate(error => test.equal(false, !!error, 'invalid backgroundColor'));
+        backgroundColor: '#99'
+    }).validate(error => {
+        let expected = '#99 is not a valid hex color';
+        let actual = error.errors.backgroundColor.message;
+
+        test.equal(expected, actual, 'invalid backgroundColor');
+    });
+
+    new Npo({
+        node: 'foobar'
+    }).validate(error => {
+        let expected = '`foobar` is not a valid enum value for path `node`.';
+        let actual = error.errors.node.message;
+
+        test.equal(expected, actual, 'invalid node');
+    });
+
+    ['A', 'B', 'C', 'D', 'E'].map(node => {
+        new Npo({
+            node: node
+        }).validate(error => test.equal(!!error, true, `valid node: ${node}`));
+    });
 });

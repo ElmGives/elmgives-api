@@ -4,12 +4,14 @@
     "logoUrl": "http://endangeredspeciesinternational.org/images/esi_logo.gif",
     "phone": "123",
     "email": "communications@endangeredspeciesinternational.org",
-    "backgroundColor": "#000"
+    "backgroundColor": "#000",
+    "node": "A"
 }, {
     "name": "Foundation for Sustainable Development",
     "description": "foundation for sustainable development",
     "logoUrl": "http://www.fsdinternational.org/sites/all/themes/default/image/logo.gif",
     "phone": "(415) 283-4873",
     "email": "info@fsdinternational.com",
-    "backgroundColor": "#000"
+    "backgroundColor": "#000",
+    "node": "A"
 }]
