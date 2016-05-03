@@ -68,11 +68,11 @@ function exitIfNoMoreWorkersLeft() {
  * When worker has no job, It sends a 'ready' message.
  * We check if there are more people to work on. If we do, we send one person to process
  * If we ran out of people, we send a message to worker to end its process
- * @param {object} worker A worker instance
- * @param {Array}  people
- * @param {string} message          The message received from worker. NOTE: With Node version 6+, this parameter
- *                                  is replaced by the Worker instance
- * @param {string} possibleMessage  From Node version 6+ this will be the message
+ * @param {object}        worker            A worker instance
+ * @param {Array}         people
+ * @param {string|Object} message           The message received from worker. From node v6+ this parameter
+ *                                          corresponds to the Worker instance
+ * @param {string|handle} possibleMessage   From node v6+ this will be the message
  */
 function assignWork(worker, people, message, possibleMessage) {
 
