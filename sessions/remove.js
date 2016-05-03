@@ -13,7 +13,7 @@ module.exports = function remove(request, response, next) {
     };
 
     let defaultResponse = {
-        data: []
+        data: {}
     };
 
     return Session
