@@ -9,8 +9,10 @@ const validMedia = require('../helpers/validMedia');
 
 module.exports = function create(request, response, next) {
     request.body.userId = request.session._id;
+    let images = request.body.images;
+    let videos = request.body.videos;
 
-    if (!validMedia(request.body.images) || !validMedia(request.body.videos)) {
+    if (!validMedia(images, 'images') || !validMedia(videos, 'videos')) {
         let error = new Error();
         error.status = 422;
         error.message = 'Invalid images/videos object';
@@ -39,5 +41,4 @@ module.exports = function create(request, response, next) {
             data: post
         }))
         .catch(next);
-
 };

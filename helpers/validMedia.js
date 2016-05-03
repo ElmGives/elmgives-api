@@ -3,7 +3,12 @@
  */
 'use strict';
 
-module.exports = function validMedia(data) {
+const types = {
+    images: (data) => data.some(item => item.source && item.order),
+    videos: (data) => data.some(item => item.source && item.order && item.shareUrl),
+}
+
+module.exports = function validMedia(data, type) {
 
     /**
      * Allow admin user to create a post without images or videos, therefore
@@ -17,5 +22,5 @@ module.exports = function validMedia(data) {
         data = [data];
     }
 
-    return data.some(item => item.source && item.order);
+    return types[type] && types[type](data);
 };
