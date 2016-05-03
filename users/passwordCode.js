@@ -59,9 +59,9 @@ module.exports = function requestPassword(request, response, next) {
             logger.info(`Recovery password for ${sent.email} status: ${sent.status}, mandrillId: ${sent._id}`);
 
             response.json({
-                data: [{
+                data: {
                     email: 'sent'
-                }]
+                }
             });
         })
         .catch(next);

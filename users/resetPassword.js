@@ -18,6 +18,10 @@ const RecoveryCode = require('./recoveryCode');
 const verifyToken = require('../helpers/verifyToken');
 const hashPassword = require('../helpers/hashPassword');
 
+const defaultResponse = {
+    data: {}
+};
+
 module.exports = function requestPassword(request, response, next) {
     let token = request.body.token;
     let email = request.body.changePassword;
@@ -96,10 +100,6 @@ module.exports = function requestPassword(request, response, next) {
 
             return user.save();
         })
-        .then(saved => {
-            response.json({
-                data: []
-            });
-        })
+        .then(() => response.json(defaultResponse))
         .catch(next);
 };

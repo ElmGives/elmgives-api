@@ -38,9 +38,9 @@ module.exports = function passwordToken(request, response, next) {
         })
         .then(token => {
             response.json({
-                data: [{
+                data: {
                     token: token
-                }]
+                }
             });
         })
         .catch(next);
