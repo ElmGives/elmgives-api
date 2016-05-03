@@ -1,25 +1,23 @@
 /**
- * Middleware to create user accounts
+ * Middleware to manage user accounts
+ *
+ * Normal POST /users will create a user
+ *
+ * Handles verification of accounts by validate token provided via email
+ * Sends one time to token to recovery password
+ * Handles change passwords
  */
 'use strict';
 
 const User = require('./user');
 const email = require('../email/mandrill');
-const CLIENT_URL = process.env.CLIENT_URL;
-const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
-const validateAccount = require('./validateAccount');
-const requestPassword = require('./requestPassword');
-
 const logger = require('../logger');
 
-module.exports = function create(request, response, next) {
-    if (request.body.verificationToken) {
-        return validateAccount(request, response, next);
-    }
+const CLIENT_URL = process.env.CLIENT_URL;
+const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
 
-    if(request.body.requestPassword){
-        return requestPassword(request, response, next);
-    }
+module.exports = function create(request, response, next) {
+
 
     return new User(request.body)
         .save()
