@@ -12,8 +12,6 @@ const hexColor = require('hex-color-regex');
 const REGION = process.env.AWS_S3_REGION;
 const BUCKET = process.env.AWS_S3_BUCKET;
 
-const nodes = ['A', 'B', 'C', 'D', 'E'];
-
 let schema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -78,12 +76,6 @@ let schema = new mongoose.Schema({
             }).test(value),
             message: '{VALUE} is not a valid hex color'
         }
-    },
-
-    node: {
-        type: String,
-        required: true,
-        enum: nodes
     },
 
     address: {
