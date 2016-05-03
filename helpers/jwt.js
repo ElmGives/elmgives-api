@@ -9,13 +9,18 @@
  * https://github.com/auth0/node-jsonwebtoken
  */
 const jwt = require('jsonwebtoken');
+const options = {
+    algorithm: 'HS256'
+};
 
 module.exports = (data, salt) => {
     return new Promise((resolve, reject) => {
-        return jwt.sign(data, salt, {
-            algorithm: 'HS256'
-        }, function(token, error) {
-            error ? reject(error) : resolve(token);
+        /**
+         * Sign `data` with `salt`
+         */
+        return jwt.sign(data, salt, options, (token, error) => {
+
+            return error ? reject(error) : resolve(token);
         });
     });
 };
