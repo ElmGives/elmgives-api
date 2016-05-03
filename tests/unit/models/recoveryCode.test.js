@@ -22,6 +22,7 @@ tape('RecoveryCode model', test => {
 
     new RecoveryCode({
         userId: 'x'.repeat(24),
-        code: 2212
+        code: 2212,
+        userEmail: 'foo@foobar.com'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 });

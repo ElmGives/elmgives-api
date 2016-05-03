@@ -6,6 +6,7 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const emailValidator = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
     userId: {
@@ -16,6 +17,15 @@ let schema = new mongoose.Schema({
     code: {
         type: Number,
         required: true
+    },
+
+    userEmail: {
+        type: String,
+        required: true,
+        validate: {
+            validator: value => emailValidator(value),
+            message: '{VALUE} is not a valid email'
+        }
     }
 }, {
     versionKey: false
