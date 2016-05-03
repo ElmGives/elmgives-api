@@ -4,6 +4,7 @@
 'use strict';
 
 const Transaction = require('../transactions/chain/transaction');
+const arraySort = require('../helpers/arraySort');
 
 module.exports = function getPledgeTransactionHistory(request, response, next) {
     let all = request.query.all;
@@ -38,13 +39,11 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             /* Group all transactions in one array regardless of their address */
             if (transactions.length) {
                 transactions = transactions.reduce((txs1, txs2) => txs1.concat(txs2));
-                transactions.sort((tx1, tx2) => { // tx: transaction
-                    return tx1.timestamp < tx2.timestamp ? -1 : 1;
-                });
+                transactions.sort(arraySort('timestamp', request.query.newestFirst));
             }
             response.json({
                 data: transactions,
-                metadata: {
+                meta: {
                     count: transactions.length
                 }
             });
