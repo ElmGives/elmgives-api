@@ -21,11 +21,13 @@ const authenticate = require('../lib/authenticate');
 const PATH = '/banks';
 const SINGLE = '/banks/:id';
 
+const defaultMiddlewares = [verifyToken, authenticate];
+
 router
-    .get(PATH, verifyToken, authenticate, list(Bank))
-    .post(PATH, verifyToken, authenticate, create(Bank))
-    .get(SINGLE, verifyToken, authenticate, show(Bank))
-    .put(SINGLE, verifyToken, authenticate, update(Bank))
-    .delete(SINGLE, verifyToken, authenticate, archive(Bank));
+    .get(PATH, defaultMiddlewares, list(Bank))
+    .post(PATH, defaultMiddlewares, create(Bank))
+    .get(SINGLE, defaultMiddlewares, show(Bank))
+    .put(SINGLE, defaultMiddlewares, update(Bank))
+    .delete(SINGLE, defaultMiddlewares, archive(Bank));
 
 module.exports = router;
