@@ -17,6 +17,7 @@ require('../config/database');
 
 const cluster = require('cluster');
 const User = require('../users/user');
+const findOneBank = require('../banks/readOne');
 const logger = require('../logger');
 
 /**
@@ -80,19 +81,30 @@ function assignWork(worker, people, message, possibleMessage) {
 
         if (person) {
 
-            // NOTE: We assume user has only one bank account registered on the application
-            const bankType = Object.keys(person.plaid.tokens.connect)[0];
+            // NOTE: We assume user has only one bank account registered on the application for pledge
+            const [ firstPledge ] = person.pledges;
+            const [ firstAddress ] = firstPledge.addresses;
+            
+            const query = { _id: firstPledge.bandkId };
 
-            // NOTE: We assume user can donate to one NPO at a time
-            const walletAddress = person.wallet ? Object.keys(person.wallet.addresses)[0] : null;
-            const address = walletAddress ? person.wallet.addresses[walletAddress][0] : null;
+            findOneBank(query).then(bank => {
 
-            // we send just what the worker needs
-            worker.send({
-                _id: person._id,
-                token: person.plaid.tokens.connect[bankType],
-                address: address,
+                if (!bank) {
+                    const error = new Error('There is no bank on banks collection with this ID: ' + query._id);
+                    logger.error({ err: error });
+                    
+                    assignWork(worker, people, 'ready');
+                    return;
+                }
+
+                // we send just what the worker needs
+                worker.send({
+                    _id: person._id,
+                    token: person.plaid.tokens.connect[bank.type],
+                    address: firstAddress,
+                });
             });
+
         } else {
             worker.send('get from AWS');
         }
