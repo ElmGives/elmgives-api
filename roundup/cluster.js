@@ -67,13 +67,15 @@ function exitIfNoMoreWorkersLeft() {
  * When worker has no job, It sends a 'ready' message.
  * We check if there are more people to work on. If we do, we send one person to process
  * If we ran out of people, we send a message to worker to end its process
- * @param {object} worker A worker instance
- * @param {Array}  people
- * @param {string} message    The message received from worker
+ * @param {object}        worker            A worker instance
+ * @param {Array}         people
+ * @param {string|Object} message           The message received from worker. From node v6+ this parameter
+ *                                          corresponds to the Worker instance
+ * @param {string|handle} possibleMessage   From node v6+ this will be the message
  */
-function assignWork(worker, people, message) {
+function assignWork(worker, people, message, possibleMessage) {
 
-    if (message === 'ready') {
+    if (message === 'ready' || possibleMessage === 'ready') {
         const person = people.pop();
 
         if (person) {
@@ -96,7 +98,7 @@ function assignWork(worker, people, message) {
         }
     }
 
-    if (message === 'no more on AWS') {
+    if (message === 'no more on AWS' || possibleMessage === 'no more on AWS') {
         worker.send('finish');
     }
 }
