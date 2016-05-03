@@ -10,7 +10,6 @@ const users = require('./users');
 const plaid = require('./plaid');
 const pledges = require('./pledges');
 const sessions = require('./sessions');
-const transactions = require('./transactions/chain');
 const posts = require('./posts');
 const images = require('./images');
 
@@ -20,7 +19,6 @@ module.exports = app => {
         .use(posts)
         .use(sessions)
         .use(pledges)
-        .use(transactions)
         .use(plaid)
         .use(users)
         .use(banks)
