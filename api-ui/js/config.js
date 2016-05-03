@@ -36,6 +36,31 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
+        'update user': {
+            'description': 'Updates user owned by current  user or any user from admin.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                name: 'string',
+                phone: 'string',
+                zip: 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
+        'delete user': {
+            'description': 'Removes an user.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'DELETE'
+        },
         'verify account': {
             'description': 'Verify account',
             'params': {

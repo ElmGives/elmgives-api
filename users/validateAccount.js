@@ -23,7 +23,7 @@ module.exports = function validateAccount(request, response, next) {
                 error.status = 404;
                 error.message = 'Token already used';
 
-                return next(error);
+                return Promise.reject(error);
             }
 
             user.verificationToken = '';
