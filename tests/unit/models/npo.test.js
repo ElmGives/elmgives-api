@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(20);
+    test.plan(21);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -41,4 +41,13 @@ tape('Npo model', test => {
         email: 'foo@bar.com',
         phone: 'some phone',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Npo({
+        userId: new Array(25).join('x'),
+        name: 'foobar',
+        description: 'barfoo',
+        logoUrl: 'http://localhost',
+        email: 'foo',
+        phone: 'some phone',
+    }).validate(error => test.equal(true, !!error, 'invalid email'));
 });

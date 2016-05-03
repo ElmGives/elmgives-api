@@ -6,6 +6,8 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const email = require('../helpers/emailValidator');
+
 const REGION = process.env.AWS_S3_REGION;
 const BUCKET = process.env.AWS_S3_BUCKET;
 
@@ -32,7 +34,11 @@ let schema = new mongoose.Schema({
 
     email: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: value => email(value),
+            message: '{VALUE} is not a valid email'
+        }
     },
 
     phone: {
