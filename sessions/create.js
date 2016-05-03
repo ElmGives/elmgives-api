@@ -119,7 +119,7 @@ module.exports = function create(request, response, next) {
             request.sessionData.isAdmin = admin(role || {});
 
             response.json({
-                data: [request.sessionData]
+                data: request.sessionData
             });
         })
         .catch(next);
