@@ -1,12 +1,15 @@
 /**
- * Middleware to verify users accounts
+ * Middleware to send code used to change password.
+ *
+ * Find user by provided email param `changePassword`
+ * If user found, create a record to store `code`, `userId` and `email`
+ * Then, send email with code
  */
 'use strict';
 
 const User = require('./user');
 const email = require('../email/mandrill');
 const logger = require('../logger');
-const verificationCode = require('../helpers/verificationCode');
 const RecoveryCode = require('./recoveryCode');
 const code = require('../helpers/verificationCode');
 
@@ -14,7 +17,7 @@ const TEMPLATE = process.env.MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE;
 
 module.exports = function requestPassword(request, response, next) {
     const query = {
-        email: request.body.resetPassword
+        email: request.body.changePassword
     };
 
     return User
@@ -50,7 +53,7 @@ module.exports = function requestPassword(request, response, next) {
 
             return email.send(TEMPLATE, to, options);
         })
-        .then((sent) => {
+        .then(sent => {
             sent = sent[0] || {};
 
             logger.info(`Recovery password for ${sent.email} status: ${sent.status}, mandrillId: ${sent._id}`);

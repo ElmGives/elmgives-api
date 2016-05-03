@@ -1,5 +1,15 @@
 /**
- * Middleware to validate recovery password token
+ * Middleware to validate change password
+ *
+ * -    Validate required params
+ * -    Verify token
+ * -    Find code from token if any
+ * -    Validate code information against current request
+ * -    Find user with verified code information
+ * -    Validate user against current request information
+ * -    Hash new password
+ * -    Save user with new password
+ * -    Send default response
  */
 'use strict';
 
@@ -9,11 +19,21 @@ const verifyToken = require('../helpers/verifyToken');
 const hashPassword = require('../helpers/hashPassword');
 
 module.exports = function requestPassword(request, response, next) {
+    let token = request.body.token;
+    let email = request.body.changePassword;
+
+    if (!token || !email) {
+        let error = new Error();
+        error.message = 'Required fields: token, changePassword';
+        error.status = 422;
+
+        return next(error);
+    }
 
     /**
      * Get code from encrypted json web token
      */
-    return verifyToken(request.body.token, request.body.resetPassword)
+    return verifyToken(request.body.token, request.body.changePassword)
         .then(code => {
             if (!code) {
                 let error = new Error();
@@ -54,7 +74,7 @@ module.exports = function requestPassword(request, response, next) {
             return User.findOne(query);
         })
         .then(user => {
-            if (!user || user.email !== request.body.resetPassword) {
+            if (!user || user.email !== request.body.changePassword) {
                 let error = new Error();
                 error.message = 'Invalid request token';
                 error.status = 422;

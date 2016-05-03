@@ -44,21 +44,21 @@ function validateRequest(request, response, next) {
         return validateAccount(request, response, next);
     }
 
-    if (request.body.resetPassword && !request.body.code && !request.body.token) {
+    if (request.body.changePassword && !request.body.code && !request.body.token) {
         /**
          * Send four digits code
          */
         return passwordCode(request, response, next);
     }
 
-    if (request.body.resetPassword && request.body.code) {
+    if (request.body.changePassword && request.body.code) {
         /**
          * Send one time token to user to allow him/her to change password
          */
         return passwordToken(request, response, next);
     }
 
-    if (request.body.resetPassword && request.body.token) {
+    if (request.body.changePassword && request.body.token) {
         /**
          * Send one time token to user to allow him/her to change password
          */

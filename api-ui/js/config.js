@@ -71,7 +71,7 @@ var users = {
         'request password change': {
             'description': 'Ask API for a token to change password',
             'params': {
-                resetPassword: 'string(email)',
+                changePassword: 'string ( email ) ',
             },
             'url': API + '/users',
             'wrapper': '',
@@ -80,7 +80,7 @@ var users = {
         'request new password': {
             'description': 'Ask API token to change password',
             'params': {
-                resetPassword: 'string(email)',
+                changePassword: 'string(email)',
                 code: 'string ( four digits code )'
             },
             'url': API + '/users',
@@ -90,7 +90,7 @@ var users = {
         'change password': {
             'description': 'Ask API for password change',
             'params': {
-                resetPassword: 'string(email)',
+                changePassword: 'string(email)',
                 token: 'string ( big token )',
                 password: 'string ( new password )'
             },

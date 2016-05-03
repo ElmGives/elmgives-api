@@ -1,5 +1,8 @@
 /**
- * Middleware to verify users accounts
+ * Middleware to send token used to change password
+ * Find code by proived code, then
+ * ecrypt code with user email, then
+ * send token
  */
 'use strict';
 
@@ -27,12 +30,13 @@ module.exports = function passwordToken(request, response, next) {
              * Sign code with user's email, this token will be use only once
              * and it's used to verify new password against user who requested.
              */
-            return jsonWebToken({
+            let toEncode = {
                 token: data.code
-            }, data.userEmail);
+            };
+
+            return jsonWebToken(toEncode, data.userEmail);
         })
         .then(token => {
-            console.log('token', token);
             response.json({
                 data: [{
                     token: token
