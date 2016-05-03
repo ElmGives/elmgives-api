@@ -14,7 +14,7 @@ module.exports = (data) => {
     if (doc.fields) {
         result = `${result}, ${fields})`;
     } else {
-        result = `${result})`;
+        result = `${result});`;
     }
 
     if (doc.limit) {
