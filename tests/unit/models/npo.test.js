@@ -7,7 +7,7 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(21);
+    test.plan(23);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
@@ -27,7 +27,8 @@ tape('Npo model', test => {
 
     npo.validate(error => {
         let fields = [
-            'userId', 'name', 'description', 'logoUrl', 'email', 'phone'
+            'userId', 'name', 'description', 'logoUrl', 'email', 'phone',
+            'backgroundColor'
         ];
 
         required(fields, error.errors, test);
@@ -40,6 +41,7 @@ tape('Npo model', test => {
         logoUrl: 'http://localhost',
         email: 'foo@bar.com',
         phone: 'some phone',
+        backgroundColor: '#000'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new Npo({
@@ -49,5 +51,16 @@ tape('Npo model', test => {
         logoUrl: 'http://localhost',
         email: 'foo',
         phone: 'some phone',
+        backgroundColor: '#000'
     }).validate(error => test.equal(true, !!error, 'invalid email'));
+
+    new Npo({
+        userId: 'x'.repeat(24),
+        name: 'foobar',
+        description: 'barfoo',
+        logoUrl: 'http://localhost',
+        email: 'foo@bar.com',
+        phone: 'some phone',
+        backgroundColor: '#000000'
+    }).validate(error => test.equal(false, !!error, 'invalid backgroundColor'));
 });

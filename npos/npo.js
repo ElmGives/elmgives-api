@@ -7,6 +7,7 @@
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
 const email = require('../helpers/emailValidator');
+const hexColor = require('hex-color-regex');
 
 const REGION = process.env.AWS_S3_REGION;
 const BUCKET = process.env.AWS_S3_BUCKET;
@@ -64,6 +65,17 @@ let schema = new mongoose.Schema({
 
     zip: {
         type: String
+    },
+
+    backgroundColor: {
+        type: String,
+        required: true,
+        validate: {
+            validator: value => hexColor({
+                strict: true
+            }).test(value),
+            message: '{VALUE} is not a valid hex color'
+        }
     },
 
     address: {

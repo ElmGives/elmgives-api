@@ -40,15 +40,16 @@
     "elliptic": "6.2.3",
     "express": "4.13.4",
     "hat": "0.0.3",
+    "hex-color-regex": "1.0.3",
     "json-stable-stringify": "1.0.1",
     "jsonwebtoken": "5.7.0",
     "mandrill-api": "^1.0.45",
     "mongoose": "4.4.7",
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2",
+    "multiparty": "4.1.2",
     "plaid": "1.0.10",
-    "request": "2.69.0",
-    "multiparty": "4.1.2"
+    "request": "2.69.0"
   },
   "devDependencies": {
     "jshint": "2.9.1",
