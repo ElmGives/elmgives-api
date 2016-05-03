@@ -26,11 +26,11 @@ module.exports = function show(request, response, next) {
             }
 
             return response.json({
-                data: [{
+                data: {
                     name: found.name,
                     email: found.email,
                     _id: found._id
-                }]
+                }
             });
         })
         .catch(next);

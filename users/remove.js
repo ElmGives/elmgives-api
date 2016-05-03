@@ -15,7 +15,7 @@ const archive = {
 };
 
 const defaultResponse = {
-    data: []
+    data: {}
 };
 
 module.exports = function remove(request, response, next) {

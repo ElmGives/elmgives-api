@@ -12,6 +12,10 @@ const options = {
     runValidators: true
 };
 
+const defaultResponse = {
+    data: {}
+};
+
 module.exports = function update(request, response, next) {
 
     let query = {
@@ -23,8 +27,6 @@ module.exports = function update(request, response, next) {
         .then(() => {
             return User.update(query, request.body, options);
         })
-        .then(() => response.json({
-            data: []
-        }))
+        .then(() => response.json(defaultResponse))
         .catch(next);
 };

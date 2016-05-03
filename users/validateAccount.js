@@ -10,6 +10,10 @@
 
 const User = require('./user');
 
+const defaultResponse = {
+    data: {}
+};
+
 module.exports = function validateAccount(request, response, next) {
     const query = {
         verificationToken: request.body.verificationToken
@@ -30,8 +34,6 @@ module.exports = function validateAccount(request, response, next) {
 
             return user.save();
         })
-        .then(() => response.send({
-            data: []
-        }))
+        .then(() => response.json(defaultResponse))
         .catch(next);
 };
