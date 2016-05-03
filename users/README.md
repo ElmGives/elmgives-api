@@ -1,6 +1,6 @@
 ### Recovey password
 
-We agree on sent a recovery token with four digits code.
+We agree on sent a recovery code with four digits code.
 
 #### Flow
 
@@ -19,11 +19,23 @@ only if there's an user with that email.
 with the following body:
 
 ```
-resetPassword = myemail@foobar.com
+POST /users
+
+requestPassword = myemail@foobar.com
 code = PROVIDED_CODE_FROM_USER_INPUT
-password = NEW_PASSWORD_FROM_USER_INPUT
 ```
 
-- API will validate authenticity of the code and will return success default response to the user and change the password.
+- API will validate code against provided email and return, if no errors, a
+one time token. Then user will `POST /users`
+
+```
+POST /users
+
+requestPassword: myemail@foobar.com
+token: -token from previous request-
+```
+
+- API will validate authenticity of the token, will update password and return
+success default response
 
 - From that, user should be able to use new password.
