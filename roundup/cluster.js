@@ -29,14 +29,14 @@ function runWith(numberCpus) {
         active: true,
         plaid: { $exists: true },
         'plaid.tokens.connect': { $exists: true, $ne: {} },
-        wallet: { $exists: true },
-        'wallet.addresses': { $exists: true },
+        pledges: { $exists: true },
+        'pledges.addresses': { $exists: true },
     };
 
     const selector = {
         _id: 1,
         plaid: 1,
-        wallet: 1,
+        pledges: 1,
     };
 
     User.find(query, selector).then(people => {

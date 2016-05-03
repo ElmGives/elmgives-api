@@ -185,7 +185,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ 'hash.value': address[0].latestTransaction});
+            return getTransaction({ 'hash.value': address.latestTransaction});
         });
 }
 
