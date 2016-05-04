@@ -38,7 +38,7 @@ module.exports = function list(request, response, next) {
                     $in: addresses
                 }
             };
-            /* Filter by amount value and amount range */
+            /* Search by amount and amount range */
             let amount = Number(request.query.amount);
             if (!isNaN(amount)) {
                 query['payload.amount'] = amount;
@@ -55,10 +55,27 @@ module.exports = function list(request, response, next) {
                     };
                 }
             }
+            /* Search by date */
+            let date = new Date(request.query.date);
+            let days = Number(request.query.days);
+            if (date.toString() !== 'Invalid Date' && (!days || !isNaN(days)))  {
+                // Ignore timezone by dropping everyting after 'T'
+                let startDate = date.toISOString().split('T')[0];
+                let endDate = (new Date(date.getTime() + (days + 1 || 1) * 60*60*24*1000))
+                    .toISOString().split('T')[0];
+                query['payload.timestamp'] = {
+                    $gte: startDate,
+                    $lt: endDate
+                };
+            }
 
+            /* Pagination and sorting */
             let options = {
                 offset: request.query.offset || 0,
-                limit: request.query.limit || 10
+                limit: request.query.limit || 10,
+                sort: {
+                    'payload.timestamp': request.query.oldestFirst ? 'ascending' : 'descending'
+                }
             };
 
             return Transaction
