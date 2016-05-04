@@ -82,10 +82,10 @@ function assignWork(worker, people, message, possibleMessage) {
         if (person) {
 
             // NOTE: We assume user has only one bank account registered on the application for pledge
-            const [ firstPledge ] = person.pledges;
-            const [ firstAddress ] = firstPledge.addresses;
+            const firstPledge = person.pledges[0];
+            const firstAddress = firstPledge.addresses[0];
             
-            const query = { _id: firstPledge.bandkId };
+            const query = { _id: firstPledge.bankId };
 
             findOneBank(query).then(bank => {
 
