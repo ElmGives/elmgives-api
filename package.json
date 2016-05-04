@@ -34,7 +34,7 @@
     "bcrypt": "0.8.5",
     "bluebird": "^3.3.4",
     "body-parser": "1.15.0",
-    "bunyan": "1.8.0",
+    "bunyan": "1.8.1",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
     "elliptic": "6.2.3",
