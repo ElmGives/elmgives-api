@@ -17,6 +17,7 @@ const User = require('./user');
 const RecoveryCode = require('./recoveryCode');
 const verifyToken = require('../helpers/verifyToken');
 const hashPassword = require('../helpers/hashPassword');
+const passwordValidator = require('../helpers/passwordValidator');
 
 const defaultResponse = {
     data: {}
@@ -87,6 +88,10 @@ module.exports = function requestPassword(request, response, next) {
             }
 
             request.userData = user;
+
+            return passwordValidator(request.body.password);
+        })
+        .then(valid => {
 
             /**
              * Let's encrypt new password, associate it to the user and save it

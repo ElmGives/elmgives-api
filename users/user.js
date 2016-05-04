@@ -15,6 +15,7 @@ var unique = require('mongoose-unique-validator');
 
 const logger = require('../logger');
 const emailValidator = require('../helpers/emailValidator');
+const passwordValidator = require('../helpers/passwordValidator');
 const token = require('../helpers/token');
 
 const pledgeSchema = require('../pledges/schema');
@@ -98,6 +99,7 @@ let schema = new mongoose.Schema({
 
 schema.plugin(timestamps);
 schema.plugin(unique);
+
 /**
  * Arrow functions doesn't work on this function since the scope of `this` is
  * needed to access `this.PROPERTY`
@@ -111,7 +113,10 @@ schema.pre('save', function(next) {
         return next();
     }
 
-    hashPassword(this.password)
+    passwordValidator(this.password)
+        .then(isValid => {
+            return hashPassword(this.password);
+        })
         .then(hash => {
             this.password = hash;
             this.verificationToken = token();
@@ -121,6 +126,10 @@ schema.pre('save', function(next) {
             logger.error({
                 err: error
             });
+
+            if (error.errors) {
+                return next(error);
+            }
 
             let saltError = new Error();
             saltError.message = 'Cant process request';

@@ -1,37 +1,26 @@
 [{
     "name": "homer",
-    "password": "homer",
-    "firstName": "homer",
+    "password": "Homer123",
     "email": "homer@elm.com",
     "active": true
 }, {
     "name": "brice",
-    "password": "brice",
-    "firstName": "brice",
+    "password": "Brice123",
     "email": "brice@elm.com",
     "active": true
 }, {
     "name": "daniel",
-    "password": "daniel",
-    "firstName": "daniel",
+    "password": "Daniel123",
     "email": "daniel@elm.com",
     "active": true
 }, {
-    "name": "igor",
-    "password": "igor",
-    "firstName": "igor",
-    "email": "igor@elm.com",
-    "active": true
-}, {
     "name": "ricardo",
-    "password": "ricardo",
-    "firstName": "ricardo",
+    "password": "Ricardo123",
     "email": "ricardo@elm.com",
     "active": true
 }, {
     "name": "johndoe",
-    "password": "p@55w0rd",
-    "firstName": "john",
+    "password": "Johndoe123",
     "email": "john@example.com",
     "active": true,
     "pledges" : [
