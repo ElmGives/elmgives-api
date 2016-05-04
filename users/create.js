@@ -18,7 +18,6 @@ const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
 
 module.exports = function create(request, response, next) {
 
-
     return new User(request.body)
         .save()
         .then(user => {
@@ -34,7 +33,7 @@ module.exports = function create(request, response, next) {
 
             return email.send(TEMPLATE, to, options);
         })
-        .then((sent) => {
+        .then(sent => {
             logger.info({
                 verificationEmail: sent
             });
