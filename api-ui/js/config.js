@@ -177,7 +177,9 @@ var posts = {
         'post list': {
             'description': 'Posts registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'npoId': 'string',
+                dashboard: 'boolean'
             },
             'url': API + '/posts',
             'method': 'GET'
@@ -199,6 +201,7 @@ var posts = {
                 'npoId': 'string',
                 'images': 'string',
                 'videos': 'string',
+                node: 'string',
                 'textContent': 'string'
             },
             'url': API + '/posts',
@@ -232,7 +235,6 @@ var posts = {
         },
     }
 };
-
 
 var images = {
     'name': 'Images',
@@ -342,6 +344,7 @@ var npos = {
                 'name': 'string',
                 'description': 'string',
                 'logoUrl': 'string',
+                'backgroundColor': 'string',
                 'email': 'string',
                 'zip': 'string',
                 'phone': 'string'

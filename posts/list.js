@@ -4,6 +4,8 @@
 'use strict';
 
 const Post = require('./post');
+const postsDashboard = require('./postsDashboard');
+
 const defaultQuery = {
     archived: false
 };
@@ -16,6 +18,9 @@ module.exports = function list(request, response, next) {
         query.npoId = request.query.npoId;
     }
 
+    if (request.query.dashboard) {
+        return postsDashboard(request, response, next);
+    }
 
     return Post
         .find(query || defaultQuery)
