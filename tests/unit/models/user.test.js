@@ -37,7 +37,7 @@ tape('User model', test => {
 
     new User({
         email: 'foo@bar.com',
-        password: 'foobar',
+        password: 'Foobar123',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new User({
@@ -60,7 +60,7 @@ tape('User model', test => {
 
         new User({
                 email: 'foo@bar.com',
-                password: 'foobar',
+                password: 'Foobar123',
                 verificationToken: 1111
             })
             .save()
