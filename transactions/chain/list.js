@@ -38,6 +38,24 @@ module.exports = function list(request, response, next) {
                     $in: addresses
                 }
             };
+            /* Filter by amount value and amount range */
+            let amount = Number(request.query.amount);
+            if (!isNaN(amount)) {
+                query['payload.amount'] = amount;
+            }
+            let amountRange = request.query.amountRange;
+            if (amountRange && amountRange.indexOf('-')) {
+                amountRange = amountRange.split('-');
+                let gte = Number(amountRange[0]);
+                let lte = Number(amountRange[1]);
+                if (!isNaN(gte) && !isNaN(lte)) {
+                    query['payload.amount'] = {
+                        $gte: gte,
+                        $lte: lte
+                    };
+                }
+            }
+
             let options = {
                 offset: request.query.offset || 0,
                 limit: request.query.limit || 10
@@ -53,8 +71,9 @@ module.exports = function list(request, response, next) {
 
                     return response.json({
                         data: data,
-                        metadata: {
-                            count: transactions.length
+                        meta: {
+                            count: transactions.length,
+                            email: email
                         }
                     });
                 });
