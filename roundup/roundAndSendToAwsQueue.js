@@ -52,6 +52,7 @@ let _result = '';
  * @param {object} personData Its needed personID, along with person plaid access token
  */
 function request(personData) {
+    console.assert(personData && personData.token, 'Person NPO token is missing');
 
     const postData = querystring.stringify({
         'client_id': process.env.PLAID_CLIENTID,
@@ -145,6 +146,12 @@ function processData(data, personData) {
  * @param {object} transaction
  */
 function roundUpAndSave(personData, transaction) {
+    console.assert(personData && personData._id, 'Person ID is needed for saving Plaid Transaction');
+    console.assert(transaction && transaction._id, 'Transaction ID is needed for saving Plaid Transaction');
+    console.assert('amount' in transaction && typeof transaction.amount === 'number', 'Transaction amount is needed for saving Plaid Transaction');
+    console.assert(transaction.date, 'Transaction date is needed for saving Plaid Transaction');
+    console.assert(transaction.name, 'Transaction name is needed for saving Plaid Transaction');
+    
     let roundupValue = roundup(transaction.amount);
 
     let plaidTransaction = {
@@ -167,6 +174,8 @@ function roundUpAndSave(personData, transaction) {
  * @param {object} plaidTransaction
  */
 function savePlaid(plaidTransaction) {
+    console.assert(plaidTransaction, 'A plaidTransaction object is needed to save it on DB');
+
     createPlaidTransaction(plaidTransaction);
 }
 
@@ -176,6 +185,7 @@ function savePlaid(plaidTransaction) {
  * @returns {promise<object|null>} Previous transaction object
  */
 function getPreviousChain(personData) {
+    console.assert(personData && personData.address, 'NPO address is needed per user to obtain latestTransaction');
     
     return getAddress({ address: personData.address })
         .then(address => {
@@ -185,7 +195,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ 'hash.value': address[0].latestTransaction});
+            return getTransaction({ 'hash.value': address.latestTransaction});
         });
 }
 
@@ -195,6 +205,8 @@ function getPreviousChain(personData) {
  * @returns {promise}
  */
 function sendToQueue(transactionChain) {
+    console.assert(transactionChain && transactionChain.hash, 'A transactionChain is needed for sending to AWS queue');
+
     const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
     return AWSQueue.sendMessage(transactionChain, params);
@@ -216,13 +228,7 @@ function sendPostToAws() {
     
     return new Promise(function (resolve, reject) {
         
-        let request = http.request(options, function (response) {
-            response.setEncoding('utf8');
-            
-            response.on('data', function (chunk) {
-                logger.info(chunk);
-            });
-            
+        let request = http.request(options, function (response) {            
             response.on('error', reject);
             response.on('end', resolve);
         });
@@ -240,6 +246,8 @@ function sendPostToAws() {
  */
 function saveTransactions(params) {
     // TODO: when nodejs implement destructuring, change params por [previousChain, address, chain]
+    console.assert(params && params[2], 'We need the transactionChain for saving it on DB');
+    
     // let previousChain = params[0];
     // let address = params[1];
     let chain = params[2];
@@ -257,9 +265,15 @@ function saveTransactions(params) {
  */
 function sign(params) {
     // TODO: when nodejs implement destructuring, change params por [previousChain, address, chain]
+    console.assert(params && params.length === 3, 'We need these three parameters for signing the transactionChain');
+    
     let previousChain = params[0];
     let address = params[1];
     let chain = params[2];
+    
+    console.assert(previousChain.hash, 'previousChain is a valid object');
+    console.assert(address, 'We need a NPO address');
+    console.assert(chain.length, 'We have a transactionChain to sign');
 
     let signatureRequestMessage = {
         hash: {

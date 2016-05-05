@@ -39,8 +39,9 @@ function get() {
  * @returns {promise || undefined}
  */
 function handleResponseFromAws(messages) {
+    console.assert(messages, 'We receive at last "something" from AWS queue');
 
-    if (messages && messages.length === 0) {
+    if (messages.length === 0) {
         process.send('no more on AWS');
         return;
     }
@@ -69,6 +70,7 @@ function extractTransactionChainFromMessage(message) {
     }
 
     if (transactionChain ) {
+        console.assert(transactionChain.payload, 'We need transactionChain payload where there is the NPO address');
 
         return getAddress(transactionChain.payload.address).then(function (addressArray) {
             let address   = addressArray[0];
@@ -82,6 +84,7 @@ function extractTransactionChainFromMessage(message) {
                 .then( () => {
                     // This code run when every transaction is processed
                     // we use message saved throught closure
+                    // AWSQueue#deleteMessage returns a promise
                     const queue = process.env.AWS_SQS_URL_TO_SIGNER;
                     
                     return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
@@ -101,6 +104,8 @@ function extractTransactionChainFromMessage(message) {
  * @returns {promise}
  */
 function verifySign(address, transactionChain) {
+    console.assert(transactionChain && transactionChain.hash, 'We need a transactionChain object for signing'); 
+    
     let publicKey = process.env.SIGNER_PUBLIC_KEY;
 
     return verifySignature(transactionChain, ed25519, publicKey).then(function (verified) {
@@ -126,6 +131,9 @@ function verifySign(address, transactionChain) {
  * @returns {promise}
  */
 function checkTransactionPayload(address, transactionChain) {
+    console.assert(address && address.keys, 'We need the NPO address to verify transaction signature');
+    console.assert(transactionChain && transactionChain.payload, 'We need to verify what\'s inside the transactionChain');
+    
     let publicKey = address.keys.public;
     let chainPayload = transactionChain.payload;
     let comparison = chainPayload.previous.payload.count + chainPayload.transactions.length;
@@ -157,6 +165,9 @@ function checkTransactionPayload(address, transactionChain) {
 }
 
 function saveTransaction(transaction) {
+    console.assert(transaction && transaction.signatures, 'We need to update the signature array of this transaction');
+    console.assert(transaction.hash, 'We expect a hash to query on transaction collection');
+    
     const query = {
         'hash.value': transaction.hash.value,
     };
@@ -171,6 +182,9 @@ function saveTransaction(transaction) {
 }
 
 function updateAddressLatestTransaction(latestTransactionId, address) {
+    console.assert(latestTransactionId, 'This ID will be the reference for later roundups');
+    console.assert(address, 'We need the address to update Its latestTransaction property');
+    
     const query = {
         address: address,
     };
