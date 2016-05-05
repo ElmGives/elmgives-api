@@ -47,6 +47,7 @@
     "mongoose": "4.4.7",
     "mongoose-timestamp": "0.5.0",
     "mongoose-unique-validator": "1.0.2",
+    "mongoose-paginate": "5.0.0",
     "multiparty": "4.1.2",
     "plaid": "1.0.10",
     "request": "2.69.0"
