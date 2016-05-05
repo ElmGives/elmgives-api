@@ -11,7 +11,7 @@ body:
 ```
 npoId: VALID_NPO_ID
 images: [{source: '', order: 1}]
-images: [{source: '', order: 1, shareUrl: ''}]
+videos: [{source: '', order: 1, shareUrl: ''}]
 ```
 
 ### Get posts
