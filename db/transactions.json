@@ -277,5 +277,32 @@
         "signature": "3044022000d783c111fd7bf647ab3f5e0e3b8a16be24e4192dc0fa924ec00e30622cc0a0022001fef91faf0c7704f944a6fc406ff589c51b87beecedcc1bd730526a87d65a24"
       }
     ]
+  },
+  {
+    "signatures" : [
+      {
+        "signature" : "3044022005634dcce01a21043617587b3891273a8632d935f62e722d8a1ea5081cf00ceb022009a3f45993a45d3d4b67c5b227f6c7c5422569eb5b7144a1bc8d3ea927993a26",
+        "header" : {
+          "kid" : "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+          "alg" : "ed25519"
+        }
+      }
+    ],
+    "payload" : {
+      "count" : 0,
+      "address" : "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+      "amount" : 0,
+      "roundup" : 0,
+      "balance" : 0,
+      "currency" : "USD",
+      "limit" : -10,
+      "previous" : null,
+      "timestamp" : "2016-04-25T13:47:18.553Z",
+      "reference" : "571e03a312e151fd5ef6cb44"
+    },
+    "hash" : {
+      "type" : "sha256",
+      "value" : "d5a8eda25d60d977678216ddee1be803b642983e0bef082630b461a410e4a85c"
+    }
   }
 ]

@@ -1,6 +1,6 @@
 [
   {
-    "address": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU",
+    "address": "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
     "keys": {
       "scheme": "ed25519",
       "public": "04574389f07ff8d7f9f7a6b32ab5d0c401ef01663b289e51d90ce025fcbc6f66a770db4c6e220feb05e32fb95e0c9342f97b8bb1eb68a6e621d5b49cb5ccbbc281"
@@ -25,7 +25,7 @@
         }
       ]
     },
-    "latestTransaction": "5b199cd73aa2913146c3557533d05065cc01ef4a5dd3ecbb3cfe478d43cd50eb"
+    "latestTransaction": "d5a8eda25d60d977678216ddee1be803b642983e0bef082630b461a410e4a85c"
   },
   {
     "address": "wWUqEgRQv2412JDzczWJuc7t34CA2zdEeV",
