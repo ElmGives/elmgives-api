@@ -236,6 +236,22 @@ var posts = {
     }
 };
 
+var roles = {
+    'name': 'Roles',
+    'description': '<p> Manage roles.</p>',
+
+    'calls': {
+        'role list': {
+            'description': 'roles registered.',
+            'params': {
+                'auth_token': 'string',
+            },
+            'url': API + '/roles',
+            'method': 'GET'
+        },
+    }
+};
+
 var images = {
     'name': 'Images',
     'description': '<p> Manage posts.</p>',
@@ -415,6 +431,7 @@ define([], function() {
         banks: banks,
         npos: npos,
         posts: posts,
+        roles: roles,
         images: images,
         pledges: pledges
     };

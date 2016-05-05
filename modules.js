@@ -12,10 +12,12 @@ const pledges = require('./pledges');
 const sessions = require('./sessions');
 const posts = require('./posts');
 const images = require('./images');
+const roles = require('./roles');
 
 module.exports = app => {
     app
         .use(images)
+        .use(roles)
         .use(posts)
         .use(sessions)
         .use(pledges)
