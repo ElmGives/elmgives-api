@@ -53,7 +53,6 @@
   },
   "devDependencies": {
     "jshint": "2.9.2",
-    "mockgoose": "5.3.3",
     "nodemon": "1.9.2",
     "npm-check": "5.2.1",
     "sinon": "1.17.4",
