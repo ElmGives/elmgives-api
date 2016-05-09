@@ -12,15 +12,19 @@ const pledges = require('./pledges');
 const sessions = require('./sessions');
 const posts = require('./posts');
 const images = require('./images');
+const roles = require('./roles');
+const transactions = require('./transactions/chain');
 
 module.exports = app => {
     app
         .use(images)
+        .use(roles)
         .use(posts)
         .use(sessions)
         .use(pledges)
         .use(plaid)
         .use(users)
+        .use(transactions)
         .use(banks)
         .use(npos);
 };

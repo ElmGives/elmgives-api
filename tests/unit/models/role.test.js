@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Role model', test => {
-    test.plan(8);
+    test.plan(9);
 
     let role = new Role({});
     let values = role.schema.paths;
@@ -21,4 +21,6 @@ tape('Role model', test => {
         userId: 'x'.repeat(24),
         title: 'foobar'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Role({}).validate(error => test.equal(true, !!error, 'invalid with empty'));
 });

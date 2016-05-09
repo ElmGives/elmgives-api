@@ -1,20 +1,19 @@
 /**
- * Test Transaction routes
+ * Test roles routes
  */
-
 'use strict';
 
 const tape = require('tape');
-const transactions = require('../../../transactions/chain');
+const roles = require('../../../roles');
 
 let data = {};
 let middlewares = {};
 
 let options = {
-    'get /transactions': 'get /transactions'
+    'get /roles': 'get /roles',
 };
 
-transactions.stack.map(item => {
+roles.stack.map(item => {
     let method = Object.keys(item.route.methods).join('');
     let path = item.route.path;
     let key = `${method} ${path}`;
@@ -26,7 +25,7 @@ transactions.stack.map(item => {
     });
 });
 
-tape.test('Transaction Endpoints', test => {
+tape.test('Role Endpoints', test => {
     test.plan(1);
 
     Object.keys(options).map(key => {
@@ -34,13 +33,13 @@ tape.test('Transaction Endpoints', test => {
     });
 });
 
-tape.test('Transaction endpoints middlewares', test => {
+tape.test('roles endpoints middlewares', test => {
     test.plan(4);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);
         test.equal('authenticate', actual[1], `should authenticate on ${key}`);
-        test.equal('currentUser', actual[2], `verify current user on ${key}`);
-        test.equal('isAdmin', actual[3], `verify current user on ${key}`);
+        test.equal('currentUser', actual[2], `use currentUser on ${key}`);
+        test.equal('isAdmin', actual[3], `validate amdin user on ${key}`);
     });
 });
