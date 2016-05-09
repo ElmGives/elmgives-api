@@ -47,9 +47,19 @@ module.exports = function create(request, response, next) {
                     firstName: request.userData.firstName,
                     lastName: request.userData.lastName,
                     email: request.userData.email,
-                    verified: request.userData.verified
+                    verified: request.userData.verified,
                 }
+
             };
+
+            /**
+             * Send roleId only if present, for admin purposes
+             * as per requirements defined
+             */
+            if (request.userData.roleId) {
+                result.data.roleId = request.userData.roleId;
+            }
+
             response.json(result);
         })
         .catch(next);
