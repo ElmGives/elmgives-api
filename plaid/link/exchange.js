@@ -6,13 +6,15 @@
  'use strict';
 
 const Bank = require('../../banks/bank');
+const logger = require('../../logger');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports = function patchConnectUser(request, response, next) {
-    let plaid = request.plaid;
+module.exports = function exchagePlaidPublicToken(request, response, next) {
     let publicToken = request.body.public_token;
     let accountID = request.body.account_id;
     let institution = request.body.institution;
     let error = new Error();
+    let data = {};
 
     if (!publicToken) {
         error.status = 400;
@@ -25,42 +27,87 @@ module.exports = function patchConnectUser(request, response, next) {
         return next(error);
     }
 
-    Bank.findOne({type: institution})
+    return Bank.findOne({type: institution})
         .then(function (bank) {
             if (!bank) {
                 error.status = 400;
                 error.message = 'Invalid institution type';
                 return next(error);
             }
+            return exchangePublicToken.call(request.plaid, institution, publicToken, accountID);
+        })
+        .then(exchanged => {
+            let query = {};
+            query['plaid.tokens.connect.' + institution] = exchanged.plaidAccessToken;
+            data.access_token = exchanged.plaidAccessToken;
+            return createStripeCustomer(request.currentUser, exchanged.stripeBankAccountToken)
+                .then(customer => {
+                    query['stripe.customer.id'] = customer.id;
+                    return query;
+                })
+                .catch(error => {
+                    logger.error(error);
+                    // Try creating Stripe customer later. Meanwhile, store the token.
+                    query['stripe.token'] = exchanged.stripeUserToken;
+                    return query;
+                });
+        })
+        .then(query => {
+            request.currentUser.update(query)
+                .then(() => {
+                    response.json({
+                        data: data
+                    });
+                })
+                .catch(next);
+        })
+        .catch(next);
+};
 
-            plaid.client.exchangeToken(publicToken, accountID, function (err, res) {
-                if (err) {
-                    error.status = err.statusCode || 400;
-                    error.message = err.message || err.resolve;
-                    return next(error);
-                }
+/**
+ * @this Plaid - Plaid client instance
+ * @param  {string} institution
+ * @param  {string} publicToken
+ * @param  {string} accountID
+ * @return {Promise}
+ */
+function exchangePublicToken(institution, publicToken, accountID) {
+    let error = new Error();
 
-                let accessToken = res.access_token;
-                let stripeToken = res.stripe_bank_account_token;
-                if (!accessToken) {
-                    error.status = 422;
-                    error.message = 'Access token could not be retrieved';
-                    return next(error);
-                }
+    return new Promise((resolve, reject) => {
+        this.client.exchangeToken(publicToken, accountID, function (err, res) {
+            if (err) {
+                error.status = err.statusCode || 400;
+                error.message = err.message || err.resolve;
+                return reject(error);
+            }
 
-                let query = {};
-                query['plaid.tokens.connect.' + bank.type] = accessToken;
-                query['stripe.token'] = stripeToken;
-                request.currentUser.update(query)
-                    .then(function () {
-                        response.json({
-                            data: {
-                                access_token: accessToken,
-                                stripe_token: stripeToken
-                            }
-                        });
-                    })
-                    .catch(next);
+            let plaidAccessToken = res.access_token;
+            let stripeBankAccountToken = res.stripe_bank_account_token;
+
+            if (!plaidAccessToken) {
+                error.status = 422;
+                error.message = 'Access token could not be retrieved';
+                return reject(error);
+            }
+            if (!stripeBankAccountToken) {
+                error.status = 422;
+                error.message = 'Stripe token could not be retrieved';
+                return reject(error);
+            }
+
+            resolve({
+                plaidAccessToken: plaidAccessToken,
+                stripeBankAccountToken: stripeBankAccountToken
             });
         });
-};
+    });
+}
+
+function createStripeCustomer(user, stripeBankAccountToken) {
+    return stripe.customers.create({
+        email: user.email,
+        description: user.name,
+        source: stripeBankAccountToken
+    });
+}
