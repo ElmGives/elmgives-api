@@ -9,7 +9,15 @@ const Bank = require('../../banks/bank');
 const logger = require('../../logger');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports = function exchagePlaidPublicToken(request, response, next) {
+class PlaidLinkExchanger {
+    constructor() {
+        this.middleware = exchagePlaidPublicToken.bind(this);
+        this.exchangePublicToken = exchangePublicToken.bind(this);
+        this.createStripeCustomer = createStripeCustomer.bind(this);
+    }
+}
+
+function exchagePlaidPublicToken(request, response, next) {
     let publicToken = request.body.public_token;
     let accountID = request.body.account_id;
     let institution = request.body.institution;
@@ -28,13 +36,13 @@ module.exports = function exchagePlaidPublicToken(request, response, next) {
     }
 
     return Bank.findOne({type: institution})
-        .then(function (bank) {
+        .then(bank => {
             if (!bank) {
                 error.status = 400;
                 error.message = 'Invalid institution type';
                 return next(error);
             }
-            return exchangePublicToken.call(request.plaid, institution, publicToken, accountID);
+            return this.exchangePublicToken(request.plaid, institution, publicToken, accountID);
         })
         .then(exchanged => {
             let query = {};
@@ -48,7 +56,8 @@ module.exports = function exchagePlaidPublicToken(request, response, next) {
                 .catch(error => {
                     logger.error(error);
                     // Try creating Stripe customer later. Meanwhile, store the token.
-                    query['stripe.token'] = exchanged.stripeUserToken;
+                    // PENDING: Queue retry message
+                    query['stripe.token'] = exchanged.stripeBankAccountToken;
                     return query;
                 });
         })
@@ -62,7 +71,7 @@ module.exports = function exchagePlaidPublicToken(request, response, next) {
                 .catch(next);
         })
         .catch(next);
-};
+}
 
 /**
  * @this Plaid - Plaid client instance
@@ -71,11 +80,11 @@ module.exports = function exchagePlaidPublicToken(request, response, next) {
  * @param  {string} accountID
  * @return {Promise}
  */
-function exchangePublicToken(institution, publicToken, accountID) {
+function exchangePublicToken(plaid, institution, publicToken, accountID) {
     let error = new Error();
 
     return new Promise((resolve, reject) => {
-        this.client.exchangeToken(publicToken, accountID, function (err, res) {
+        plaid.client.exchangeToken(publicToken, accountID, (err, res) => {
             if (err) {
                 error.status = err.statusCode || 400;
                 error.message = err.message || err.resolve;
@@ -109,5 +118,16 @@ function createStripeCustomer(user, stripeBankAccountToken) {
         email: user.email,
         description: user.name,
         source: stripeBankAccountToken
+    })
+    .then(customer => {
+        if (!(customer.sources.data instanceof Array) || customer.sources.data.length === 0) {
+            let error = new Error();
+            error.status = 422;
+            error.message = 'Could not create Stripe customer with the obtained Stripe token.';
+            return Promise.reject(error);
+        }
+        return customer;
     });
 }
+
+module.exports = new PlaidLinkExchanger();

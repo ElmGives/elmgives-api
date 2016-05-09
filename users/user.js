@@ -64,7 +64,7 @@ let schema = new mongoose.Schema({
 
     stripe: {
         token: {
-            type: String,
+            type: String
         },
         customer: {
             type: Object,
