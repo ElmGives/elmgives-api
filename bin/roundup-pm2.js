@@ -1,17 +1,17 @@
 /**
- * Runs round up process every [INTERVAL] milliseconds
+ * Runs round up process every [ONE_DAY] milliseconds
  */
 
 'use strict';
 
 // 24 hours in milliseconds
-const INTERVAL = 1000 * 60 * 60 * 24;
+const ONE_DAY = 1000 * 60 * 60 * 24;
 
-const cluster = require('../roundup/cluster');
+const roundupProcess = require('../roundup/roundupProcess');
 
 function run() {
-    cluster.runWith();
-    setTimeout(() => run(), INTERVAL);
+    roundupProcess.run();
+    setTimeout(() => run(), ONE_DAY);
 }
 
 run();
