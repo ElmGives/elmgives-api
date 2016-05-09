@@ -13,6 +13,7 @@ const verifyToken = require('../lib/verifyJwt');
 const authenticate = require('../lib/authenticate');
 const currentUser = require('../lib/currentUser');
 const isAdmin = require('../lib/isAdmin');
+const customMiddlewares = require('../lib/customMiddlewares');
 
 const Post = require('./post');
 const create = require('./create');
@@ -20,14 +21,23 @@ const remove = require('./remove');
 const update = require('./update');
 const list = require('./list');
 const show = require('../lib/show');
+const postsDashboard = require('./postsDashboard');
 
 const PATH = '/posts';
 const SINGLE = '/posts/:id';
 
-const defaultMiddlewares = [verifyToken, authenticate, currentUser, isAdmin];
+const defaultMiddlewares = [verifyToken, authenticate, currentUser];
+
+function validateRequest(request, response, next) {
+    if (request.query.dashboard) {
+        return postsDashboard(request, response, next);
+    }
+
+    return customMiddlewares([isAdmin, list], request, response, next);
+}
 
 router
-    .get(PATH, defaultMiddlewares, list)
+    .get(PATH, defaultMiddlewares, validateRequest)
     .get(SINGLE, defaultMiddlewares, show(Post))
     .put(SINGLE, defaultMiddlewares, update)
     .delete(SINGLE, defaultMiddlewares, remove)
