@@ -41,6 +41,6 @@ tape.test('Transaction endpoints middlewares', test => {
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);
         test.equal('authenticate', actual[1], `should authenticate on ${key}`);
         test.equal('currentUser', actual[2], `verify current user on ${key}`);
-        test.equal('isAdmin', actual[3], `verify current user on ${key}`);
+        test.equal('isAdmin', actual[3], `should have admin role on ${key}`);
     });
 });

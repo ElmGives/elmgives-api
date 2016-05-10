@@ -47,6 +47,13 @@ let schema = new mongoose.Schema({
         required: true
     },
 
+    stripe: {
+        accountId: {
+            type: String,
+            default: ''
+        }
+    },
+
     /**
      * Special status for 'deleted' npos
      */
