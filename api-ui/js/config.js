@@ -28,7 +28,8 @@ var users = {
             'params': {
                 name: 'string',
                 password: 'string',
-                email: 'string'
+                email: 'string',
+                roleId: 'string ( valid mongo id from Role )'
             },
             'url': API + '/users',
             'wrapper': '',

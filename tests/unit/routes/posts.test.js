@@ -39,12 +39,23 @@ tape.test('Post Endpoints', test => {
 });
 
 tape.test('Posts endpoints middlewares', test => {
-    test.plan(20);
+    test.plan(15);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);
         test.equal('authenticate', actual[1], `should authenticate on ${key}`);
         test.equal('currentUser', actual[2], `use currentUser on ${key}`);
-        test.equal('isAdmin', actual[3], `validate amdin user on ${key}`);
     });
+});
+
+tape.test('Posts endpoints middlewares for dashboard', test => {
+    test.plan(4);
+
+    const key = 'get /posts';
+    const actual = middlewares[key];
+
+    test.equal('verifyToken', actual[0], `should validate token on ${key}`);
+    test.equal('authenticate', actual[1], `should authenticate on ${key}`);
+    test.equal('currentUser', actual[2], `use currentUser on ${key}`);
+    test.equal('validateRequest', actual[3], `validate validateRequest on ${key}`);
 });
