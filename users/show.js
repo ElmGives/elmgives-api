@@ -25,13 +25,19 @@ module.exports = function show(request, response, next) {
                 return next(error);
             }
 
-            return response.json({
+            let result = {
                 data: {
                     name: found.name,
                     email: found.email,
                     _id: found._id
                 }
-            });
+            };
+
+            if(found.roleId){
+                result.data.roleId = found.roleId;
+            }
+
+            return response.json(result);
         })
         .catch(next);
 };
