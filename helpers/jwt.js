@@ -18,8 +18,7 @@ module.exports = (data, salt) => {
         /**
          * Sign `data` with `salt`
          */
-        return jwt.sign(data, salt, options, (token, error) => {
-
+        return jwt.sign(data, salt, options, (error, token) => {
             return error ? reject(error) : resolve(token);
         });
     });

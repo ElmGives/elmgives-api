@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Session Model', test => {
-    test.plan(10);
+    test.plan(11);
 
     let session = new Session({});
     let values = session.schema.paths;
@@ -17,7 +17,7 @@ tape('Session Model', test => {
     types(['verified'], values, test, 'Boolean');
 
     session.validate(error => {
-        let fields = ['userId', 'token', 'agent', 'expire', 'verified'];
+        let fields = ['userId', 'token', 'agent', 'expire'];
         required(fields, error.errors, test);
     });
 
@@ -27,4 +27,6 @@ tape('Session Model', test => {
         expire: new Date(),
         agent: 'foobar'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
+
+    new Session({}).validate(error => test.equal(true, !!error, 'invalid empty'));
 });
