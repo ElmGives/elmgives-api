@@ -90,9 +90,12 @@ function extractTransactionChainFromMessage(message) {
 
     if (transactionChain ) {
         console.log('Round up process: got transactionChain from AWS queue message');
+        
+        const query = {
+            address: transactionChain.payload.address,
+        };
 
-        return getAddress(transactionChain.payload.address).then(function (addressArray) {
-            let address   = addressArray[0];
+        return getAddress(query).then(function (address) {
 
             if (!address) {
                 let error = new Error('We couldn\'t get the Address ' + transactionChain.payload.address);

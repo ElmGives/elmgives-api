@@ -24,6 +24,8 @@ const logger = require('../logger');
 const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
 const getFromAws = require('./getFromAws');
 
+const ONE_MINUTE = 1000 * 60;
+
 /**
  * Query User collection for people with plaid token and created pledge addresses
  * From every person, we extract what we need for round ups
@@ -69,7 +71,7 @@ function run() {
             people.map(extractInformationFromPerson);
             
             // Then extract from AWS queue transaction chain signed information for every person
-            getFromAws.get({ firstRun: true });
+            setTimeout(() => getFromAws.get({ firstRun: true }), ONE_MINUTE);
         })
         .catch(error => logger.error({
             err: error
