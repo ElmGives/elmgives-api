@@ -282,6 +282,7 @@ var banks = {
             'description': 'Banks registered.',
             'params': {
                 'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
                 'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/banks',
@@ -341,6 +342,8 @@ var npos = {
             'description': 'NPOs registered.',
             'params': {
                 'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
                 'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/npos',
