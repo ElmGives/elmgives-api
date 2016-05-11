@@ -6,8 +6,9 @@
 
 const mongoose = require('mongoose');
 const logger = require('../logger');
-const DB_CONNECTION_TIMEOUT = process.env.DB_CONNECTION_TIMEOUT || 5000;
+const slack = require('../slack');
 
+const DB_CONNECTION_TIMEOUT = process.env.DB_CONNECTION_TIMEOUT || 5000;
 let timeout = 0;
 
 mongoose.Promise = global.Promise;
@@ -60,6 +61,10 @@ db.on('error', function(error) {
     logger.error({
         err: error
     });
+
+    slack(error)
+        .then(data => logger.info(`SLACK: ${data}`))
+        .catch(error => logger.error(error));
 
     mongoose.disconnect();
 });
