@@ -8,6 +8,7 @@ module.exports = (fields, Model) => {
 
     return (fields || '')
         .split(',')
+        .map(field => field.trim())
         .filter(field => !!Model.schema.tree[field])
         .join(' ');
 };
