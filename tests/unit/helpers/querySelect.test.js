@@ -27,10 +27,12 @@ let schema = new mongoose.Schema({
 let Model = mongoose.model('Model', schema);
 
 tape('querySelect helper', test => {
-    test.plan(4);
+    test.plan(6);
 
     test.equal(querySelect('', Model), '', 'proper select options with empty object');
     test.equal(querySelect('name', Model), 'name', 'proper select with one field');
     test.equal(querySelect('name,foo', Model), 'name', 'proper select with invalid field');
     test.equal(querySelect('name,type,price', Model), 'name type price', 'with all fields');
+    test.equal(querySelect('name, type, price', Model), 'name type price', 'with space between fields');
+    test.equal(querySelect('name, ', Model), 'name', 'with space and one field');
 });
