@@ -35,7 +35,7 @@ module.exports = (request, response, next) => {
             item.bankId + '' === request.body.bankId;
     });
 
-    if (exist) {
+    if (exist || (user.pledges instanceof Array && user.pledges.length)) {
         let error = new Error();
         error.status = 422;
         error.message = 'Charity already exist';
@@ -68,7 +68,7 @@ module.exports = (request, response, next) => {
             return next(error);
         })
         .then(pledge => {
-            user.pledges.push(pledge);
+            user.pledges = [pledge];
             request.pledgeId = pledge._id;
             return user.save();
         })
