@@ -281,7 +281,8 @@ var banks = {
         'bank list': {
             'description': 'Banks registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/banks',
             'method': 'GET'
@@ -339,7 +340,8 @@ var npos = {
         'npo list': {
             'description': 'NPOs registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/npos',
             'method': 'GET'
