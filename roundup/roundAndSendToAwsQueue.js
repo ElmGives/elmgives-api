@@ -62,6 +62,8 @@ function request(personData) {
         }
     });
 
+    logger.info('Round up process: Request plaid information');
+
     let req = https.request(options, requestHandler.bind(null, personData));
 
     req.on('error', logger.error);
@@ -120,6 +122,8 @@ function processData(data, personData) {
     }
 
     if (plaidTransactions) {
+        
+        logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
         return getPreviousChain(personData)
             .then(previousChain => {
@@ -185,7 +189,9 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            return getTransaction({ 'hash.value': address[0].latestTransaction});
+            logger.info('Round up process: got address for latestTransaction.');
+            
+            return getTransaction({ 'hash.value': address.latestTransaction});
         });
 }
 
@@ -197,6 +203,8 @@ function getPreviousChain(personData) {
 function sendToQueue(transactionChain) {
     const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
+    logger.info('Round up process: sending transactionChain to AWS queue...');
+    
     return AWSQueue.sendMessage(transactionChain, params);
 }
 
@@ -220,7 +228,7 @@ function sendPostToAws() {
             response.setEncoding('utf8');
             
             response.on('data', function (chunk) {
-                logger.info(chunk);
+                logger.info('Round up process: triggered signing server');
             });
             
             response.on('error', reject);
@@ -296,6 +304,8 @@ function sign(params) {
         },
         signature: signature,
     });
+    
+    logger.info('Round up process: transactionChain created');
 
     return Promise.resolve(signatureRequestMessage);
 }

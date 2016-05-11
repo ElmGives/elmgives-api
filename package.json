@@ -14,8 +14,8 @@
     "s-npos": "node ./db/npos.js",
     "s-roles": "node ./db/roles.js",
     "s-transactions": "node ./db/transactions.js",
-    "s-addresses": "/node ./db/addresses.js",
-    "seed": "npm run s-users && npm run s-banks && npm run s-npos && npm run s-roles && npm run s-transactions",
+    "s-addresses": "node ./db/addresses.js",
+    "seed": "npm run s-users && npm run s-banks && npm run s-npos && npm run s-roles && npm run s-transactions && npm run s-addresses",
     "UI": "--------------------------------------------------------------------",
     "ui": "superstatic api-ui --port 3002 --host 127.0.0.1",
     "TEST": "------------------------------------------------------------------",
@@ -23,7 +23,7 @@
     "test-min": "tape tests/unit/**/*.test.js | tap-dot",
     "start-test": "DB_NAME=elm-test node ./bin/www",
     "acceptance": "tape tests/acceptance/**/*.js | tap-spec",
-    "roundup": "node ./bin/roundup"
+    "roundup": "pm2 start ./bin/roundup-pm2.js"
   },
   "engines": {
     "node": "5.9.0"
