@@ -5,11 +5,13 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const paginate = require('mongoose-paginate');
 const logger = require('../logger');
 const DB_CONNECTION_TIMEOUT = process.env.DB_CONNECTION_TIMEOUT || 5000;
 
 let timeout = 0;
 
+mongoose.plugin(paginate);
 mongoose.Promise = global.Promise;
 
 mongoose.set('debug', function(coll, method, query, doc, options) {
