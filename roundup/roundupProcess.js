@@ -32,7 +32,7 @@ const ONE_MINUTE = 1000 * 60;
  */
 function run() {
     
-    console.log('Daily round up process started');
+    logger.info('Daily round up process started');
 
     const query = {
         active: true,
@@ -57,7 +57,7 @@ function run() {
         pledges: 1,
     };
     
-    console.log('Round up process: Querying User collection...');
+    logger.info('Round up process: Querying User collection...');
 
     User.find(query, selector)
         .then(people => {

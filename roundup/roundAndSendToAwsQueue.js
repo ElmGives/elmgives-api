@@ -62,7 +62,7 @@ function request(personData) {
         }
     });
 
-    console.log('Round up process: Request plaid information');
+    logger.info('Round up process: Request plaid information');
 
     let req = https.request(options, requestHandler.bind(null, personData));
 
@@ -123,7 +123,7 @@ function processData(data, personData) {
 
     if (plaidTransactions) {
         
-        console.log('Round up process: plaid transactions found, rounded up and saved on DB.');
+        logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
         return getPreviousChain(personData)
             .then(previousChain => {
@@ -189,7 +189,7 @@ function getPreviousChain(personData) {
                 return Promise.reject(error);
             }
 
-            console.log('Round up process: got address for latestTransaction.');
+            logger.info('Round up process: got address for latestTransaction.');
             
             return getTransaction({ 'hash.value': address.latestTransaction});
         });
@@ -203,7 +203,7 @@ function getPreviousChain(personData) {
 function sendToQueue(transactionChain) {
     const params = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
 
-    console.log('Round up process: sending transactionChain to AWS queue...');
+    logger.info('Round up process: sending transactionChain to AWS queue...');
     
     return AWSQueue.sendMessage(transactionChain, params);
 }
@@ -228,7 +228,7 @@ function sendPostToAws() {
             response.setEncoding('utf8');
             
             response.on('data', function (chunk) {
-                console.log('Round up process: triggered signing server');
+                logger.info('Round up process: triggered signing server');
             });
             
             response.on('error', reject);
@@ -305,7 +305,7 @@ function sign(params) {
         signature: signature,
     });
     
-    console.log('Round up process: transactionChain created');
+    logger.info('Round up process: transactionChain created');
 
     return Promise.resolve(signatureRequestMessage);
 }
