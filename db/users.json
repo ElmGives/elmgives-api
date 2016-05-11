@@ -32,6 +32,7 @@
             "bankId": "56fecda142281cbe220ee5e9",
             "npoId": "56f425f78c12095e2d0b7647",
             "monthlyLimit": 10,
+            "active": true,
             "addresses": [
                 "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
             ]
