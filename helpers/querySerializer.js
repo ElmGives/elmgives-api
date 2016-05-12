@@ -14,7 +14,7 @@ module.exports = (data) => {
     if (doc.fields) {
         result = `${result}, ${fields})`;
     } else {
-        result = `${result});`;
+        result = `${result})`;
     }
 
     if (doc.limit) {
@@ -30,5 +30,5 @@ module.exports = (data) => {
         result = `${result}.sort(${sort})`;
     }
 
-    return result;
+    return `${result});`;
 };
