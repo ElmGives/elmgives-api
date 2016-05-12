@@ -13,6 +13,7 @@ const logger = require('../../logger');
 module.exports = function exchangeStripeOAuthCode(request, response, next) {
     let authorizationCode = request.query.code;
 
+    /* Exchange the Stripe OAuth authorization_code for the NPOs credentials */
     httpRequest({
         method: 'POST',
         url: stripeOAuthTokenURL,
@@ -24,7 +25,6 @@ module.exports = function exchangeStripeOAuthCode(request, response, next) {
         json: true
     }, (error, res) => {
         let accountID = res.body.stripe_user_id;
-        console.log(error, res.body.error, accountID);
         if (error || res.body.error || !accountID) {
             error = new Error();
             error.status = 400;
@@ -33,19 +33,24 @@ module.exports = function exchangeStripeOAuthCode(request, response, next) {
             return response.json(error || res.body.error);
         }
 
+        /* Find and save the account ID to the NPO model*/
         return storeNpoConnectedAccountID(accountID)
             .then(updated => {
-                response.status(200).json({data: {ok: updated}}); //redirect?
+                response.redirect('http://www.elmgives.com/npo-link-success/');
             })
             .catch(err => {
                 let error = new Error();
                 error.message = `NPO account ID ${accountID} could not be saved`;
                 logger.error(error);
-                response.status(200).json({data: {ok: false}}); //redirect?
+                response.redirect('http://www.elmgives.com/npo-link-error/');
             });
     });
 };
 
+/**
+ * Finds the NPO associated to a Stripe Connected Account ID and saves that as a property
+ * @param  {string} accountID - A Connected Stripe Account ID obtained after the OAuth flow
+ */
 function storeNpoConnectedAccountID(accountID) {
     return stripe.accounts.retrieve(accountID)
         .then(account => {
