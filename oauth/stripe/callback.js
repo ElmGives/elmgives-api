@@ -12,9 +12,7 @@ const logger = require('../../logger');
 
 module.exports = function exchangeStripeOAuthCode(request, response, next) {
     let authorizationCode = request.query.code;
-
-    /* Exchange the Stripe OAuth authorization_code for the NPOs credentials */
-    httpRequest({
+    let options = {
         method: 'POST',
         url: stripeOAuthTokenURL,
         body: {
@@ -23,14 +21,17 @@ module.exports = function exchangeStripeOAuthCode(request, response, next) {
             client_secret: process.env.STRIPE_SECRET_KEY
         },
         json: true
-    }, (error, res) => {
+    };
+
+    /* Exchange the Stripe OAuth authorization_code for the NPOs credentials */
+    httpRequest(options, (error, res) => {
         let accountID = res.body.stripe_user_id;
         if (error || res.body.error || !accountID) {
             error = new Error();
             error.status = 400;
             error.message = res.body.error_description ||
                 'The account ID could not be retrieved with the provided authorization code';
-            return response.json(error || res.body.error);
+            return next(error || res.body.error);
         }
 
         /* Find and save the account ID to the NPO model*/
@@ -41,7 +42,7 @@ module.exports = function exchangeStripeOAuthCode(request, response, next) {
             .catch(err => {
                 let error = new Error();
                 error.message = `NPO account ID ${accountID} could not be saved`;
-                logger.error(error);
+                logger.error({err: error});
                 response.redirect('http://www.elmgives.com/npo-link-error/');
             });
     });
@@ -57,18 +58,21 @@ function storeNpoConnectedAccountID(accountID) {
             if (!account.email) {
                 let error = new Error();
                 error.message = `No NPO found for email ${account.email} to store account ID ${accountID}`;
-                return logger.error(error);
+                return logger.error({err: error});
             }
 
-            return Npo.update({
+            let query = {
                 email: account.email
-            }, {
+            };
+            let update = {
                 $set: {
                     'stripe.accountId': accountID
                 }
-            })
-            .then(result => {
-                return result.n === 1; // number of modified fields
-            });
+            };
+
+            return Npo.update(query, update)
+                .then(result => {
+                    return result.n === 1; // number of modified fields
+                });
         });
 }
