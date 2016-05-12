@@ -11,13 +11,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 class PlaidLinkExchanger {
     constructor() {
-        this.middleware = exchagePlaidPublicToken.bind(this);
+        this.middleware = middleware.bind(this);
         this.exchangePublicToken = exchangePublicToken.bind(this);
         this.createStripeCustomer = createStripeCustomer.bind(this);
     }
 }
 
-function exchagePlaidPublicToken(request, response, next) {
+function middleware(request, response, next) {
     let publicToken = request.body.public_token;
     let accountID = request.body.account_id;
     let institution = request.body.institution;
