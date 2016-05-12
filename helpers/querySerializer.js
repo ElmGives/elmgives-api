@@ -9,12 +9,13 @@ module.exports = (data) => {
     let doc = data.doc || {};
     let fields = JSON.stringify(doc.fields || {});
 
-    let result = `db.${data.coll}.${data.method}(${query}`;
+    let result = `db.${data.coll}.${data.method}(${query}-fields)`;
 
+    console.log(fields);
     if (doc.fields) {
-        result = `${result}, ${fields})`;
+        result = result.replace('-fields', `, ${fields}`);
     } else {
-        result = `${result})`;
+        result = result.replace('-fields', '');
     }
 
     if (doc.limit) {
@@ -30,5 +31,5 @@ module.exports = (data) => {
         result = `${result}.sort(${sort})`;
     }
 
-    return `${result});`;
+    return result;
 };
