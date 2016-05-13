@@ -11,7 +11,6 @@ module.exports = (data) => {
 
     let result = `db.${data.coll}.${data.method}(${query}-fields)`;
 
-    console.log(fields);
     if (doc.fields) {
         result = result.replace('-fields', `, ${fields}`);
     } else {
