@@ -21,11 +21,9 @@ module.exports = (request, response, next) => {
     }
 
     let user = request.currentUser;
-
     let npo = NPO.findOne({
         _id: request.body.npoId
     });
-
     let bank = Bank.findOne({
         _id: request.body.bankId
     });
@@ -34,6 +32,7 @@ module.exports = (request, response, next) => {
         return item.npoId + '' === request.body.npoId &&
             item.bankId + '' === request.body.bankId;
     });
+    let active = user.pledges.find(item => item.active);
 
     if (exist) {
         let error = new Error();
@@ -68,7 +67,14 @@ module.exports = (request, response, next) => {
             return next(error);
         })
         .then(pledge => {
-            user.pledges.push(pledge);
+            /* Transfer latest active address to the new pledge */
+            if (typeof active === 'object') {
+                active.active = false;
+                pledge.addresses.unshift(active.addresses.shift());
+            }
+            /* Activate and add new pledge to the current user */
+            pledge.active = true;
+            user.pledges.unshift(pledge);
             request.pledgeId = pledge._id;
             return user.save();
         })
@@ -76,6 +82,8 @@ module.exports = (request, response, next) => {
             data: [user.pledges.id(request.pledgeId)]
         }))
         .then(() => {
+            /* Request a new address only if no pledge was previously active */
+            if (typeof active === 'object') {return;}
             aws.sendMessage({
                 userId: userId,
                 pledgeId: String(request.pledgeId),
