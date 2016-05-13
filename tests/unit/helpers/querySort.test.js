@@ -29,30 +29,30 @@ let Sort = mongoose.model('Sort', schema);
 tape('querySort helper', test => {
     test.plan(8);
 
-    test.deepEqual({}, querySort('', Sort), 'proper response for empty values');
-    test.deepEqual({}, querySort('title', Sort), 'proper response for non valid field');
-    test.deepEqual({}, querySort('title,foo', Sort), 'proper response for non valid fields');
+    test.deepEqual(querySort('', Sort), {}, 'proper response for empty values');
+    test.deepEqual(querySort('title', Sort), {}, 'proper response for non valid field');
+    test.deepEqual(querySort('title,foo', Sort), {}, 'proper response for non valid fields');
 
-    test.deepEqual({
+    test.deepEqual(querySort('-name', Sort), {
         name: -1
-    }, querySort('-name', Sort), 'proper response for single value');
+    }, 'proper response for single value');
 
-    test.deepEqual({
+    test.deepEqual(querySort('-name,price', Sort), {
         name: -1,
         price: 1
-    }, querySort('-name,price', Sort), 'proper response for multiple values');
+    }, 'proper response for multiple values');
 
-    test.deepEqual({
+    test.deepEqual(querySort('name,price', Sort), {
         name: 1,
         price: 1
-    }, querySort('name,price', Sort), 'proper response for ascending');
+    }, 'proper response for ascending');
 
-    test.deepEqual({
+    test.deepEqual(querySort('-name,-price', Sort), {
         name: -1,
         price: -1
-    }, querySort('-name,-price', Sort), 'proper response for descending');
+    }, 'proper response for descending');
 
-    test.deepEqual({
+    test.deepEqual(querySort('price,foo', Sort), {
         price: 1
-    }, querySort('price,foo', Sort), 'proper response for one valid field');
+    }, 'proper response for one valid field');
 });
