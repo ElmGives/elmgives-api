@@ -63,13 +63,8 @@ let schema = new mongoose.Schema({
     },
 
     stripe: {
-        token: {
-            type: String
-        },
-        customer: {
-            type: Object,
-            default: {}
-        }
+        type: Object,
+        default: {}
     },
 
     /**
