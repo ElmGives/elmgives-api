@@ -42,7 +42,7 @@ function middleware(request, response, next) {
             if (!bank) {
                 error.status = 400;
                 error.message = 'Invalid institution type';
-                return next(error);
+                return Promise.reject(error);
             }
             return PlaidLinkExchanger.exchangePublicToken(request.plaid, publicToken, accountID);
         })

@@ -106,3 +106,56 @@ tape('Exchange Plaid Public Token (methods)', test => {
         stripe_bank_account_token: false
     }); 
 });
+
+tape('Exchange Plaid Public Token (middleware)', test => {
+    test.plan(6);
+
+    let request = {
+        body: {
+            public_token: tokens.plaid,
+            account_id: accountID,
+            institution: 'bankName'
+        },
+        currentUser: {
+            update: sinon.stub().returns(Promise.resolve())
+        }
+    };
+    let response = {
+        json: sinon.stub()
+    };
+    let next = sinon.stub();
+
+    sinon.stub(PlaidLinkExchanger.models.Bank, 'findOne').returns(Promise.resolve({}));
+    sinon.stub(PlaidLinkExchanger, 'createStripeCustomer').returns(Promise.resolve(customer));
+    sinon.stub(PlaidLinkExchanger, 'exchangePublicToken').returns(Promise.resolve({
+        plaidAccessToken: tokens.access,
+        stripeBankAccountToken: tokens.stripe
+    }));
+
+    PlaidLinkExchanger.middleware(request, response, next)
+        .then(() => {
+            let httpResponse = response.json.getCall(0).args[0];
+            test.equal(httpResponse.data.access_token, tokens.access, `middleware response contains access token ${tokens.access}`);
+
+            let query = request.currentUser.update.getCall(0).args[0];
+            test.equal(query['plaid.tokens.connect.bankName'], tokens.access, 'user query contains Plaid access token');
+            test.equal(query['stripe.bankName.customer.id'],   customer.id,   'user query contains Stripe customer ID');
+        });
+
+    let next1 = sinon.stub();
+    PlaidLinkExchanger.models.Bank.findOne.returns(Promise.resolve());
+    PlaidLinkExchanger.middleware(request, response, next1)
+        .then(() => {
+            test.equal(next1.called, true, 'returns on invalid institution parameter');
+        });
+
+    let next2 = sinon.stub();
+    delete request.body.institution;
+    PlaidLinkExchanger.middleware(request, response, next2);
+        test.equal(next2.called, true, 'returns on missing institution parameter');
+
+    let next3 = sinon.stub();
+    delete request.body.public_token;
+    PlaidLinkExchanger.middleware(request, response, next3);
+        test.equal(next3.called, true, 'returns on missing public token parameter');
+});
