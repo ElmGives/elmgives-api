@@ -1,5 +1,5 @@
 /**
- * Get fields from request.query to be used on `select` to database
+ * Get fields from request.query to be used on `Model.paginate`
  */
 
 'use strict';
