@@ -42,7 +42,7 @@ function middleware(request, response, next) {
                 error.message = 'Invalid institution type';
                 return next(error);
             }
-            return this.exchangePublicToken(request.plaid, institution, publicToken, accountID);
+            return this.exchangePublicToken(request.plaid, publicToken, accountID);
         })
         .then(exchanged => {
             let query = {};
@@ -74,13 +74,13 @@ function middleware(request, response, next) {
 }
 
 /**
+ * Exchanges a Plaid public token obtained after (multi-factor) authentication for a Stripe token
  * @this Plaid - Plaid client instance
- * @param  {string} institution
- * @param  {string} publicToken
- * @param  {string} accountID
- * @return {Promise}
+ * @param  {string} publicToken - A token received after completing the Plaid Link authentication flow
+ * @param  {string} accountID - The ID of the account selected by the user to be charged for donations
+ * @return {Promise} - Resolves to an object with a Plaid access token and a Stripe bank account token
  */
-function exchangePublicToken(plaid, institution, publicToken, accountID) {
+function exchangePublicToken(plaid, publicToken, accountID) {
     let error = new Error();
 
     return new Promise((resolve, reject) => {
@@ -113,6 +113,12 @@ function exchangePublicToken(plaid, institution, publicToken, accountID) {
     });
 }
 
+/**
+ * Create a Stripe customer on Elm's Stripe platform account using the Stripe bank account token obtained from Plaid
+ * @param  {Object} user - Current user to be created as a customer after authorizing an account
+ * @param  {[type]} stripeBankAccountToken - A Stripe token obtained in exchange for a Plaid public token
+ * @return {Object} customer - The newly created Stripe customer object whose ID will be used as a source for charges
+ */
 function createStripeCustomer(user, stripeBankAccountToken) {
     return stripe.customers.create({
         email: user.email,
