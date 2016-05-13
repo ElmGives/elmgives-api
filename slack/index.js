@@ -8,14 +8,14 @@
 const slack = require('slack');
 const prepareData = require('./prepareData');
 const TOKEN = process.env.SLACK_TOKEN;
-const SLACK_MESSAGES = process.env.SLACK_MESSAGES;
+const SLACK_ENABLED = process.env.SLACK_ENABLED;
 
 module.exports = function notify(object, options) {
     options = Object.assign({}, options, {
         token: TOKEN
     });
 
-    if (!SLACK_MESSAGES) {
+    if (!SLACK_ENABLED) {
         return Promise.resolve('only send messages on production environment');
     }
 

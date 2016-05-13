@@ -43,7 +43,7 @@ let required = [
     'MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE',
     'MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE',
     'SLACK_TOKEN',
-    'SLACK_MESSAGES'
+    'SLACK_ENABLED'
 ];
 
 let notFound = required.filter(option => {
