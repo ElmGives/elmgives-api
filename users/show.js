@@ -25,12 +25,14 @@ module.exports = function show(request, response, next) {
                 return next(error);
             }
 
+            found.password = undefined;
+
+            /**
+             * As per requirements we should return everything associated to the
+             * user, except password (it's a hash)
+             */
             let result = {
-                data: {
-                    name: found.name,
-                    email: found.email,
-                    _id: found._id
-                }
+                data: found
             };
 
             if(found.roleId){
