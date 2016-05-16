@@ -13,11 +13,8 @@ module.exports = function list(request, response, next) {
         .find(defaultQuery)
         .then(users => {
             let data = users.map(user => {
-                return {
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email
-                };
+                user.password = undefined;
+                return user;
             });
 
             return response.json({
