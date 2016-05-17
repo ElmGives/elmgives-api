@@ -21,16 +21,21 @@
  */
 'use strict';
 
-const Npos = require('../npos/npo');
-const Users = require('../users/user');
 const logger = require('../logger');
-const getAddress = require('../addresses/read');
-const getTransaction = require('../transactions/read');
 const notify = require('../slack/index');
 
-const aws = require('../lib/awsQueue');
-
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// Functions for every step
+const getBankInstitution = require('./getBankInstitution');
+const getNpo = require('./getNpo');
+const getUsers = require('./getUsers');
+const removeStripeToken = require('./removeStripeToken');
+const createNewCustomer = require('./createNewCustomer');
+const addCustomerIdOnDatabase = require('./addCustomerIdOnDatabase');
+const getLatestTransactionHash = require(',/getLatestTransactionHash');
+const getLatestTransaction = require('./getLatestTransaction');
+const verifyData = require('./verifyData');
+const makeDonation = require('./makeDonation');
+const createNewAddress = require('./createNewAddress');
 
 // GLOBAL VARIABLES
 let processGen = null;
@@ -63,30 +68,46 @@ function *executeProcess() {
   while((user = users.pop())) {
     
     try {
+
+      // First we get the active pledge in order to query user bank type to know stripe customer
+      const activePledge = user.pledges.filter(pledge => pledge.active);
+      
+      if (activePledge.length === 0) {
+        const error = new Error(`User with ID ${user._id} has not an active pledge`);
+        throw error;
+      }
+      
+      let address = activePledge[0].addresses[0];
+      let bankId = activePledge[0].bankId;
+      let institution = yield getBankInstitution(bankId, processGen);
+      
+      if (!user.stripe[institution]) {
+        const error = new Error(`User with ID ${user._id} doesn't have stripe information to proceed`);
+        throw error;
+      }
       
       // If the user has a stripe token, we check if (s)he has a stripe customerId
       // If a customerId is present, we remove the token because it's useless, if not, we
       // immediately create a stripe account because with the token in this state can do a lot and
       // is not safe for our user to delay that creation 
-      if (user.stripe.token) {
+      if (user.stripe[institution].token) {
         
-        if (user.stripe.customerId) {
-          yield removeStripeToken(user, processGen);
+        if (user.stripe[institution].customer) {
+          yield removeStripeToken(user, institution, processGen);
         }
         else {
           let newCustomer = yield createNewCustomer(user, processGen);
           
-          user.stripe.customerId = newCustomer;
+          user.stripe[institution].customer = newCustomer;
           
-          yield addCustomerIdOnDatabase(user, processGen);
-          yield removeStripeToken(user, processGen);
+          yield addCustomerIdOnDatabase(user, institution, processGen);
+          yield removeStripeToken(user, institution, processGen);
         }        
       }
       
       // Now we look for the latestTransaction which contains the balance to charge.
       // We verify it not charged yet. If it is, maybe something went wrong on the round up process or
       // user simply didn't make any use of registered account
-      let address = user.pledges[0].addresses[0];
       let latestTransactionHash = yield getLatestTransactionHash(address, processGen);
       let latestTransaction = yield getLatestTransaction(latestTransactionHash, processGen);
       
@@ -123,7 +144,11 @@ function *executeProcess() {
       }
       
       // then we try to make the donation
-      let donationSuccess = yield makeDonation(cents, verifiedData.currency, user.stripe.customerId, npo.stripe.accountId, processGen);
+      const currency = verifiedData.currency;
+      const customerId = user.stripe[institution].customer.id;
+      const connectedAccountId = npo.stripe.accountId;
+      
+      let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, processGen);
       
       if (!donationSuccess) {
         let error = new Error(`Donation couldn't be made for user ${user._id}`);
@@ -142,213 +167,6 @@ function *executeProcess() {
       logger.error({ err: error });
     }
   }
-} 
-
-/**
- * Finds all NPOs that have a Stripe accountId for making payments on their accouts
- * We store this list on a global variable for later. We could pass this list between functions but
- * that would make the code difficult to read. When using nodejs v6+ this can be achieved using destructuring
- * @param {generator} generator
- */
-function getNpo(npoName, generator) {
-  const query = {
-    name: npoName,
-    active: true,
-    'stripe.accountId': {
-      $exists: true,
-    },
-  };
-    
-  const selector = {
-    stripe: 1,
-    name: 1,
-  };
-    
-  Npos
-    .findOne(query, selector)
-    .exec()                     // this forces to return a real Promise
-    .then( npo => generator.next(npo))
-    .catch(error => generator.throw(error));
-}
-
-/**
- * We retrieve all users that have a [[Stripe]] attribute with either a [[token]] or a [[CustomerId]]
- * and those that have a [[pledges]] attribute
- * @param {generator} generator
- */
-function getUsers(generator) {
-  const query = {
-    active: true,
-    'stripe': {
-      $exists: true,
-    },
-    'pledges': {
-      $exists: true,
-    },
-  };
-  
-  const selector = {
-    stripe: 1,
-    pledges: 1,
-  };
-  
-  Users
-    .find(query, selector)
-    .exec()
-    .then(users => generator.next(users))
-    .catch(error => generator.throw(error));
-}
-
-/**
- * We remove [[token]] attribute when we are certain that a user has a [[stripe.customerId]] because
- * it's useless once [[customerId]] is created
- * @param {object}    user
- * @param {generator} generator
- */
-function removeStripeToken(user, generator) {
-  const query = {
-    _id: user._id,
-  };
-  
-  const action = {
-    $unset: {
-      'stripe.token': '',
-    },
-  };
-  
-  Users
-    .update(query, action)
-    .exec()
-    .then(users => generator.next(users))
-    .catch(error => generator.throw(error));
-}
-
-/**
- * We create a new Stripe customer on ELM dashboard
- * @param {object}    user
- * @param {generator} generator
- */
-function createNewCustomer(user, generator) {
-  
-  // Implemented in https://github.com/ElmGives/elmgives-api/pull/41 not yet merged
-  generator.next(true);
-}
-
-/**
- * Add on Users collection [[customerId]] property
- * @param {object}    user
- * @param {generator} generator
- */
-function addCustomerIdOnDatabase(user, generator) {
-  const query = {
-    _id: user._id,
-  };
-  
-  const action = {
-    $set: {
-      'stripe.customerId': user.stripe.customerId,
-    },
-  };
-  
-  Users
-    .update(query, action)
-    .exec()
-    .then(users => generator.next(users))
-    .catch(error => generator.throw(error));
-}
-
-/**
- * Finds hash for [[latestTransaction]] on address collection in order to find the transaction later
- * @param {String}    address
- * @param {generator} generator
- */
-function getLatestTransactionHash(address, generator) {
-  const query = {
-    address: address,
-  };
-  
-  getAddress(query)
-    .then(addressWithLatestTransaction => {
-      
-      if (!addressWithLatestTransaction) {
-        let error = new Error('Address not found');
-        generator.throw(error);
-      }
-      
-      generator.next(addressWithLatestTransaction.latestTransaction);
-    });
-}
-
-/**
- * We get a transaction from a hash
- * @param {String}    hash
- * @param {generator} generator
- */
-function getLatestTransaction(hash, generator) {
-  const query = {
-    'hash.value': hash,
-  };
-  
-  getTransaction(query)
-    .then(transaction => {
-      
-      if (!transaction) {
-        let error = new Error('Latest transaction not found');
-        generator.throw(error);
-      }
-      
-      generator.next(transaction);
-    });
-}
-
-/**
- * Verifies integrity of every transaction componenet is to be trusted
- * @param {String}    address
- * @param {generator} generator
- */
-function verifyData(address, generator) {
-  // Implemented in https://github.com/ElmGives/elmgives-api/pull/42 but not merged yet
-  generator.next(true);
-}
-
-/**
- * Uses Stripe API to make a donation on behalf on [[connectedStripeAccount]]
- * @param {Number}    amount
- * @param {String}    currency  'usd' for now
- * @param {String}    connectedStripeAccount
- * @param {generator} generator
- */
-function makeDonation(amount, currency, customer, connectedStripeAccount, generator) {
-
-  stripe.charges.create({
-    amount: amount,
-    currency: currency,
-    customer: customer,
-    destination: connectedStripeAccount,
-  }).then(() => generator.next(true))
-  .catch(error => generator.throw(error));
-}
-
-/**
- * Address manager is in charge to add a new Address on Addresses collection and to update
- * User pledges address which is signaled with the sendMessage function
- * @param {String}    userId
- * @param {String}    pledgeId
- * @param {Number}    monthlyLimit
- * @param {generator} generator
- */
-function createNewAddress(userId, pledgeId, monthlyLimit, generator) {
-  
-  aws.sendMessage({
-    userId: userId,
-    pledgeId: String(pledgeId),
-    limit: monthlyLimit,
-    nonce: String((new Date()).getTime())
-  }, {
-    queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
-  })
-  .then(() => generator.next(true))
-  .catch(error => generator.throw(error));
 }
 
 module.exports = {
