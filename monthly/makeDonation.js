@@ -16,6 +16,7 @@ function makeDonation(amount, currency, customer, connectedStripeAccount, genera
     currency: currency,
     customer: customer,
     destination: connectedStripeAccount,
+    /* jshint camelcase: false */
     application_fee: 1,                       // NOTE: Not determined yet
   }).then(() => generator.next(true))
   .catch(error => generator.throw(error));
