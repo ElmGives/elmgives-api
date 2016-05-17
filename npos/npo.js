@@ -98,7 +98,7 @@ let schema = new mongoose.Schema({
 schema.plugin(timestamps);
 
 schema.pre('save', function (next) {
-    this.stripe.email = this.get('stripe.email') || this.get('_id');
+    this.stripe.email = this.get('stripe.email') || this.get('email');
     next();
 });
 schema.post('init', function(doc) {
