@@ -12,7 +12,7 @@ tape('Charity model', test => {
     let values = pledge.schema.paths;
 
     types(['monthlyLimit'], values, test, 'Number');
-    types(['archived', 'disabled'], values, test, 'Boolean');
+    types(['archived', 'active'], values, test, 'Boolean');
     types(['userId', 'bankId', 'npoId'], values, test, 'ObjectID');
 
     pledge.validate(error => {

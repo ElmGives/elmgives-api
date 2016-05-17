@@ -8,15 +8,20 @@
 const slack = require('slack');
 const prepareData = require('./prepareData');
 const TOKEN = process.env.SLACK_TOKEN;
+const SLACK_ENABLED = process.env.SLACK_ENABLED;
 
-function notify(object) {
-    const data = prepareData(data, TOKEN);
+module.exports = function notify(object, options) {
+    options = Object.assign({}, options, {
+        token: TOKEN
+    });
+
+    if (!SLACK_ENABLED) {
+        return Promise.resolve('only send messages on production environment');
+    }
 
     return new Promise((resolve, reject) => {
-        slack.chat.postMessage(data, (error, data) => {
+        slack.chat.postMessage(prepareData(object, options), (error, data) => {
             return error ? reject(error) : resolve(data);
         });
     });
-}
-
-module.exports = notify;
+};
