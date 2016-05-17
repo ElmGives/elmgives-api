@@ -48,6 +48,9 @@ let schema = new mongoose.Schema({
     },
 
     stripe: {
+        email: {
+            type: String
+        },
         accountId: {
             type: String,
             default: ''
@@ -94,6 +97,10 @@ let schema = new mongoose.Schema({
 
 schema.plugin(timestamps);
 
+schema.pre('save', function (next) {
+    this.stripe.email = this.get('stripe.email') || this.get('_id');
+    next();
+});
 schema.post('init', function(doc) {
     doc.logoUrl = `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrl}`;
 });

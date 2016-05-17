@@ -62,7 +62,7 @@ function storeNpoConnectedAccountID(accountID) {
             }
 
             let query = {
-                email: account.email
+                'stripe.email': account.email
             };
             let update = {
                 $set: {
