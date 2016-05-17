@@ -281,7 +281,11 @@ var banks = {
         'bank list': {
             'description': 'Banks registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/banks',
             'method': 'GET'
@@ -339,7 +343,11 @@ var npos = {
         'npo list': {
             'description': 'NPOs registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/npos',
             'method': 'GET'
@@ -404,6 +412,7 @@ var sessions = {
             'wrapper': '',
             'method': 'POST',
             callback: function(response) {
+                'use strict';
                 var data = response.data || [];
                 localStorage.setItem('cu', JSON.stringify(data));
             }
@@ -416,7 +425,8 @@ var sessions = {
             'url': API + '/sessions/[id]',
             'wrapper': '',
             'method': 'DELETE',
-            callback: function(response) {
+            callback: function() {
+                'use strict';
                 localStorage.removeItem('cu');
             }
         }
