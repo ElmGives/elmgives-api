@@ -34,7 +34,7 @@ module.exports = function verifyJwsSignature(jws, scheme, publicKey) {
     try {
         verified = scheme.verify(hash, signature, publicKey, 'hex');
     } catch(err) {
-        logger.error(error);
+        logger.error(err);
         return Promise.reject(error);
     }
 
