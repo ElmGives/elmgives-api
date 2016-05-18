@@ -84,13 +84,20 @@ function run() {
  * @param   {object}    person
  */
 function extractInformationFromPerson(person) {
+    const activePledge = person.pledges.filter(pledge => pledge.active);
     
-    // NOTE: We assume user has only one bank account registered on the application for pledge
-    const firstPledge = person.pledges[0];
-    const firstAddress = firstPledge.addresses[0];
+    if (activePledge.length === 0) {
+        const error = new Error(`User with ID ${person._id} has not an active pledge`);
 
+        logger.error({ err: error });
+        return;
+    }
+    
+    const firstAddress = activePledge[0].addresses[0];
+
+    // NOTE: We assume user has only one bank account registered on the application for pledge
     const query = {
-        _id: firstPledge.bankId
+        _id: activePledge[0].bankId,
     };
     
     findOneBank(query).then(bank => {
