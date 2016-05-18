@@ -1,6 +1,7 @@
 'use strict';
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const STRIPE_FEE = 0.008; // 0.8%
 
 /**
  * Uses Stripe API to make a donation on behalf on [[connectedStripeAccount]]
@@ -17,7 +18,7 @@ function makeDonation(amount, currency, customer, connectedStripeAccount, genera
     customer: customer,
     destination: connectedStripeAccount,
     /* jshint camelcase: false */
-    application_fee: 1,                       // NOTE: Not determined yet
+    application_fee: amount * STRIPE_FEE, // minimun fee
   })
   .then(generator.next)
   .catch(generator.throw);

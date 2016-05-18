@@ -26,3 +26,5 @@ function run() {
 }
 
 run();
+
+// TODO: we have to have two processes: one for monthly charges and one for assigning a new address on the start of the month
