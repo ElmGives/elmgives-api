@@ -1,23 +1,5 @@
 /**
- * STEPS:
- * - Get Users with [[stripe]] attribute and a value different from default
- * - Filter out those users with [[stripe.token]] attribute
- *   - If they have a [[CustomerId]] attibute, then delete the token
- *   - If they doesn't have a [[CustomerId]] attribute, create one
- * - For each user:
- *   - Take [[address]] from [[pledges]] attribute
- *   - Search on Addresses and take [[latestTransaction]] attribute
- *   - Search on Transactions for [[latestTransaction]] hash value
- *   - If this [[transaction]] is already processed, notify?
- *   - Check if data is valid (Jorge's process)
- *   - Check [[user]] top donation ammount
- *       - Clamp donation if needed
- *   - If everything is good, make donation (remember donations are in cents)
- *   - Request a new [[address]]
- *   - Save new [[address]] on User NPO (this is done by pledge manager)
- *   - Create a new [[address]] on Addresses. This adds a previous transaction with zero value (this is done by pledge manager)
- * 
- * On any fail log error
+ * Every step for this process is inside of [[executeProcess]] generator and is documented inline
  */
 'use strict';
 
@@ -36,6 +18,7 @@ const getLatestTransaction = require('./getLatestTransaction');
 const verifyData = require('./verifyData');
 const makeDonation = require('./makeDonation');
 const createNewAddress = require('./createNewAddress');
+const markTransactionAsCharged = require('./markTransactionAsCharged');
 
 // GLOBAL VARIABLES
 let processGen = null;
@@ -44,12 +27,18 @@ let processGen = null;
  * Starts the process
  */
 function run() {
+  logger.info('Monthly process: Started.');
+  
   processGen = executeProcess();
   processGen.next();
 }
 
 /**
- * Every step in this process is documented inline
+ * We use two try/catch on this generator, one for when our first query to User database. With this one
+ * on a fail, we log the error and skip the while statement.
+ * On second try/catch we wrap all the process for every person found, capturing all errors tha may be
+ * thrown on throw statements. Inside helper functions we forward the errors in order to capture them
+ * here
  */
 function *executeProcess() {
   let users = [];
@@ -58,6 +47,8 @@ function *executeProcess() {
   // We retrieve every person that has stripe and plaid attributes and are active
   try {
     users = yield getUsers(processGen);
+    
+    logger.info('Monthly process: Got users');
   } catch( error ) {
     logger.error({ err: error });
     users = [];
@@ -69,7 +60,7 @@ function *executeProcess() {
     
     try {
 
-      // First we get the active pledge in order to query user bank type to know stripe customer
+      // First we get the first active pledge in order to query user bank type to know stripe customer
       const activePledge = user.pledges.filter(pledge => pledge.active);
       
       if (activePledge.length === 0) {
@@ -86,9 +77,9 @@ function *executeProcess() {
         throw error;
       }
       
-      // If the user has a stripe token, we check if (s)he has a stripe customerId
-      // If a customerId is present, we remove the token because it's useless, if not, we
-      // immediately create a stripe account because with the token in this state can do a lot and
+      // If the user has a stripe token, we check if (s)he has a stripe customer ID
+      // If a customer ID is present, we remove the token because it's useless, if not, we
+      // immediately create a stripe account because with the token in this state anyone can do a lot and
       // is not safe for our user to delay that creation 
       if (user.stripe[institution].token) {
         
@@ -96,7 +87,11 @@ function *executeProcess() {
           yield removeStripeToken(user, institution, processGen);
         }
         else {
+          logger.info('Monthly process: Found a token and no customer on stripe. Trying to create one...');
+          
           let newCustomer = yield createNewCustomer(user, processGen);
+          
+          logger.info('Monthly process: Created a new customer on stripe');
           
           user.stripe[institution].customer = newCustomer;
           
@@ -105,12 +100,15 @@ function *executeProcess() {
         }        
       }
       
+      logger.info('Monthly process: Getting transaction data');
+      
       // Now we look for the latestTransaction which contains the balance to charge.
-      // We verify it not charged yet. If it is, maybe something went wrong on the round up process or
-      // user simply didn't make any use of registered account
+      // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
+      // user simply didn't make any use on registered account
       let latestTransactionHash = yield getLatestTransactionHash(address, processGen);
       let latestTransaction = yield getLatestTransaction(latestTransactionHash, processGen);
       
+      // TODO: should we create a new address when we found this? or just report as it is?
       if (latestTransaction.charged) {
         notify({ text: `This transaction was already processed: ${latestTransaction.hash.value}` });
         
@@ -119,54 +117,70 @@ function *executeProcess() {
       }
       
       // We verify that transaction hash is not tampered. Also that the address is derived from public key
-      // we get the address, amount to charge and currency
+      // we get back the address, amount to charge and currency
       let verifiedData = yield verifyData(address, processGen);
       
       if (!verifiedData) {
-        let error = new Error('Transaction integrity or signature don\'t match');
+        let error = new Error('Transaction integrity or signature doesn\'t match');
         throw error;
       }
       
       // we verify and clamp if necessary user monthlyLimit
-      let monthlyLimit = user.pledges[0].monthlyLimit;
+      let monthlyLimit = activePledge[0].monthlyLimit;
       
       if (verifyData.balance > monthlyLimit) {
         verifiedData.balance = monthlyLimit;
       }
       
-      // every charge is in cents and get user pledge npo object to get access to stripe connect account
+      
+      // every charge is in cents. We get user pledge npo object to get access to stripe connect account
       let cents = verifiedData.balance * 100;
-      let npo = yield getNpo(user.pledges[0].npo, processGen);
+      let npo = yield getNpo(activePledge[0].npo, processGen);
       
       if (!npo) {
         let error = new Error(`User ${user._id}, doesn't have a valid pledge name`);
         throw error;
       }
       
-      // then we try to make the donation
-      const currency = verifiedData.currency;
-      const customerId = user.stripe[institution].customer.id;
-      const connectedAccountId = npo.stripe.accountId;
-      
-      let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, processGen);
-      
-      if (!donationSuccess) {
-        let error = new Error(`Donation couldn't be made for user ${user._id}`);
-        throw error;
+      if (cents > 0) {
+        logger.info('Monthly process: Making donation');
+        
+        // then we try to make the donation
+        const currency = verifiedData.currency;
+        const customerId = user.stripe[institution].customer.id;
+        const connectedAccountId = npo.stripe.accountId;
+        
+        let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, processGen);
+        
+        if (!donationSuccess) {
+          let error = new Error(`Donation couldn't be made for user ${user._id}`);
+          throw error;
+        }
       }
       
+      logger.info('Monthly process: Updating transaction as processed');
+      
+      yield markTransactionAsCharged(latestTransaction, processGen);
+      
+      logger.info('Monthly process: Trying to get a new address');
+      
       // Once donated, we need to request a new address for user pledge to start a new month
-      const pledgeId = user.pledges[0]._id;
+      const pledgeId = activePledge[0]._id;
       let newAddress = yield createNewAddress(user._id, pledgeId, monthlyLimit, processGen);
       
       if (!newAddress) {
-        let error = new Error(`Couldn't send AWS request for new Address for user ${user._id}`);
+        let error = new Error(`Couldn't send AWS a request for new Address for user ${user._id}`);
         throw error;
       }
+      
+      logger.info(`Monthly process: Process success for ${user._id}`);
+      
     } catch(error) {
       logger.error({ err: error });
     }
   }
+  
+  logger.info('Monthly process: Finished');
 }
 
 module.exports = {

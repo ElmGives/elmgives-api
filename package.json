@@ -23,7 +23,8 @@
     "test-min": "tape tests/unit/**/*.test.js | tap-dot",
     "start-test": "DB_NAME=elm-test node ./bin/www",
     "acceptance": "tape tests/acceptance/**/*.js | tap-spec",
-    "roundup": "pm2 start ./bin/roundup-pm2.js"
+    "roundup": "pm2 start ./bin/roundup-pm2.js",
+    "monthly": "pm2 start ./bin/monthly.js"
   },
   "engines": {
     "node": "5.9.0"

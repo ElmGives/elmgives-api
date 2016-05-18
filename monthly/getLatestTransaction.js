@@ -21,7 +21,8 @@ function getLatestTransaction(hash, generator) {
       }
       
       generator.next(transaction);
-    });
+    })
+    .catch(generator.throw);
 }
 
 module.exports = getLatestTransaction;

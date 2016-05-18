@@ -21,7 +21,8 @@ function getLatestTransactionHash(address, generator) {
       }
       
       generator.next(addressWithLatestTransaction.latestTransaction);
-    });
+    })
+    .catch(generator.throw);
 }
 
 module.exports = getLatestTransactionHash;

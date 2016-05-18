@@ -13,6 +13,7 @@ function addCustomerIdOnDatabase(user, institution, generator) {
     _id: user._id,
   };
   
+  // NOTE: with nodejs v6+ we can use computed properties
   let action = {
     $set: {},
   };
@@ -22,8 +23,8 @@ function addCustomerIdOnDatabase(user, institution, generator) {
   Users
     .update(query, action)
     .exec()
-    .then(users => generator.next(users))
-    .catch(error => generator.throw(error));
+    .then(generator.next)
+    .catch(generator.throw);
 }
 
 module.exports = addCustomerIdOnDatabase;

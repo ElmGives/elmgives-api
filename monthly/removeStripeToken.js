@@ -23,8 +23,8 @@ function removeStripeToken(user, institution, generator) {
   Users
     .update(query, action)
     .exec()
-    .then(users => generator.next(users))
-    .catch(error => generator.throw(error));
+    .then(generator.next)
+    .catch(generator.throw);
 }
 
 module.exports = removeStripeToken;
