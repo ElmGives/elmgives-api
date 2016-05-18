@@ -23,6 +23,7 @@ const logger = require('../logger');
 
 const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
 const getFromAws = require('./getFromAws');
+const getYearMonth = require('../helpers/getYearMonth');
 
 const ONE_MINUTE = 1000 * 60;
 
@@ -93,7 +94,14 @@ function extractInformationFromPerson(person) {
         return;
     }
     
-    const firstAddress = activePledge[0].addresses[0];
+    const thisMonth = getYearMonth(new Date());
+    const address = activePledge[0].addresses[thisMonth];
+    
+    if (!address) {
+        const error = new Error(`User ${person._id} doesn't have an address for this month`);
+        logger.error({ err: error });
+        return;
+    }
 
     // NOTE: We assume user has only one bank account registered on the application for pledge
     const query = {
@@ -114,7 +122,7 @@ function extractInformationFromPerson(person) {
         let options = {
             _id: person._id,
             token: person.plaid.tokens.connect[bank.type],
-            address: firstAddress,
+            address: address,
         };
         
         roundAndSendToAmazon.request(options);
