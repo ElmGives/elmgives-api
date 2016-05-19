@@ -6,13 +6,25 @@
  'use strict';
 
 const Bank = require('../../banks/bank');
+const logger = require('../../logger');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports = function patchConnectUser(request, response, next) {
-    let plaid = request.plaid;
+const PlaidLinkExchanger = {
+    middleware: middleware,
+    exchangePublicToken: exchangePublicToken,
+    createStripeCustomer: createStripeCustomer,
+    stripe: stripe,
+    models: {
+        Bank: Bank
+    }
+};
+
+function middleware(request, response, next) {
     let publicToken = request.body.public_token;
     let accountID = request.body.account_id;
     let institution = request.body.institution;
     let error = new Error();
+    let data = {};
 
     if (!publicToken) {
         error.status = 400;
@@ -25,42 +37,105 @@ module.exports = function patchConnectUser(request, response, next) {
         return next(error);
     }
 
-    Bank.findOne({type: institution})
-        .then(function (bank) {
+    return PlaidLinkExchanger.models.Bank.findOne({type: institution})
+        .then(bank => {
             if (!bank) {
                 error.status = 400;
                 error.message = 'Invalid institution type';
-                return next(error);
+                return Promise.reject(error);
+            }
+            return PlaidLinkExchanger.exchangePublicToken(request.plaid, publicToken, accountID);
+        })
+        .then(exchanged => {
+            let query = {};
+            query['plaid.tokens.connect.' + institution] = exchanged.plaidAccessToken;
+            data.access_token = exchanged.plaidAccessToken;
+            return PlaidLinkExchanger.createStripeCustomer(request.currentUser, exchanged.stripeBankAccountToken)
+                .then(customer => {
+                    query[`stripe.${institution}.customer.id`] = customer.id;
+                    return query;
+                })
+                .catch(error => {
+                    logger.error(error);
+                    // Try creating Stripe customer later. Meanwhile, store the token.
+                    // PENDING: Queue retry message
+                    query[`stripe.${institution}.token`] = exchanged.stripeBankAccountToken;
+                    return query;
+                });
+        })
+        .then(query => {
+            request.currentUser.update(query)
+                .then(() => {
+                    response.json({
+                        data: data
+                    });
+                })
+                .catch(next);
+        })
+        .catch(next);
+}
+
+/**
+ * Exchanges a Plaid public token obtained after (multi-factor) authentication for a Stripe token
+ * @param  {Object} plaid - Plaid client instance
+ * @param  {string} publicToken - A token received after completing the Plaid Link authentication flow
+ * @param  {string} accountID - The ID of the account selected by the user to be charged for donations
+ * @return {Promise} - Resolves to an object with a Plaid access token and a Stripe bank account token
+ */
+function exchangePublicToken(plaid, publicToken, accountID) {
+    let error = new Error();
+
+    return new Promise((resolve, reject) => {
+        plaid.client.exchangeToken(publicToken, accountID, (err, res) => {
+            if (err) {
+                error.status = err.statusCode || 400;
+                error.message = err.message || err.resolve;
+                return reject(error);
             }
 
-            plaid.client.exchangeToken(publicToken, accountID, function (err, res) {
-                if (err) {
-                    error.status = err.statusCode || 400;
-                    error.message = err.message || err.resolve;
-                    return next(error);
-                }
+            let plaidAccessToken = res.access_token;
+            let stripeBankAccountToken = res.stripe_bank_account_token;
 
-                let accessToken = res.access_token;
-                let stripeToken = res.stripe_bank_account_token;
-                if (!accessToken) {
-                    error.status = 422;
-                    error.message = 'Access token could not be retrieved';
-                    return next(error);
-                }
+            if (!plaidAccessToken) {
+                error.status = 422;
+                error.message = 'Access token could not be retrieved';
+                return reject(error);
+            }
+            if (!stripeBankAccountToken) {
+                error.status = 422;
+                error.message = 'Stripe token could not be retrieved';
+                return reject(error);
+            }
 
-                let query = {};
-                query['plaid.tokens.connect.' + bank.type] = accessToken;
-                query['stripe.token'] = stripeToken;
-                request.currentUser.update(query)
-                    .then(function () {
-                        response.json({
-                            data: {
-                                access_token: accessToken,
-                                stripe_token: stripeToken
-                            }
-                        });
-                    })
-                    .catch(next);
+            resolve({
+                plaidAccessToken: plaidAccessToken,
+                stripeBankAccountToken: stripeBankAccountToken
             });
         });
-};
+    });
+}
+
+/**
+ * Create a Stripe customer on Elm's Stripe platform account using the Stripe bank account token obtained from Plaid
+ * @param  {Object} user - Current user to be created as a customer after authorizing an account
+ * @param  {[type]} stripeBankAccountToken - A Stripe token obtained in exchange for a Plaid public token
+ * @return {Object} customer - The newly created Stripe customer object whose ID will be used as a source for charges
+ */
+function createStripeCustomer(user, stripeBankAccountToken) {
+    return PlaidLinkExchanger.stripe.customers.create({
+        email: user.email,
+        description: user.name,
+        source: stripeBankAccountToken
+    })
+    .then(customer => {
+        if (!(customer.sources.data instanceof Array) || customer.sources.data.length === 0) {
+            let error = new Error();
+            error.status = 422;
+            error.message = 'Could not create Stripe customer with the obtained Stripe token.';
+            return Promise.reject(error);
+        }
+        return customer;
+    });
+}
+
+module.exports = PlaidLinkExchanger;

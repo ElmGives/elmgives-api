@@ -54,7 +54,8 @@
     "plaid": "1.0.10",
     "request": "2.72.0",
     "ripemd160": "2.0.0",
-    "slack": "7.0.1"
+    "slack": "7.0.1",
+    "stripe": "4.6.0"
   },
   "devDependencies": {
     "jshint": "2.9.2",

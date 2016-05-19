@@ -63,9 +63,8 @@ let schema = new mongoose.Schema({
     },
 
     stripe: {
-        token: {
-            type: String
-        }
+        type: Object,
+        default: {}
     },
 
     /**
