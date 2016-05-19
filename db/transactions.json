@@ -274,7 +274,7 @@
           "alg": "ed25519",
           "kid": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
         },
-        "signature": "3044022000d783c111fd7bf647ab3f5e0e3b8a16be24e4192dc0fa924ec00e30622cc0a0022001fef91faf0c7704f944a6fc406ff589c51b87beecedcc1bd730526a87d65a24"
+        "signature": "30440220075b99961e0afc7be9c0d0707968831b45aab779503927efb6e8f7795ec4da1c02200c7c5972fd56ca3c953795e4e7f2a65cd3ad6f25e929ec48c68beb86314a396a"
       }
     ]
   },
