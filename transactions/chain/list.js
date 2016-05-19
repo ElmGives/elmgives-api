@@ -77,7 +77,7 @@ module.exports = function list(request, response, next) {
             /* Pagination and sorting */
             let options = {
                 offset: request.query.offset || 0,
-                limit: request.query.limit || 10,
+                limit: request.query.limit || 100,
                 sort: {
                     'payload.timestamp': request.query.oldestFirst ? 'ascending' : 'descending'
                 }

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const getYearMonth = require('../lib/getYearMonth');
+const getYearMonth = require('../helpers/getYearMonth');
 
 module.exports = function update(request, response, next) {
     const userId = request.params.id + '';

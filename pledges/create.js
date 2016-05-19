@@ -8,7 +8,7 @@ const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
 const aws = require('../lib/awsQueue');
 const logger = require('../logger');
-const getYearMonth = require('../lib/getYearMonth');
+const getYearMonth = require('../helpers/getYearMonth');
 
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
@@ -102,7 +102,7 @@ module.exports = (request, response, next) => {
                 queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
             })
             .catch(error => {
-                logger.error(error);
+                logger.error({err: error});
             });
         })
         .catch(next);

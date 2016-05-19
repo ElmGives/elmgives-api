@@ -14,7 +14,7 @@ const Transaction = require('../transactions/chain/transaction');
 const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
-const getYearMonth = require('../lib/getYearMonth');
+const getYearMonth = require('../helpers/getYearMonth');
 const logger = require('../logger');
 
 const schemes = {
@@ -89,7 +89,7 @@ PledgeAddressManager.prototype.parsePledgeAddressRequests = function (messages) 
         try {
             body = JSON.parse(message.Body);
         } catch (error) {
-            logger.error(error);
+            logger.error({err: error});
             return error;
         }
 
