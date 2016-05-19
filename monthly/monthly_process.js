@@ -26,7 +26,7 @@ let processGen = null;
 /**
  * Starts the process
  */
-function run() {
+function charge() {
   logger.info('Monthly process: Started.');
   
   processGen = executeProcess();
@@ -64,7 +64,9 @@ function *executeProcess() {
       const activePledge = user.pledges.filter(pledge => pledge.active);
       
       if (activePledge.length === 0) {
-        const error = new Error(`User with ID ${user._id} has not an active pledge`);
+        let error = new Error('active-pledge-not-found');
+        error.status = 404;
+        error.details = `User with ID ${user._id} has not an active pledge`;
         throw error;
       }
       
@@ -73,7 +75,9 @@ function *executeProcess() {
       let institution = yield getBankInstitution(bankId, processGen);
       
       if (!user.stripe[institution]) {
-        const error = new Error(`User with ID ${user._id} doesn't have stripe information to proceed`);
+        let error = new Error('stripe-information-not-found');
+        error.status = 404;
+        error.details = `User with ID ${user._id} doesn't have stripe information to proceed`;
         throw error;
       }
       
@@ -112,7 +116,9 @@ function *executeProcess() {
       if (latestTransaction.charged) {
         notify({ text: `This transaction was already processed: ${latestTransaction.hash.value}` });
         
-        let error = new Error(`This transaction was already processed: ${latestTransaction.hash.value}`);
+        let error = new Error('transaction-already-processed');
+        error.status = 422;
+        error.details = `This transaction was already processed: ${latestTransaction.hash.value}`;
         throw error;
       }
       
@@ -121,7 +127,9 @@ function *executeProcess() {
       let verifiedData = yield verifyData(address, processGen);
       
       if (!verifiedData) {
-        let error = new Error('Transaction integrity or signature doesn\'t match');
+        let error = new Error('transaction-information-mismatch');
+        error.status = 422;
+        error.details = `Transaction integrity or signature doesn't match. UserId ${user._id}`;
         throw error;
       }
       
@@ -138,7 +146,9 @@ function *executeProcess() {
       let npo = yield getNpo(activePledge[0].npo, processGen);
       
       if (!npo) {
-        let error = new Error(`User ${user._id}, doesn't have a valid pledge name`);
+        let error = new Error('pledge-name-not-found');
+        error.status = 404;
+        error.details = `User ${user._id}, doesn't have a valid pledge name`;
         throw error;
       }
       
@@ -153,7 +163,9 @@ function *executeProcess() {
         let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, processGen);
         
         if (!donationSuccess) {
-          let error = new Error(`Donation couldn't be made for user ${user._id}`);
+          let error = new Error('donation-failed');
+          error.status = 422;
+          error.details = `Donation couldn't be made for user ${user._id}`;
           throw error;
         }
       }
@@ -169,7 +181,9 @@ function *executeProcess() {
       let newAddress = yield createNewAddress(user._id, pledgeId, monthlyLimit, processGen);
       
       if (!newAddress) {
-        let error = new Error(`Couldn't send AWS a request for new Address for user ${user._id}`);
+        let error = new Error('new-address-failed');
+        error.status = 422;
+        error.details = `Couldn't send AWS a request for new Address for user ${user._id}`;
         throw error;
       }
       
@@ -184,5 +198,5 @@ function *executeProcess() {
 }
 
 module.exports = {
-  run: run,
+  charge: charge,
 };

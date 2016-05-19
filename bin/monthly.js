@@ -8,18 +8,18 @@
 const monthlyProcess = require('../monthly/monthly_process');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
-const PROCESS_DATE = 26;
+const CHARGE_DAY = 26;
 
 /**
- * We run this monthly process every [[PROCESS_DATE]] day of the month.
+ * We run this monthly process every [[CHARGE_DAY]] day of the month.
  * Because some months have 31 days we can't just use 30 days for our setTimeout
  */
 function run() {
     
     const date = new Date();
     
-    if (date.getDate() === PROCESS_DATE) {
-        monthlyProcess.run();
+    if (date.getDate() === CHARGE_DAY) {
+        monthlyProcess.charge();
     }
     
     setTimeout(() => run(), ONE_DAY);
