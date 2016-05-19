@@ -6,6 +6,8 @@
 const User = require('../../users/user');
 const Transaction = require('./transaction');
 
+const getPledgeAddressByDate = (pledge, date) => pledge.addresses[date];
+
 module.exports = function list(request, response, next) {
     let email = request.query.email;
     let query;
@@ -27,15 +29,15 @@ module.exports = function list(request, response, next) {
                 return Promise.reject(error);
             }
 
-            let pledge = user.pledges.find(item => item.active);
-            if (!user.pledges || !user.pledges.length || !pledge.addresses) {
-                error.status = 404;
-                error.message = 'no-pledge-addresses-found';
-                return Promise.reject(error);
+            let addresses = [];
+            for (let index in user.pledges) {
+                let pledge = user.pledges[index];
+                let dates = Object.keys(pledge.addresses || {}).sort().reverse();
+                let pledgeAddresses = dates.map(getPledgeAddressByDate.bind(null, pledge));
+                addresses.push(pledgeAddresses);
             }
+            addresses = addresses.reduce((txs1, txs2) => txs1.concat(txs2));
 
-            let dates = Object.keys(pledge.addresses || {}).sort().reverse();
-            let addresses = dates.map(date => pledge.addresses[date]);
             query = {
                 'payload.address' : {
                     $in: addresses
