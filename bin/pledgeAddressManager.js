@@ -14,6 +14,7 @@ const Transaction = require('../transactions/chain/transaction');
 const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
+const getYearMonth = require('../lib/getYearMonth');
 const logger = require('../logger');
 
 const schemes = {
@@ -166,7 +167,9 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
 
             return P.all([transaction, address])
                 .spread((transaction, address) => {
-                    pledge.addresses.unshift(address.address);
+                    let currentYearMonth = getYearMonth();
+                    pledge.set(`addresses.${currentYearMonth}`, address.address);
+
                     return [
                         user,
                         transaction,
