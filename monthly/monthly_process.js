@@ -108,7 +108,8 @@ function *executeCharges() {
         else {
           logger.info('Monthly charge: Found a token and no customer on stripe. Trying to create one...');
           
-          let newCustomer = yield createNewCustomer(user, chargeGen);
+          const token = user.stripe[institution].token;
+          let newCustomer = yield createNewCustomer(user, token, chargeGen);
           
           logger.info('Monthly charge: Created a new customer on stripe');
           
