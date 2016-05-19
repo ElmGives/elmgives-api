@@ -26,18 +26,22 @@ module.exports = function list(request, response, next) {
                 error.message = 'user-email-not-found';
                 return Promise.reject(error);
             }
-            if (!user.pledges || !user.pledges.length || !user.pledges[0].addresses.length) {
+
+            let pledge = user.pledges.find(item => item.active);
+            if (!user.pledges || !user.pledges.length || !pledge.addresses) {
                 error.status = 404;
                 error.message = 'no-pledge-addresses-found';
                 return Promise.reject(error);
             }
 
-            let addresses = user.pledges[0].addresses;
+            let dates = Object.keys(pledge.addresses || {}).sort().reverse();
+            let addresses = dates.map(date => pledge.addresses[date]);
             query = {
                 'payload.address' : {
                     $in: addresses
                 }
             };
+
             /* Search by amount and amount range */
             let amount = Number(request.query.amount);
             if (!isNaN(amount)) {
@@ -55,6 +59,7 @@ module.exports = function list(request, response, next) {
                     };
                 }
             }
+
             /* Search by date */
             let date = new Date(request.query.date);
             let days = Number(request.query.days);

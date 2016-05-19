@@ -168,7 +168,16 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
             return P.all([transaction, address])
                 .spread((transaction, address) => {
                     let currentYearMonth = getYearMonth();
-                    pledge.set(`addresses.${currentYearMonth}`, address.address);
+                    let currentAddress = pledge.addresses[currentYearMonth];
+
+                    if (!currentAddress) {
+                        pledge.set(`addresses.${currentYearMonth}`, address.address);
+                    } else {
+                        let error = new Error();
+                        error.message = 'An address for the current month has already been added.';
+                        error.details = `month: ${currentYearMonth}, address: ${currentAddress}`;
+                        logger.error(error);
+                    }
 
                     return [
                         user,
