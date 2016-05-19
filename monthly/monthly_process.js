@@ -1,10 +1,13 @@
 /**
- * Every step for this process is inside of [[executeProcess]] generator and is documented inline
+ * In this document is coded two monthly processes:
+ * - User charges. This process takes every transaction from last month and make a Stripe transfer
+ * - Address assignement. This process assigns a new address for every user when a new month start
  */
 'use strict';
 
 const logger = require('../logger');
 const notify = require('../slack/index');
+const getYearMonth = require('../helpers/getyearMonth');
 
 // Functions for every step
 const getBankInstitution = require('./getBankInstitution');
@@ -21,16 +24,17 @@ const createNewAddress = require('./createNewAddress');
 const markTransactionAsCharged = require('./markTransactionAsCharged');
 
 // GLOBAL VARIABLES
-let processGen = null;
+let chargeGen = null;
+let addressGen = null;
 
 /**
  * Starts the process
  */
 function charge() {
-  logger.info('Monthly process: Started.');
+  logger.info('Monthly charge: Started.');
   
-  processGen = executeProcess();
-  processGen.next();
+  chargeGen = executeCharges();
+  chargeGen.next();
 }
 
 /**
@@ -40,15 +44,15 @@ function charge() {
  * thrown on throw statements. Inside helper functions we forward the errors in order to capture them
  * here
  */
-function *executeProcess() {
+function *executeCharges() {
   let users = [];
   let user = null;
   
   // We retrieve every person that has stripe and plaid attributes and are active
   try {
-    users = yield getUsers(processGen);
+    users = yield getUsers(chargeGen);
     
-    logger.info('Monthly process: Got users');
+    logger.info('Monthly charge: Got users');
   } catch( error ) {
     logger.error({ err: error });
     users = [];
@@ -69,10 +73,21 @@ function *executeProcess() {
         error.details = `User with ID ${user._id} has not an active pledge`;
         throw error;
       }
+
+      // We need to get transactions for last month
+      let date = new Date();
+      date.setMonth(date.getMonth() - 1);
+      let lastMonth = getYearMonth(date);
+      let address = activePledge[0].addresses[lastMonth];
       
-      let address = activePledge[0].addresses[0];
+      // If the address doesn't exists is because the user registered this month, so,
+      // user has not transaction data for last month and we skip this one
+      if (!address) {
+        continue;
+      }
+      
       let bankId = activePledge[0].bankId;
-      let institution = yield getBankInstitution(bankId, processGen);
+      let institution = yield getBankInstitution(bankId, chargeGen);
       
       if (!user.stripe[institution]) {
         let error = new Error('stripe-information-not-found');
@@ -88,31 +103,30 @@ function *executeProcess() {
       if (user.stripe[institution].token) {
         
         if (user.stripe[institution].customer) {
-          yield removeStripeToken(user, institution, processGen);
+          yield removeStripeToken(user, institution, chargeGen);
         }
         else {
-          logger.info('Monthly process: Found a token and no customer on stripe. Trying to create one...');
+          logger.info('Monthly charge: Found a token and no customer on stripe. Trying to create one...');
           
-          let newCustomer = yield createNewCustomer(user, processGen);
+          let newCustomer = yield createNewCustomer(user, chargeGen);
           
-          logger.info('Monthly process: Created a new customer on stripe');
+          logger.info('Monthly charge: Created a new customer on stripe');
           
           user.stripe[institution].customer = newCustomer;
           
-          yield addCustomerIdOnDatabase(user, institution, processGen);
-          yield removeStripeToken(user, institution, processGen);
+          yield addCustomerIdOnDatabase(user, institution, chargeGen);
+          yield removeStripeToken(user, institution, chargeGen);
         }        
       }
       
-      logger.info('Monthly process: Getting transaction data');
+      logger.info('Monthly charge: Getting transaction data');
       
       // Now we look for the latestTransaction which contains the balance to charge.
       // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
       // user simply didn't make any use on registered account
-      let latestTransactionHash = yield getLatestTransactionHash(address, processGen);
-      let latestTransaction = yield getLatestTransaction(latestTransactionHash, processGen);
+      let latestTransactionHash = yield getLatestTransactionHash(address, chargeGen);
+      let latestTransaction = yield getLatestTransaction(latestTransactionHash, chargeGen);
       
-      // TODO: should we create a new address when we found this? or just report as it is?
       if (latestTransaction.charged) {
         notify({ text: `This transaction was already processed: ${latestTransaction.hash.value}` });
         
@@ -124,7 +138,7 @@ function *executeProcess() {
       
       // We verify that transaction hash is not tampered. Also that the address is derived from public key
       // we get back the address, amount to charge and currency
-      let verifiedData = yield verifyData(address, processGen);
+      let verifiedData = yield verifyData(address, chargeGen);
       
       if (!verifiedData) {
         let error = new Error('transaction-information-mismatch');
@@ -136,14 +150,14 @@ function *executeProcess() {
       // we verify and clamp if necessary user monthlyLimit
       let monthlyLimit = activePledge[0].monthlyLimit;
       
+      // TODO: code minimum donation
       if (verifyData.balance > monthlyLimit) {
         verifiedData.balance = monthlyLimit;
       }
       
-      
       // every charge is in cents. We get user pledge npo object to get access to stripe connect account
       let cents = verifiedData.balance * 100;
-      let npo = yield getNpo(activePledge[0].npo, processGen);
+      let npo = yield getNpo(activePledge[0].npo, chargeGen);
       
       if (!npo) {
         let error = new Error('pledge-name-not-found');
@@ -153,14 +167,14 @@ function *executeProcess() {
       }
       
       if (cents > 0) {
-        logger.info('Monthly process: Making donation');
+        logger.info('Monthly charge: Making donation');
         
         // then we try to make the donation
         const currency = verifiedData.currency;
         const customerId = user.stripe[institution].customer.id;
         const connectedAccountId = npo.stripe.accountId;
         
-        let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, processGen);
+        let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, chargeGen);
         
         if (!donationSuccess) {
           let error = new Error('donation-failed');
@@ -170,15 +184,67 @@ function *executeProcess() {
         }
       }
       
-      logger.info('Monthly process: Updating transaction as processed');
+      logger.info('Monthly charge: Updating transaction as processed');
       
-      yield markTransactionAsCharged(latestTransaction, processGen);
+      yield markTransactionAsCharged(latestTransaction, chargeGen);
       
-      logger.info('Monthly process: Trying to get a new address');
+      logger.info(`Monthly charge: Process success for ${user._id}`);
       
-      // Once donated, we need to request a new address for user pledge to start a new month
+    } catch(error) {
+      logger.error({ err: error });
+    }
+  }
+  
+  logger.info('Monthly charge: Finished');
+}
+/**
+ * Starts the executeAddressAssign generator
+ */
+function assignNewAddress() {
+  logger.info('Monthly address assignement: started');
+  
+  addressGen = executeAddressAssign();
+  addressGen.next();
+}
+
+/**
+ * Every step is documented inline
+ */
+function *executeAddressAssign() {
+  let users = [];
+  let user = null;
+  
+  // We retrieve every person that has stripe and plaid attributes and are active
+  try {
+    users = yield getUsers(addressGen);
+    
+    logger.info('Monthly address assignement: Got users');
+  } catch( error ) {
+    logger.error({ err: error });
+    users = [];
+  }
+  
+  // Used a while instead of a loop in case we end up adding users asyncronously
+  // if user database is too big to process in one swoop
+  while((user = users.pop())) {
+    
+    try {
+      logger.info('Monthly address assignement: Trying to get a new address');
+      
+      // First we get the first active pledge
+      const activePledge = user.pledges.filter(pledge => pledge.active);
+      
+      if (activePledge.length === 0) {
+        let error = new Error('active-pledge-not-found');
+        error.status = 404;
+        error.details = `User with ID ${user._id} has not an active pledge`;
+        throw error;
+      }
+      
+      // We need to request a new address for active user pledge to start a new month
       const pledgeId = activePledge[0]._id;
-      let newAddress = yield createNewAddress(user._id, pledgeId, monthlyLimit, processGen);
+      const monthlyLimit = activePledge[0].monthlyLimit;
+      let newAddress = yield createNewAddress(user._id, pledgeId, monthlyLimit, addressGen);
       
       if (!newAddress) {
         let error = new Error('new-address-failed');
@@ -187,16 +253,16 @@ function *executeProcess() {
         throw error;
       }
       
-      logger.info(`Monthly process: Process success for ${user._id}`);
-      
+      logger.info('Monthly address assignement: Address created successfully.');
     } catch(error) {
       logger.error({ err: error });
     }
   }
   
-  logger.info('Monthly process: Finished');
+  logger.info('Monthly address assignement: Finished');
 }
 
 module.exports = {
   charge: charge,
+  assignNewAddress: assignNewAddress,
 };

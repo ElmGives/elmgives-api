@@ -8,23 +8,26 @@
 const monthlyProcess = require('../monthly/monthly_process');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
-const CHARGE_DAY = 26;
+const CHARGE_DAY = 5;
+const NEW_ADDRESS_DAY = 1;
 
 /**
- * We run this monthly process every [[CHARGE_DAY]] day of the month.
+ * We run this monthly process every [[CHARGE_DAY]] and [[NEW_ADDRESS_DAY]] day of the month.
  * Because some months have 31 days we can't just use 30 days for our setTimeout
  */
 function run() {
-    
-    const date = new Date();
-    
-    if (date.getDate() === CHARGE_DAY) {
+
+    const date = (new Date()).getDate();
+
+    if (date === CHARGE_DAY) {
         monthlyProcess.charge();
     }
-    
-    setTimeout(() => run(), ONE_DAY);
+
+    if (date === NEW_ADDRESS_DAY) {
+        monthlyProcess.assignNewAddress();
+    }
+
+    setTimeout(run, ONE_DAY);
 }
 
 run();
-
-// TODO: we have to have two processes: one for monthly charges and one for assigning a new address on the start of the month
