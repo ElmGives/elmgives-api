@@ -14,6 +14,7 @@ const Transaction = require('../transactions/chain/transaction');
 const ObjectId = require('mongoose').Types.ObjectId;
 const amazonWebServicesQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
+const getYearMonth = require('../helpers/getYearMonth');
 const logger = require('../logger');
 
 const schemes = {
@@ -88,7 +89,7 @@ PledgeAddressManager.prototype.parsePledgeAddressRequests = function (messages) 
         try {
             body = JSON.parse(message.Body);
         } catch (error) {
-            logger.error(error);
+            logger.error({err: error});
             return error;
         }
 
@@ -166,7 +167,18 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
 
             return P.all([transaction, address])
                 .spread((transaction, address) => {
-                    pledge.addresses.unshift(address.address);
+                    let currentYearMonth = getYearMonth();
+                    let currentAddress = pledge.addresses[currentYearMonth];
+
+                    if (!currentAddress) {
+                        pledge.set(`addresses.${currentYearMonth}`, address.address);
+                    } else {
+                        let error = new Error();
+                        error.message = 'An address for the current month has already been added.';
+                        error.details = `month: ${currentYearMonth}, address: ${currentAddress}`;
+                        logger.error(error);
+                    }
+
                     return [
                         user,
                         transaction,
