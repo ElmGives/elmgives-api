@@ -42,6 +42,8 @@ var users = {
                 'auth_token': 'string',
                 name: 'string',
                 phone: 'string',
+                password: 'string',
+                newPassword: 'string',
                 zip: 'string'
             },
             'url': API + '/users/[id]',
