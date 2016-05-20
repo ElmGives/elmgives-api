@@ -23,6 +23,8 @@ const makeDonation = require('./makeDonation');
 const createNewAddress = require('./createNewAddress');
 const markTransactionAsCharged = require('./markTransactionAsCharged');
 
+const MINIMUM_DONATION_VALUE = 0.5; // 50 cents is the minimum donation on Stripe
+
 // GLOBAL VARIABLES
 let chargeGen = null;
 let addressGen = null;
@@ -80,6 +82,10 @@ function *executeCharges() {
       let lastMonth = getYearMonth(date);
       let address = activePledge[0].addresses[lastMonth];
       
+      date.setMonth(date.getMonth() - 1);
+      let twoMonthsBack = getYearMonth(date);
+      let twoMonthsBackAddress = activePledge[0].addresses[twoMonthsBack];
+      
       // If the address doesn't exists is because the user registered this month, so,
       // user has not transaction data for last month and we skip this one
       if (!address) {
@@ -122,6 +128,24 @@ function *executeCharges() {
       
       logger.info('Monthly charge: Getting transaction data');
       
+      let totalDonation = 0;
+      
+      // If we have two months ago information, we get that latestTransaction to know if that transaction
+      // was processed. If it was, nothing happens, but if it wasn't (because that time donation was to low)
+      // we add it to this month donation (a carry operation) 
+      if (twoMonthsBackAddress) {
+        let twoMonthsLatestTransactionHash = yield getLatestTransactionHash(twoMonthsBackAddress, chargeGen);
+        let twoMonthsLatestTransaction = yield getLatestTransaction(twoMonthsLatestTransactionHash, chargeGen);
+        
+        if (!twoMonthsLatestTransaction.charged) {
+          let twoMonthsVerifiedData = yield verifyData(twoMonthsBackAddress, chargeGen);
+          
+          if (twoMonthsVerifiedData) {
+            totalDonation += twoMonthsVerifiedData.balance;
+          } 
+        }  
+      }
+      
       // Now we look for the latestTransaction which contains the balance to charge.
       // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
       // user simply didn't make any use on registered account
@@ -148,16 +172,22 @@ function *executeCharges() {
         throw error;
       }
       
+      totalDonation += verifiedData.balance;
+      
+      // If we can't make the minimum donation we skip this month
+      if (totalDonation < MINIMUM_DONATION_VALUE) {
+        continue;
+      }
+      
       // we verify and clamp if necessary user monthlyLimit
       let monthlyLimit = activePledge[0].monthlyLimit;
       
-      // TODO: code minimum donation
-      if (verifyData.balance > monthlyLimit) {
-        verifiedData.balance = monthlyLimit;
+      if (totalDonation > monthlyLimit) {
+        totalDonation = monthlyLimit;
       }
       
       // every charge is in cents. We get user pledge npo object to get access to stripe connect account
-      let cents = verifiedData.balance * 100;
+      let cents = totalDonation * 100;
       let npo = yield getNpo(activePledge[0].npo, chargeGen);
       
       if (!npo) {
@@ -187,6 +217,7 @@ function *executeCharges() {
       
       logger.info('Monthly charge: Updating transaction as processed');
       
+      // TODO: change this call to update Charges collection. But that one is not yet on develop
       yield markTransactionAsCharged(latestTransaction, chargeGen);
       
       logger.info(`Monthly charge: Process success for ${user._id}`);
