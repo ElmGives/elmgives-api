@@ -1,0 +1,34 @@
+[
+  {
+    "address": "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+    "keys": {
+      "scheme": "ed25519",
+      "public": "04574389f07ff8d7f9f7a6b32ab5d0c401ef01663b289e51d90ce025fcbc6f66a770db4c6e220feb05e32fb95e0c9342f97b8bb1eb68a6e621d5b49cb5ccbbc281"
+    },
+    "latestTransaction": "d5a8eda25d60d977678216ddee1be803b642983e0bef082630b461a410e4a85c"
+  },
+  {
+    "address": "wWUqEgRQv2412JDzczWJuc7t34CA2zdEeV",
+    "keys": {
+      "scheme": "ed25519",
+      "public": "0425774bd74aa8044aa84ebc3959754281dca9bd430059e5e6727bf41aa41201237bca00f3d65867e2822ca55eaf9f29ddd42b20f26811df684a72cec64434d142"
+    },
+    "latestTransaction": "c0cf4e55502602d2ed8c15a12ad80eb24037c4cb541c527145faa11612556583"
+  },
+  {
+    "address": "wSRAa9CbChdV1tUN4kyvMxxqJhQhYUXUis",
+    "keys": {
+      "scheme": "ed25519",
+      "public": "042bb409fe9e4fc4bb4ed1f3e5d29819f5e924cc91bb7a087b3658e12e25c4f2e05a5d752b3ae127d8bcfba1add7336bfb55372ba64ba6b8a62d5246c537551eb2"
+    },
+    "latestTransaction": "8492b2ac3b76c1eea7114a6926ad5263ee029604f6b59ae6ef82d8a88623b8de"
+  },
+  {
+    "address" : "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU",
+    "keys" : {
+      "scheme" : "ed25519",
+      "public" : "04574389f07ff8d7f9f7a6b32ab5d0c401ef01663b289e51d90ce025fcbc6f66a770db4c6e220feb05e32fb95e0c9342f97b8bb1eb68a6e621d5b49cb5ccbbc281"
+    },
+    "latestTransaction": "5b199cd73aa2913146c3557533d05065cc01ef4a5dd3ecbb3cfe478d43cd50eb"
+  }
+]

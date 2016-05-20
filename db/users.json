@@ -1,0 +1,48 @@
+[{
+    "name": "homer",
+    "password": "Homer123",
+    "email": "homer@elm.com",
+    "active": true
+}, {
+    "name": "brice",
+    "password": "Brice123",
+    "email": "brice@elm.com",
+    "active": true
+}, {
+    "name": "daniel",
+    "password": "Daniel123",
+    "email": "daniel@elm.com",
+    "active": true
+}, {
+    "name": "ricardo",
+    "password": "Ricardo123",
+    "email": "ricardo@elm.com",
+    "active": true
+}, {
+    "name": "johndoe",
+    "password": "Johndoe123",
+    "email": "john@example.com",
+    "active": true,
+    "pledges" : [
+        {
+            "_id": "57268a5581d15580ae115bf6",
+            "userId": "571594df28065465f7f9293d",
+            "bank": "Wells Fargo",
+            "npo": "Foundation for Sustainable Development",
+            "bankId": "56fecda142281cbe220ee5e9",
+            "npoId": "56f425f78c12095e2d0b7647",
+            "monthlyLimit": 10,
+            "active": true,
+            "addresses": [
+                "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+            ]
+        }
+    ],
+    "plaid": {
+        "tokens": {
+            "connect": {
+                "wells": "test_wells"
+            }
+        }
+    }
+}]
