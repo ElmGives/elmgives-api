@@ -33,9 +33,9 @@
             "npoId": "56f425f78c12095e2d0b7647",
             "monthlyLimit": 10,
             "active": true,
-            "addresses": [
-                "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
-            ]
+            "addresses": {
+                "2016-01": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
+            }
         }
     ],
     "plaid": {

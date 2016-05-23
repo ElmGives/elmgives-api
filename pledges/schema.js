@@ -37,8 +37,8 @@ let schema = new mongoose.Schema({
     },
 
     addresses: {
-        type: Array,
-        default: []
+        type: Object,
+        default: {}
     },
 
     active: {

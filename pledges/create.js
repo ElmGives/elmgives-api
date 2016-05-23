@@ -8,6 +8,7 @@ const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
 const aws = require('../lib/awsQueue');
 const logger = require('../logger');
+const getYearMonth = require('../helpers/getYearMonth');
 
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
@@ -70,7 +71,15 @@ module.exports = (request, response, next) => {
             /* Transfer latest active address to the new pledge */
             if (typeof active === 'object') {
                 active.active = false;
-                pledge.addresses.unshift(active.addresses.shift());
+
+                let currentYearMonth = getYearMonth();
+                let dateQuery = `addresses.${currentYearMonth}`;
+                let currentAddress = active.addresses[currentYearMonth];
+
+                if (currentAddress) {
+                    pledge.set(dateQuery, currentAddress);
+                    active.set(dateQuery, undefined);
+                }
             }
             /* Activate and add new pledge to the current user */
             pledge.active = true;
@@ -93,7 +102,7 @@ module.exports = (request, response, next) => {
                 queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
             })
             .catch(error => {
-                logger.error(error);
+                logger.error({err: error});
             });
         })
         .catch(next);
