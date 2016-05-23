@@ -119,10 +119,14 @@ function extractInformationFromPerson(person) {
             return;
         }
         
+        const stripeToken = person.plaid.tokens.connect[bank.type];
+        const monthlyLimit = activePledge[0].monthlyLimit;
+        
         let options = {
             _id: person._id,
-            token: person.plaid.tokens.connect[bank.type],
+            token: stripeToken,
             address: address,
+            limit: monthlyLimit,
         };
         
         roundAndSendToAmazon.request(options);

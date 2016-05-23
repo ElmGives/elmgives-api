@@ -29,6 +29,7 @@ const createTransaction = require('../transactions/chain/create');
 const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
+const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
@@ -126,12 +127,15 @@ function processData(data, personData) {
         logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
         return getPreviousChain(personData)
-            .then(previousChain => {
+            .then(checkMonthlyLimit.bind(null, personData, plaidTransactions))
+            .then(params => {
+                let previousChain = params[0];
+                let checkedPlaidTransactions = params[1];
 
                 return Promise.all([
                     previousChain,
                     personData.address,
-                    transactionChain.create(personData.address, previousChain, plaidTransactions),
+                    transactionChain.create(personData.address, previousChain, checkedPlaidTransactions),
                 ]);
             })
             .then(saveTransactions)
