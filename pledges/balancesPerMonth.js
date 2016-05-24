@@ -30,6 +30,7 @@ module.exports = function getBalancesPerMonth(request, response, next) {
         return getVerifiedAddressBalance(pledge.addresses[date])
             .then(address => {
                 return {
+                    date: date,
                     balance: Math.abs(address.balance),
                     currency: address.currency
                 };
@@ -42,18 +43,14 @@ module.exports = function getBalancesPerMonth(request, response, next) {
 
     Promise.all(promises)
         .then(balances => {
-            let balancesPerMonth = dates.reduce((reduced, date, index) => {
-                reduced[date] = balances[index];
-                return reduced;
-            }, {});
-            let count = Object.keys(balancesPerMonth).filter(date => {
-                return typeof balancesPerMonth[date] === 'object';
-            }).length;
+            balances = balances.filter(element => {
+                return typeof element === 'object';
+            });
 
             response.json({
-                data: balancesPerMonth,
+                data: balances,
                 meta: {
-                    count: count
+                    count: balances.length
                 }
             });
         });
