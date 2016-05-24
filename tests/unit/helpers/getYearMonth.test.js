@@ -6,8 +6,10 @@ const getYearMonth = require('../../../helpers/getYearMonth');
 tape('Get month formatted for address retrieval for pledges', test => {
     test.plan(1);
 
-    let knownDate = '2016-05';
-    let testDate = getYearMonth(new Date(knownDate));
+    const may2016 = new Date(2016, 4);
     
-    test.equal(testDate, knownDate, 'Proper date formatting');
+    let actual = getYearMonth(may2016);  
+    let expected = '2016-05';
+    
+    test.equal(actual, expected, 'Proper date formatting');
 });

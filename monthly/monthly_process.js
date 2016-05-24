@@ -13,11 +13,10 @@ const getYearMonth = require('../helpers/getyearMonth');
 const getBankInstitution = require('./getBankInstitution');
 const getNpo = require('./getNpo');
 const getUsers = require('./getUsers');
+const getAddress = require('./getAddress');
 const removeStripeToken = require('./removeStripeToken');
 const createNewCustomer = require('./createNewCustomer');
 const addCustomerIdOnDatabase = require('./addCustomerIdOnDatabase');
-const getLatestTransactionHash = require(',/getLatestTransactionHash');
-const getLatestTransaction = require('./getLatestTransaction');
 const verifyData = require('./verifyData');
 const makeDonation = require('./makeDonation');
 const createNewAddress = require('./createNewAddress');
@@ -82,15 +81,16 @@ function *executeCharges() {
       let lastMonth = getYearMonth(date);
       let address = activePledge[0].addresses[lastMonth];
       
-      date.setMonth(date.getMonth() - 1);
-      let twoMonthsBack = getYearMonth(date);
-      let twoMonthsBackAddress = activePledge[0].addresses[twoMonthsBack];
-      
       // If the address doesn't exists is because the user registered this month, so,
       // user has not transaction data for last month and we skip this one
       if (!address) {
         continue;
       }
+
+      // We try to get transactions for two months in the past
+      date.setMonth(date.getMonth() - 1);
+      let twoMonthsBack = getYearMonth(date);
+      let twoMonthsBackAddress = activePledge[0].addresses[twoMonthsBack];
       
       let bankId = activePledge[0].bankId;
       let institution = yield getBankInstitution(bankId, chargeGen);
@@ -134,10 +134,9 @@ function *executeCharges() {
       // was processed. If it was, nothing happens, but if it wasn't (because that time donation was to low)
       // we add it to this month donation (a carry operation) 
       if (twoMonthsBackAddress) {
-        let twoMonthsLatestTransactionHash = yield getLatestTransactionHash(twoMonthsBackAddress, chargeGen);
-        let twoMonthsLatestTransaction = yield getLatestTransaction(twoMonthsLatestTransactionHash, chargeGen);
-        
-        if (!twoMonthsLatestTransaction.charged) {
+        let twoMonthsAddressObject = yield getAddress(twoMonthsBackAddress, chargeGen);
+       
+        if (!twoMonthsAddressObject.charge) {
           let twoMonthsVerifiedData = yield verifyData(twoMonthsBackAddress, chargeGen);
           
           if (twoMonthsVerifiedData) {
@@ -149,15 +148,14 @@ function *executeCharges() {
       // Now we look for the latestTransaction which contains the balance to charge.
       // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
       // user simply didn't make any use on registered account
-      let latestTransactionHash = yield getLatestTransactionHash(address, chargeGen);
-      let latestTransaction = yield getLatestTransaction(latestTransactionHash, chargeGen);
+      let addressObject = yield getAddress(address, chargeGen);
       
-      if (latestTransaction.charged) {
-        notify({ text: `This transaction was already processed: ${latestTransaction.hash.value}` });
+      if (addressObject.charge) {
+        notify({ text: `This address was already charged: ${addressObject.address}` });
         
-        let error = new Error('transaction-already-processed');
+        let error = new Error('address-already-processed');
         error.status = 422;
-        error.details = `This transaction was already processed: ${latestTransaction.hash.value}`;
+        error.details = `This address was already charged: ${addressObject.address}`;
         throw error;
       }
       
@@ -217,8 +215,8 @@ function *executeCharges() {
       
       logger.info('Monthly charge: Updating transaction as processed');
       
-      // TODO: change this call to update Charges collection. But that one is not yet on develop
-      yield markTransactionAsCharged(latestTransaction, chargeGen);
+      // TODO: change this call to update Charges collection.
+      yield markTransactionAsCharged(address, chargeGen);
       
       logger.info(`Monthly charge: Process success for ${user._id}`);
       
@@ -229,6 +227,7 @@ function *executeCharges() {
   
   logger.info('Monthly charge: Finished');
 }
+
 /**
  * Starts the executeAddressAssign generator
  */
@@ -271,6 +270,16 @@ function *executeAddressAssign() {
         error.status = 404;
         error.details = `User with ID ${user._id} has not an active pledge`;
         throw error;
+      }
+      
+      // we check user doesn't have already an address for this month. If it exists, we skip the process
+      let date = new Date();
+      let thisMonth = getYearMonth(date);
+      let existentAddress = activePledge[0].addresses[thisMonth];
+      
+      if (existentAddress) {
+        logger.info(`Monthly address assignement: User ${user._id} already has an address.`);
+        continue;
       }
       
       // We need to request a new address for active user pledge to start a new month
