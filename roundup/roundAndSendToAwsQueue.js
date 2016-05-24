@@ -49,11 +49,31 @@ const options = {
 let _result = '';
 
 /**
+ * We start querying database looking for previous transaction balance which have an accumulated value
+ * for this month roundups. If the user already met his/her monthly limit, there is no point in going further,
+ * saving a plaid query.
+ * What we return don't matter because this function is not intended to be used on a chain of promises
+ * @param   {object}    personData
+ */
+function request(personData) {
+    
+    getPreviousChain(personData)
+        .then(function (previousChain) {
+            const balance = previousChain.payload.balance * -1; 
+            
+            if (balance >= personData.limit) {
+                return logger.info(`User ${personData._id} already reached monthly limit`);
+            }
+            
+            return queryPlaidService(personData);
+        });
+}
+
+/**
  * Sends an https request to plaid requesting user history data
  * @param {object} personData Its needed personID, along with person plaid access token
  */
-function request(personData) {
-
+function queryPlaidService(personData) {
     const postData = querystring.stringify({
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
@@ -129,6 +149,8 @@ function processData(data, personData) {
         return getPreviousChain(personData)
             .then(checkMonthlyLimit.bind(null, personData, plaidTransactions))
             .then(params => {
+                
+                // NOTE: Use destructuring when available
                 let previousChain = params[0];
                 let checkedPlaidTransactions = params[1];
 
