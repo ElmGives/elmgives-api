@@ -34,7 +34,7 @@ tape('queryOptions helper', test => {
     };
 
     const expected = {
-        lean: true,
+        lean: false,
         limit: 10,
         page: 1,
         select: '',

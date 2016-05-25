@@ -13,10 +13,12 @@ const sessions = require('./sessions');
 const posts = require('./posts');
 const images = require('./images');
 const roles = require('./roles');
+const oauth = require('./oauth');
 const transactions = require('./transactions/chain');
 
 module.exports = app => {
     app
+        .use(oauth)
         .use(images)
         .use(roles)
         .use(posts)

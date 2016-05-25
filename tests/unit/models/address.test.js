@@ -6,12 +6,13 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Address model', test => {
-    test.plan(8);
+    test.plan(10);
 
     let address = new Address({});
     let values = address.schema.paths;
 
     types(['address', 'keys.scheme', 'keys.public', 'latestTransaction'], values, test, 'String');
+    types(['createdAt', 'updatedAt'], values, test, 'Date');
 
     address.validate(error => {
         let fields = [

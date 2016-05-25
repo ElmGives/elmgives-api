@@ -6,6 +6,8 @@
 const User = require('../../users/user');
 const Transaction = require('./transaction');
 
+const getPledgeAddressByDate = (pledge, date) => pledge.addresses[date];
+
 module.exports = function list(request, response, next) {
     let email = request.query.email;
     let query;
@@ -26,18 +28,22 @@ module.exports = function list(request, response, next) {
                 error.message = 'user-email-not-found';
                 return Promise.reject(error);
             }
-            if (!user.pledges || !user.pledges.length || !user.pledges[0].addresses.length) {
-                error.status = 404;
-                error.message = 'no-pledge-addresses-found';
-                return Promise.reject(error);
-            }
 
-            let addresses = user.pledges[0].addresses;
+            let addresses = [];
+            for (let index in user.pledges) {
+                let pledge = user.pledges[index];
+                let dates = Object.keys(pledge.addresses || {}).sort().reverse();
+                let pledgeAddresses = dates.map(getPledgeAddressByDate.bind(null, pledge));
+                addresses.push(pledgeAddresses);
+            }
+            addresses = addresses.reduce((txs1, txs2) => txs1.concat(txs2));
+
             query = {
                 'payload.address' : {
                     $in: addresses
                 }
             };
+
             /* Search by amount and amount range */
             let amount = Number(request.query.amount);
             if (!isNaN(amount)) {
@@ -55,6 +61,7 @@ module.exports = function list(request, response, next) {
                     };
                 }
             }
+
             /* Search by date */
             let date = new Date(request.query.date);
             let days = Number(request.query.days);
@@ -72,7 +79,7 @@ module.exports = function list(request, response, next) {
             /* Pagination and sorting */
             let options = {
                 offset: request.query.offset || 0,
-                limit: request.query.limit || 10,
+                limit: request.query.limit || 100,
                 sort: {
                     'payload.timestamp': request.query.oldestFirst ? 'ascending' : 'descending'
                 }

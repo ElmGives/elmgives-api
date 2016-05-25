@@ -3,6 +3,8 @@
  */
 'use strict';
 
+const getYearMonth = require('../helpers/getYearMonth');
+
 module.exports = function update(request, response, next) {
     const userId = request.params.id + '';
 
@@ -28,7 +30,15 @@ module.exports = function update(request, response, next) {
         pledge.active = true;
         if (typeof active === 'object') {
             active.active = false;
-            pledge.addresses.unshift(active.addresses.shift());
+
+            let currentYearMonth = getYearMonth();
+            let dateQuery = `addresses.${currentYearMonth}`;
+            let currentAddress = active.addresses[currentYearMonth];
+
+            if (currentAddress) {
+                pledge.set(dateQuery, currentAddress);
+                active.set(dateQuery, undefined);
+            }
         }
     }
 

@@ -4,6 +4,7 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const timestamps = require('mongoose-timestamp');
 
 let schema = new mongoose.Schema({
     address: {
@@ -30,5 +31,7 @@ let schema = new mongoose.Schema({
 }, {
     versionKey: false,
 });
+
+schema.plugin(timestamps);
 
 module.exports = mongoose.model('Address', schema);

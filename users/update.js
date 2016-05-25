@@ -7,6 +7,7 @@
 'use strict';
 
 const User = require('./user');
+const updatePassword = require('./updatePassword');
 
 /**
  * @see https://github.com/blakehaswell/mongoose-unique-validator#find--updates
@@ -19,6 +20,7 @@ const options = {
 const defaultResponse = {
     data: {}
 };
+
 
 module.exports = function update(request, response, next) {
 
@@ -35,6 +37,13 @@ module.exports = function update(request, response, next) {
                 error.status = 404;
 
                 return Promise.reject(error);
+            }
+
+            /**
+             * Update password
+             */
+            if (request.body.password && request.body.newPassword) {
+                return updatePassword(request.body, user);
             }
 
             /**

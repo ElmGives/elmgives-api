@@ -22,7 +22,7 @@ module.exports = (request, Model) => {
             /**
              * Do not return Mongoose models, instead, plain javascript objects
              */
-            lean: true,
+            lean: false,
             page: page,
             limit: perPage
         };
