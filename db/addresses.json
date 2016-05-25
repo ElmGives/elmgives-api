@@ -3,84 +3,24 @@
     "address": "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
     "keys": {
       "scheme": "ed25519",
-      "public": "04574389f07ff8d7f9f7a6b32ab5d0c401ef01663b289e51d90ce025fcbc6f66a770db4c6e220feb05e32fb95e0c9342f97b8bb1eb68a6e621d5b49cb5ccbbc281"
+      "public": "041e6926df7c28c342d5314088f8d1ef7fc2f61ef7d751e56858d1a46ca8393f885ee771036837ddefaf3ed73b7f34d1eac5281f3f20d5bfdfd22ebf8bfbe5e72b"
     },
-    "statement": {
-      "hash": {
-        "type": "sha256",
-        "value": "94e6110e6f0e2549308805452bc26100c24993e5d29fa8e5e0b2eb2db4a235fb"
-      },
-      "payload": {
-        "address": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU",
-        "reference": "pledge-id",
-        "nonce": 123456789
-      },
-      "signatures": [
-        {
-          "header": {
-            "alg": "ed25519",
-            "kid": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
-          },
-          "signature": "304402200608fd8d8c59aa8a580d80dfe5525d221744a9f28485814a7e98a33ddf67ab6e022003a455c6094c7bd05ed9b134607e2707d3976a17e2c9f069033af1fc92f7aa31"
-        }
-      ]
-    },
-    "latestTransaction": "d5a8eda25d60d977678216ddee1be803b642983e0bef082630b461a410e4a85c"
+    "latestTransaction": "ee1c79802fb0f35a4e66df4887fd483335f77a4e58f03878a921a07b52464960"
   },
   {
-    "address": "wWUqEgRQv2412JDzczWJuc7t34CA2zdEeV",
-    "keys": {
-      "scheme": "ed25519",
-      "public": "0425774bd74aa8044aa84ebc3959754281dca9bd430059e5e6727bf41aa41201237bca00f3d65867e2822ca55eaf9f29ddd42b20f26811df684a72cec64434d142"
+    "address" : "wWRFTz8DQyiVQdomTWJBJqXXV8SNCbxxHi",
+    "keys" : {
+      "public" : "045b60e81907b0defc49fd007af1334b58f6f2ba3bf7ece7362215e9df7f6f07f0340d78bc016d2e1f62523827d3097e6ea3428c59fdc9fbcda9e8cfb8872c3964",
+      "scheme" : "ed25519"
     },
-    "statement": {
-      "hash": {
-        "type": "sha256",
-        "value": "2ba5c1b778c370a48df1fb4b7a375b68721c85ddc680df7a1be04d900bb58664"
-      },
-      "payload": {
-        "address": "wWUqEgRQv2412JDzczWJuc7t34CA2zdEeV",
-        "reference": "pledge-id-2",
-        "nonce": 1029384756
-      },
-      "signatures": [
-        {
-          "header": {
-            "alg": "ed25519",
-            "kid": "wWUqEgRQv2412JDzczWJuc7t34CA2zdEeV"
-          },
-          "signature": "3043021f181a007f82e776f7042787b1409e9e25b7a06bb543e641ae06a970e79b721102200a347af148a158b154b37cb3a53cd60000abcda4a5929b0594d0c197808e8a70"
-        }
-      ]
-    },
-    "latestTransaction": ""
+    "latestTransaction" : "5184599b363107910b95eb46beffe86596d49999e3f510db07222d523071b393"
   },
   {
-    "address": "wSRAa9CbChdV1tUN4kyvMxxqJhQhYUXUis",
-    "keys": {
-      "scheme": "ed25519",
-      "public": "042bb409fe9e4fc4bb4ed1f3e5d29819f5e924cc91bb7a087b3658e12e25c4f2e05a5d752b3ae127d8bcfba1add7336bfb55372ba64ba6b8a62d5246c537551eb2"
+    "address" : "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU",
+    "keys" : {
+      "scheme" : "ed25519",
+      "public" : "04574389f07ff8d7f9f7a6b32ab5d0c401ef01663b289e51d90ce025fcbc6f66a770db4c6e220feb05e32fb95e0c9342f97b8bb1eb68a6e621d5b49cb5ccbbc281"
     },
-    "statement": {
-      "hash": {
-        "type": "sha256",
-        "value": "e129603bf58a0da5ef9fe9de81e62babed29e649178fc9c2ee335de57875a11d"
-      },
-      "payload": {
-        "address": "wSRAa9CbChdV1tUN4kyvMxxqJhQhYUXUis",
-        "reference": "pledge-id-3",
-        "nonce": 192837465
-      },
-      "signatures": [
-        {
-          "header": {
-            "alg": "ed25519",
-            "kid": "wSRAa9CbChdV1tUN4kyvMxxqJhQhYUXUis"
-          },
-          "signature": "3044022009285f5cf5aa70c4a86b988ff76265e7bf23e005b0913a336d8557b476c64ac7022006c78917e6488289c830f622c168519483d91d1824da0bee8c0ddadb467c2a8c"
-        }
-      ]
-    },
-    "latestTransaction": ""
+    "latestTransaction": "5b199cd73aa2913146c3557533d05065cc01ef4a5dd3ecbb3cfe478d43cd50eb"
   }
 ]

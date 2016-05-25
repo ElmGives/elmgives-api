@@ -17,11 +17,8 @@ module.exports = function list(request, response, next) {
         .paginate(defaultQuery, options)
         .then(data => {
             let result = data.docs.map(user => {
-                return {
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email
-                };
+                user.password = undefined;
+                return user;
             });
 
             let content = {

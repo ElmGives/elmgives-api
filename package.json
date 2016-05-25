@@ -32,8 +32,9 @@
     "async": "2.0.0-rc.3",
     "aws-sdk": "2.3.9",
     "bcrypt": "0.8.6",
-    "bluebird": "^3.3.4",
+    "bluebird": "3.3.4",
     "body-parser": "1.15.1",
+    "bs58check": "1.0.8",
     "bunyan": "1.8.1",
     "cors": "2.7.1",
     "dotenv": "2.0.0",
@@ -51,7 +52,9 @@
     "multiparty": "4.1.2",
     "plaid": "1.0.10",
     "request": "2.72.0",
-    "slack": "7.0.1"
+    "ripemd160": "2.0.0",
+    "slack": "7.0.1",
+    "stripe": "4.6.0"
   },
   "devDependencies": {
     "jshint": "2.9.2",

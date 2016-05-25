@@ -274,35 +274,323 @@
           "alg": "ed25519",
           "kid": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
         },
-        "signature": "3044022000d783c111fd7bf647ab3f5e0e3b8a16be24e4192dc0fa924ec00e30622cc0a0022001fef91faf0c7704f944a6fc406ff589c51b87beecedcc1bd730526a87d65a24"
+        "signature": "30440220075b99961e0afc7be9c0d0707968831b45aab779503927efb6e8f7795ec4da1c02200c7c5972fd56ca3c953795e4e7f2a65cd3ad6f25e929ec48c68beb86314a396a"
       }
     ]
   },
   {
+    "hash":{
+       "type":"sha256",
+       "value":"9372cb3009a88e4a0fa0a0bcd468e701f39d29d3d1ad84a496c5bbdc5a9c0492"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":0,
+       "balance":0,
+       "count":0,
+       "currency":"USD",
+       "limit":-4,
+       "previous":null,
+       "reference":"plaid_transaction_id",
+       "roundup":0,
+       "timestamp":"2016-03-01T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wP1zCk9ZN6Ep6hd7YZGzxnppZkuPVMvCyn"
+          },
+          "signature":"3044022005c916a4dd0a9f270efc2cdb5d71fcf90ff81f3093e61e682c952ae44443d982022002c9f8fcd6781aa60257c1afe2835017abe4f53fb7db6ef695de4a9903b1ccb7"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b2",
+    "hash":{
+       "type":"sha256",
+       "value":"b9399e4a23b11292213cae3ab9838d19c08bcd4aaadc8fadef938533e43e58e7"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":1.23,
+       "balance":-0.77,
+       "count":1,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"9372cb3009a88e4a0fa0a0bcd468e701f39d29d3d1ad84a496c5bbdc5a9c0492",
+       "reference":"3461171",
+       "roundup":0.77,
+       "timestamp":"2016-03-04T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"304402200cce82f64721c37b9cc9f82c2b07ce7dff1cab7a8a148fef55e5baa0b44360410220048a11384a5ba6c30f65abad7742d4c917d79f64d88c0e3594b021e1d9856e85"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b3",
+    "hash":{
+       "type":"sha256",
+       "value":"7c2118646b44ab5ae812718cf44bc7afefb197ad25d813117fdddcbc85bb54b7"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":4.56,
+       "balance":-1.21,
+       "count":2,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"b9399e4a23b11292213cae3ab9838d19c08bcd4aaadc8fadef938533e43e58e7",
+       "reference":"23271119",
+       "roundup":0.44,
+       "timestamp":"2016-03-07T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"3044022007265a0f35cda95dfdb3eba98db93b46bf63b9430033ed620af4fc4587ff6535022004a683bdb348c48802ed3e6c66effda1c3e9727fb8e28f91cd5cc06fe8ecede1"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b4",
+    "hash":{
+       "type":"sha256",
+       "value":"b44f09392cbc62be4f70c4d5038398daca94f222960ba00f97c865c343baaa46"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":7.89,
+       "balance":-1.32,
+       "count":3,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"7c2118646b44ab5ae812718cf44bc7afefb197ad25d813117fdddcbc85bb54b7",
+       "reference":"52802528",
+       "roundup":0.11,
+       "timestamp":"2016-03-10T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"3044022001f1ed22ead3920516df4c857bd3b71bb775ce9acf32f0f2c94c8783179bd7770220049a9c9633cdb3dc32d7accd11fe3fb18b9959c5175cbea028c99c7947c7afeb"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b5",
+    "hash":{
+       "type":"sha256",
+       "value":"c23493145a9fcb13324d7153c8c38bce300044a746939b84f057e64d3551e44a"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":2.34,
+       "balance":-1.98,
+       "count":4,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"b44f09392cbc62be4f70c4d5038398daca94f222960ba00f97c865c343baaa46",
+       "reference":"17692741",
+       "roundup":0.66,
+       "timestamp":"2016-03-13T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"3044022002809acbf1cc8b7882d64253b6edafb70f753a116c5ae4569c360312b91f5d7602200e224e192dcce41403ab86bbb89dbcb3a33c604e72181d26e4491c46f1b77c80"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b6",
+    "hash":{
+       "type":"sha256",
+       "value":"e7ae91be3dcb107fa51214a71b128522884ed397dc862114cbe723405c566668"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":5.67,
+       "balance":-2.31,
+       "count":5,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"c23493145a9fcb13324d7153c8c38bce300044a746939b84f057e64d3551e44a",
+       "reference":"11489966",
+       "roundup":0.33,
+       "timestamp":"2016-03-16T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"304402200cfa1861324d4932f28aa80dfe321c2d5eda0aa21520caa4feb559e9c4222df902200bb198f431ad122df2a18b88a80694fc5fa2e3ffde21111aa95c0094ac74e64c"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b7",
+    "hash":{
+       "type":"sha256",
+       "value":"aa27bc8f7d2b13fea0258a4a1db8a0c78ac296325cfc2aa10239416f1346aceb"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":8.9,
+       "balance":-2.41,
+       "count":6,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"e7ae91be3dcb107fa51214a71b128522884ed397dc862114cbe723405c566668",
+       "reference":"67192017",
+       "roundup":0.1,
+       "timestamp":"2016-03-19T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"3044022007ce679a7aa4105f2de3385fa773125ce8f71bcbb45c21c8778bcb75396fe29502200e25a66cc6514aaf9dff2e62d596954738e852880538bbc4182ee48139c9fc63"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b8",
+    "hash":{
+       "type":"sha256",
+       "value":"7996007537e52d57a08a9bdb73bce764cfced1501a7e6285e968a9f748eb816f"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":3.45,
+       "balance":-2.96,
+       "count":7,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"aa27bc8f7d2b13fea0258a4a1db8a0c78ac296325cfc2aa10239416f1346aceb",
+       "reference":"48809088",
+       "roundup":0.55,
+       "timestamp":"2016-03-22T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"30440220010de5fafed3fe0849a22ff497f1a8006f8d89cd7f1b7d7c33a358fe8d64117a0220024f63eb1512d097b6718ff2540e493a0b44fe8210a838fc2cfa6958cb2c61d0"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2b9",
+    "hash":{
+       "type":"sha256",
+       "value":"9c81de65eb031bec8178363ace4205107d270202f979cda4deb14d6499d07e66"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":6.78,
+       "balance":-3.18,
+       "count":8,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"7996007537e52d57a08a9bdb73bce764cfced1501a7e6285e968a9f748eb816f",
+       "reference":"31928531",
+       "roundup":0.22,
+       "timestamp":"2016-03-25T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"304402200a1e40090cab345f6380256175e2c61e328a91f8c0761807c99f62bf923fa33b0220015a6283d98ad62a5f960c7703ae742b0a910ec925c152cd2dad7a69240d1503"
+       }
+    ]
+  },
+  {
+    "_id":"573f96a8fa99737c3abdc2ba",
+    "hash":{
+       "type":"sha256",
+       "value":"ee1c79802fb0f35a4e66df4887fd483335f77a4e58f03878a921a07b52464960"
+    },
+    "payload":{
+       "address":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+       "amount":9.18,
+       "balance":-4,
+       "count":9,
+       "currency":"USD",
+       "info":"info",
+       "limit":-4,
+       "previous":"9c81de65eb031bec8178363ace4205107d270202f979cda4deb14d6499d07e66",
+       "reference":"66078180",
+       "roundup":0.82,
+       "timestamp":"2016-03-28T12:00:00.000Z"
+    },
+    "signatures":[
+       {
+          "header":{
+             "alg":"ed25519",
+             "kid":"wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL"
+          },
+          "signature":"304402200cbb294af6f66f3d617232919b89ae2e9308590b006c009f948ade9e62a6232e02200987fb96998bc238d961609ef742c6c3340229a6ff107ef06051346aa638c17d"
+       }
+    ]
+  },
+  {
+    "hash" : {
+      "value" : "5184599b363107910b95eb46beffe86596d49999e3f510db07222d523071b393",
+      "type" : "sha256"
+    },
+    "payload" : {
+      "reference" : "573dc377d138d1a6216aec31",
+      "timestamp" : "2016-05-19T13:45:28.390Z",
+      "previous" : null,
+      "limit" : -10,
+      "currency" : "USD",
+      "balance" : 0,
+      "roundup" : 0,
+      "amount" : 0,
+      "address" : "wWRFTz8DQyiVQdomTWJBJqXXV8SNCbxxHi",
+      "count" : 0
+    },
     "signatures" : [
       {
-        "signature" : "3044022005634dcce01a21043617587b3891273a8632d935f62e722d8a1ea5081cf00ceb022009a3f45993a45d3d4b67c5b227f6c7c5422569eb5b7144a1bc8d3ea927993a26",
+        "signature" : "3044022006db253498856b63dc42dda8b441d6d8a63ee1965082be9a2ed3c46a7c0e888f02200c710b189675166440a999e164787b52014ea672afa2b4ff204634f7fc0eec1a",
         "header" : {
-          "kid" : "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
+          "kid" : "wWRFTz8DQyiVQdomTWJBJqXXV8SNCbxxHi",
           "alg" : "ed25519"
         }
       }
-    ],
-    "payload" : {
-      "count" : 0,
-      "address" : "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
-      "amount" : 0,
-      "roundup" : 0,
-      "balance" : 0,
-      "currency" : "USD",
-      "limit" : -10,
-      "previous" : null,
-      "timestamp" : "2016-04-25T13:47:18.553Z",
-      "reference" : "571e03a312e151fd5ef6cb44"
-    },
-    "hash" : {
-      "type" : "sha256",
-      "value" : "d5a8eda25d60d977678216ddee1be803b642983e0bef082630b461a410e4a85c"
-    }
+    ]
   }
 ]
