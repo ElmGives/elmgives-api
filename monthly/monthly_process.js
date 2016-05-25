@@ -20,7 +20,8 @@ const addCustomerIdOnDatabase = require('./addCustomerIdOnDatabase');
 const verifyData = require('./verifyData');
 const makeDonation = require('./makeDonation');
 const createNewAddress = require('./createNewAddress');
-const markTransactionAsCharged = require('./markTransactionAsCharged');
+const addCharge = require('./addCharge');
+const updateAddress = require('./updateAddress');
 
 const MINIMUM_DONATION_VALUE = 0.5; // 50 cents is the minimum donation on Stripe
 
@@ -215,8 +216,15 @@ function *executeCharges() {
       
       logger.info('Monthly charge: Updating transaction as processed');
       
-      // TODO: change this call to update Charges collection.
-      yield markTransactionAsCharged(address, chargeGen);
+      // we add a new Charge for this donation
+      const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
+      
+      // Then update the addresses for this donation with the new Charge ID
+      yield updateAddress(address, charge._id);
+      
+      if (twoMonthsBackAddress) {
+        yield updateAddress(twoMonthsBackAddress, charge._id);
+      }
       
       logger.info(`Monthly charge: Process success for ${user._id}`);
       
