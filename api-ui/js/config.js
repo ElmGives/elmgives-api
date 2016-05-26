@@ -255,22 +255,39 @@ var roles = {
     }
 };
 
+var contact = {
+    'name': 'Contact us',
+    'description': '<p> </p>',
+
+    'calls': {
+        'contact us': {
+            'description': 'send email to admin user',
+            'params': {
+                content: 'string',
+                contact: 'string',
+                category: 'string'
+            },
+            'url': API + '/contact',
+            'method': 'POST'
+        },
+    }
+};
+
+
 var images = {
     'name': 'Images',
     'description': '<p> Manage posts.</p>',
 
-    'calls': {
-        'upload image': {
-            'description': '',
-            'params': {
-                'auth_token': 'string',
-                'logos': 'file'
-            },
-            'url': API + '/images',
-            'wrapper': '',
-            hasFile: true,
-            'method': 'POST'
-        }
+    'upload image': {
+        'description': '',
+        'params': {
+            'auth_token': 'string',
+            'logos': 'file'
+        },
+        'url': API + '/images',
+        'wrapper': '',
+        hasFile: true,
+        'method': 'POST'
     }
 };
 
@@ -446,6 +463,7 @@ define([], function() {
         posts: posts,
         roles: roles,
         images: images,
+        contact: contact,
         pledges: pledges
     };
 
