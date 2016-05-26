@@ -135,7 +135,7 @@ tape('Exchange Plaid Public Token (middleware)', test => {
     PlaidLinkExchanger.middleware(request, response, next)
         .then(() => {
             let httpResponse = response.json.getCall(0).args[0];
-            test.equal(httpResponse.data.access_token, tokens.access, `middleware response contains access token ${tokens.access}`);
+            test.equal(typeof httpResponse.data.success, 'object', 'middleware response contains "success" object');
 
             let query = request.currentUser.update.getCall(0).args[0];
             test.equal(query['plaid.tokens.connect.bankName'], tokens.access, 'user query contains Plaid access token');

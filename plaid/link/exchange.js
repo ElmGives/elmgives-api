@@ -21,10 +21,12 @@ const PlaidLinkExchanger = {
 
 function middleware(request, response, next) {
     let publicToken = request.body.public_token;
-    let accountID = request.body.account_id;
+    let roundupAccountID = request.body.roundup_account_id;
+    let bankAccountID = request.body.bank_account_id;
+    let stripeToken = request.body.stripe_token;
     let institution = request.body.institution;
     let error = new Error();
-    let data = {};
+    let data = {success: {}};
 
     if (!publicToken) {
         error.status = 400;
@@ -44,22 +46,28 @@ function middleware(request, response, next) {
                 error.message = 'Invalid institution type';
                 return Promise.reject(error);
             }
-            return PlaidLinkExchanger.exchangePublicToken(request.plaid, publicToken, accountID);
+            return PlaidLinkExchanger.exchangePublicToken(request.plaid, publicToken, bankAccountID);
         })
         .then(exchanged => {
             let query = {};
+            data.success.plaid = true;
+            query['plaid.accountId'] = roundupAccountID || bankAccountID;
             query['plaid.tokens.connect.' + institution] = exchanged.plaidAccessToken;
-            data.access_token = exchanged.plaidAccessToken;
-            return PlaidLinkExchanger.createStripeCustomer(request.currentUser, exchanged.stripeBankAccountToken)
+            query[`stripe.${institution}.ach`] = !stripeToken; // true: Stripe ACH, false: Stripe Credit Card
+            let token = stripeToken || exchanged.stripeBankAccountToken;
+
+            return PlaidLinkExchanger.createStripeCustomer(request.currentUser, token)
                 .then(customer => {
                     query[`stripe.${institution}.customer.id`] = customer.id;
+                    data.success.stripe = true;
                     return query;
                 })
                 .catch(error => {
                     logger.error(error);
                     // Try creating Stripe customer later. Meanwhile, store the token.
                     // PENDING: Queue retry message
-                    query[`stripe.${institution}.token`] = exchanged.stripeBankAccountToken;
+                    query[`stripe.${institution}.token`] = token;
+                    data.success.stripe = false;
                     return query;
                 });
         })
@@ -79,14 +87,14 @@ function middleware(request, response, next) {
  * Exchanges a Plaid public token obtained after (multi-factor) authentication for a Stripe token
  * @param  {Object} plaid - Plaid client instance
  * @param  {string} publicToken - A token received after completing the Plaid Link authentication flow
- * @param  {string} accountID - The ID of the account selected by the user to be charged for donations
+ * @param  {string} bankAccountID - The ID of the account selected by the user to be charged for donations
  * @return {Promise} - Resolves to an object with a Plaid access token and a Stripe bank account token
  */
-function exchangePublicToken(plaid, publicToken, accountID) {
+function exchangePublicToken(plaid, publicToken, bankAccountID) {
     let error = new Error();
 
     return new Promise((resolve, reject) => {
-        plaid.client.exchangeToken(publicToken, accountID, (err, res) => {
+        plaid.client.exchangeToken(publicToken, bankAccountID, (err, res) => {
             if (err) {
                 error.status = err.statusCode || 400;
                 error.message = err.message || err.resolve;
@@ -101,7 +109,7 @@ function exchangePublicToken(plaid, publicToken, accountID) {
                 error.message = 'Access token could not be retrieved';
                 return reject(error);
             }
-            if (!stripeBankAccountToken) {
+            if (bankAccountID && !stripeBankAccountToken) {
                 error.status = 422;
                 error.message = 'Stripe token could not be retrieved';
                 return reject(error);
