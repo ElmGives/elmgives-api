@@ -20,8 +20,8 @@ function createNewAddress(userId, pledgeId, monthlyLimit, generator) {
   }, {
     queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
   })
-  .then(generator.next)
-  .catch(generator.throw);
+  .then(response => generator.next(response))
+  .catch(error => generator.throw(error));
 }
 
 module.exports = createNewAddress;

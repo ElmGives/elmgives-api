@@ -28,11 +28,11 @@ function addCharge(addresses, amount, currency, generator) {
         amount: amount,
         currency: currency,
     };
-    
+
     new Charges(query)
         .save()
-        .then(generator.next)
-        .catch(generator.throw);
+        .then(charge => generator.next(charge))
+        .catch(error => generator.throw(error));
 }
 
 module.exports = addCharge;

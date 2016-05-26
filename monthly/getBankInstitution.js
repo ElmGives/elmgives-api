@@ -29,7 +29,7 @@ function getBankInstitution(bankId, generator) {
             
       generator.next(bank.type);
     })
-    .catch(generator.throw);
+    .catch(error => generator.throw(error));
 }
 
 module.exports = getBankInstitution;

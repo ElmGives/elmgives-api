@@ -26,8 +26,8 @@ function getUsers(generator) {
   Users
     .find(query, selector)
     .exec()
-    .then(generator.next)
-    .catch(generator.throw);
+    .then(user => generator.next(user))
+    .catch(error => generator.throw(error));
 }
 
 module.exports = getUsers;

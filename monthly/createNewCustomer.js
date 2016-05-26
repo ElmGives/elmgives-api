@@ -11,8 +11,8 @@ const createStripeCustomer = require('../plaid/link/exchange').createStripeCusto
 function createNewCustomer(user, token, generator) {
   
   createStripeCustomer(user, token)
-    .then(generator.next)
-    .catch(generator.throw);
+    .then(customer => generator.next(customer))
+    .catch(error => generator.throw(error));
 }
 
 module.exports = createNewCustomer;

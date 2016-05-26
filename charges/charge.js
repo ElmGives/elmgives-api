@@ -15,10 +15,6 @@ let schema = new mongoose.Schema({
     currency: {
         type: String,
     },
-    timestamp: {
-        type: String,
-        required: true
-    },
 }, {
     versionKey: false,
 });

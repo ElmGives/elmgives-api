@@ -5,6 +5,16 @@
  */
 'use strict';
 
+/**
+ * Load environment variables
+ */
+require('dotenv').config();
+
+/**
+ * MongoDB configuration
+ */
+require('../config/database');
+
 const logger = require('../logger');
 const notify = require('../slack/index');
 const getYearMonth = require('../helpers/getyearMonth');

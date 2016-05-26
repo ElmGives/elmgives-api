@@ -23,8 +23,8 @@ function addCustomerIdOnDatabase(user, institution, generator) {
   Users
     .update(query, action)
     .exec()
-    .then(generator.next)
-    .catch(generator.throw);
+    .then(update => generator.next(update))
+    .catch(error => generator.throw(error));
 }
 
 module.exports = addCustomerIdOnDatabase;

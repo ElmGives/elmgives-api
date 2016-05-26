@@ -15,7 +15,7 @@ function getAddress(addressId, generator) {
         error.status = 402;
         error.description = 'No address was passed';
         
-        throw error;
+        generator.throw(error);
     }
     
     const query = {
@@ -23,8 +23,8 @@ function getAddress(addressId, generator) {
     };
 
     readAddress(query)
-        .then(generator.next)
-        .catch(generator.throw);
+        .then(address => generator.next(address))
+        .catch(error => generator.throw(error));
 }
 
 module.exports = getAddress;

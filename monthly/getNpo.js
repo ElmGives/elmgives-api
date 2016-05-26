@@ -25,8 +25,8 @@ function getNpo(npoName, generator) {
   Npos
     .findOne(query, selector)
     .exec()                     // this forces to return a real Promise
-    .then(generator.next)
-    .catch(generator.throw);
+    .then(npo => generator.next(npo))
+    .catch(error => generator.throw(error));
 }
 
 module.exports = getNpo;

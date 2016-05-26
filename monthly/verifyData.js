@@ -10,8 +10,8 @@ const getVerifiedAddressBalance = require('../helpers/verifiedAddressBalance');
 function verifyData(address, generator) {
   
   getVerifiedAddressBalance(address)
-    .then(generator.next)
-    .catch(generator.throw);
+    .then(information => generator.next(information))
+    .catch(error => generator.throw(error));
 }
 
 module.exports = verifyData;

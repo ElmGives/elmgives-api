@@ -20,8 +20,8 @@ function makeDonation(amount, currency, customer, connectedStripeAccount, genera
     /* jshint camelcase: false */
     application_fee: amount * STRIPE_FEE, // minimun fee
   })
-  .then(generator.next)
-  .catch(generator.throw);
+  .then(charge => generator.next(charge))
+  .catch(error => generator.throw(error));
 }
 
 module.exports = makeDonation;
