@@ -1,19 +1,19 @@
 /**
- * Test roles routes
+ * Test contact routes
  */
 'use strict';
 
 const tape = require('tape');
-const roles = require('../../../roles');
+const contact = require('../../../contact');
 
 let data = {};
 let middlewares = {};
 
 let options = {
-    'get /roles': 'get /roles',
+    'post /contact': 'post /contact',
 };
 
-roles.stack.map(item => {
+contact.stack.map(item => {
     let method = Object.keys(item.route.methods).join('');
     let path = item.route.path;
     let key = `${method} ${path}`;
@@ -25,7 +25,7 @@ roles.stack.map(item => {
     });
 });
 
-tape.test('Role Endpoints', test => {
+tape.test('Contact Endpoints', test => {
     test.plan(1);
 
     Object.keys(options).map(key => {
@@ -33,13 +33,10 @@ tape.test('Role Endpoints', test => {
     });
 });
 
-tape.test('roles endpoints middlewares', test => {
-    test.plan(4);
+tape.test('contact endpoints middlewares', test => {
+    test.plan(1);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
-        test.equal('verifyToken', actual[0], `should validate token on ${key}`);
-        test.equal('authenticate', actual[1], `should authenticate on ${key}`);
-        test.equal('currentUser', actual[2], `use currentUser on ${key}`);
-        test.equal('isAdmin', actual[3], `validate amdin user on ${key}`);
+        test.equal('contactUs', actual[0], `validate single middleware`);
     });
 });
