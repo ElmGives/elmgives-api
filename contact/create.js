@@ -7,13 +7,15 @@
 const email = require('../email/mandrill').send;
 const validateRequest = require('./validateRequest');
 
+const sendTo = process.env.MANDRILL_ADMIN_EMAIL;
+const TEMPLATE = process.env.MANDRILL_CONTACT_US_EMAIL_TEMPLATE;
+
 const success = {
     data: {
         email: 'ok!'
     }
 };
 
-const TEMPLATE = process.env.MANDRILL_CONTACT_US_EMAIL_TEMPLATE;
 
 function emailVariables(body) {
     return [{
@@ -37,7 +39,7 @@ module.exports = function contactUs(request, response, next) {
     }
 
     let to = [{
-        email: request.body.contact
+        email: sendTo
     }];
 
     email(TEMPLATE, to, emailVariables(request.body))
