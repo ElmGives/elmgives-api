@@ -49,31 +49,11 @@ const options = {
 let _result = '';
 
 /**
- * We start querying database looking for previous transaction balance which have an accumulated value
- * for this month roundups. If the user already met his/her monthly limit, there is no point in going further,
- * saving a plaid query.
- * What we return don't matter because this function is not intended to be used on a chain of promises
+ * We query Plaid services for user transaction history
  * @param   {object}    personData
  */
 function request(personData) {
-    
-    getPreviousChain(personData)
-        .then(function (previousChain) {
-            const balance = previousChain.payload.balance * -1; 
-            
-            if (balance >= personData.limit) {
-                return logger.info(`User ${personData._id} already reached monthly limit`);
-            }
-            
-            return queryPlaidService(personData);
-        });
-}
 
-/**
- * Sends an https request to plaid requesting user history data
- * @param {object} personData Its needed personID, along with person plaid access token
- */
-function queryPlaidService(personData) {
     const postData = querystring.stringify({
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
@@ -99,7 +79,7 @@ function requestHandler(personData, res) {
 
     res.on('data', chunk => _result += chunk);
 
-    res.on('end', () => {
+    res.on('end', function() {
 
         if (res.statusCode !== 200) {
             logger.error({ err: _result }, 'There was an error with the https request');
@@ -107,17 +87,8 @@ function requestHandler(personData, res) {
             return;
         }
 
-        processData(_result, personData).then(() => {
-            _result = '';
-
-            // We tell main process we are ready for more work
-            process.send('ready');
-        }).catch(error => {
-            logger.error({ err: error });
-
-            // We tell main process we are ready for more work
-            process.send('ready');
-        });
+        processData(_result, personData)
+            .catch(error => logger.error({ err: error }));
     });
 }
 
@@ -154,16 +125,22 @@ function processData(data, personData) {
                 let previousChain = params[0];
                 let checkedPlaidTransactions = params[1];
 
-                return Promise.all([
-                    previousChain,
-                    personData.address,
-                    transactionChain.create(personData.address, previousChain, checkedPlaidTransactions),
-                ]);
-            })
-            .then(saveTransactions)
-            .then(sign)
-            .then(sendToQueue)
-            .then(sendPostToAws);
+                // If the user has reached his/her monthly limit, we just skip the rest of this process
+                if (checkedPlaidTransactions.length === 0) {
+                    return Promise.resolve();
+                }
+
+                return Promise
+                    .all([
+                        previousChain,
+                        personData.address,
+                        transactionChain.create(personData.address, previousChain, checkedPlaidTransactions),
+                    ])
+                    .then(saveTransactions)
+                    .then(sign)
+                    .then(sendToQueue)
+                    .then(sendPostToAws);
+            });
     } else {
         return Promise.resolve();
     }
