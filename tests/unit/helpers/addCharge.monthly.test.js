@@ -19,7 +19,7 @@ tape('addCharge', test => {
         
         try {
             actual = yield addCharge(addresses, amount, currency, gen);
-            let expected = 2        // Numberof addresses inside new charge
+            let expected = 2;        // Numberof addresses inside new charge
             
             test.equal(actual.addresses.length, expected, 'Should add both addresses on the new charge');
         }
