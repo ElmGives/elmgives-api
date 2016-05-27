@@ -106,7 +106,7 @@ function processData(data, personData) {
     try {
 
         plaidTransactions = JSON.parse(data).transactions
-            .filter(transactionFilter)
+            .filter(transactionFilter.bind(null, personData.plaidAccountId))
             .map(roundUpAndSave.bind(null, personData));
     }
     catch (error) {

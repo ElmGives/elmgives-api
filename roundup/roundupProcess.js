@@ -40,6 +40,9 @@ function run() {
         plaid: {
             $exists: true
         },
+        'plaid.accountId': {
+            $exists: true,
+        },
         'plaid.tokens.connect': {
             $exists: true,
             $ne: {}
@@ -98,7 +101,10 @@ function extractInformationFromPerson(person) {
     const address = activePledge[0].addresses[thisMonth];
     
     if (!address) {
-        const error = new Error(`User ${person._id} doesn't have an address for this month`);
+        const error = new Error('address-not-found');
+        error.status = 422;
+        error.description = `User ${person._id} doesn't have an address for this month`;
+
         logger.error({ err: error });
         return;
     }
@@ -119,12 +125,14 @@ function extractInformationFromPerson(person) {
             return;
         }
         
-        const stripeToken = person.plaid.tokens.connect[bank.type];
+        const accountId = person.plaid.accountId;
+        const plaidToken = person.plaid.tokens.connect[bank.type];
         const monthlyLimit = activePledge[0].monthlyLimit;
         
         let options = {
             _id: person._id,
-            token: stripeToken,
+            plaidAccountId: accountId,
+            token: plaidToken,
             address: address,
             limit: monthlyLimit,
         };
