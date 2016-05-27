@@ -32,8 +32,9 @@ const makeDonation = require('./makeDonation');
 const createNewAddress = require('./createNewAddress');
 const addCharge = require('./addCharge');
 const updateAddress = require('./updateAddress');
+const calcFee = require('./calcFee');
 
-const MINIMUM_DONATION_VALUE = 0.5; // 50 cents is the minimum donation on Stripe
+let MINIMUM_DONATION_VALUE = null;
 
 // GLOBAL VARIABLES
 let chargeGen = null;
@@ -183,16 +184,20 @@ function *executeCharges() {
       
       totalDonation += verifiedData.balance;
       
-      // If we can't make the minimum donation we skip this month
-      if (totalDonation < MINIMUM_DONATION_VALUE) {
-        continue;
-      }
-      
       // we verify and clamp if necessary user monthlyLimit
       let monthlyLimit = activePledge[0].monthlyLimit;
       
       if (totalDonation > monthlyLimit) {
         totalDonation = monthlyLimit;
+      }
+      
+      let isAchPayment = user.stripe[institution].ach;
+      
+      MINIMUM_DONATION_VALUE = calcFee(totalDonation, isAchPayment);
+      
+      // If we can't make the minimum donation we skip this month
+      if (totalDonation < MINIMUM_DONATION_VALUE) {
+        continue;
       }
       
       // every charge is in cents. We get user pledge npo object to get access to stripe connect account
@@ -213,8 +218,9 @@ function *executeCharges() {
         const currency = verifiedData.currency;
         const customerId = user.stripe[institution].customer.id;
         const connectedAccountId = npo.stripe.accountId;
+        const fee = calcFee(cents, isAchPayment) | 0;             // We need just the integer in cents 
         
-        let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, chargeGen);
+        let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, fee, chargeGen);
         
         if (!donationSuccess) {
           let error = new Error('donation-failed');
@@ -222,18 +228,18 @@ function *executeCharges() {
           error.details = `Donation couldn't be made for user ${user._id}`;
           throw error;
         }
-      }
-      
-      logger.info('Monthly charge: Updating transaction as processed');
-      
-      // we add a new Charge for this donation
-      const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
-      
-      // Then update the addresses for this donation with the new Charge ID
-      yield updateAddress(address, charge._id);
-      
-      if (twoMonthsBackAddress) {
-        yield updateAddress(twoMonthsBackAddress, charge._id);
+        
+        logger.info('Monthly charge: Updating transaction as processed');
+        
+        // we add a new Charge for this donation
+        const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
+        
+        // Then update the addresses for this donation with the new Charge ID
+        yield updateAddress(address, charge._id);
+        
+        if (twoMonthsBackAddress) {
+          yield updateAddress(twoMonthsBackAddress, charge._id);
+        }
       }
       
       logger.info(`Monthly charge: Process success for ${user._id}`);
