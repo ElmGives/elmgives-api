@@ -19,9 +19,19 @@ function makeDonation(amount, currency, customer, connectedStripeAccount, fee, g
     destination: connectedStripeAccount,
     /* jshint camelcase: false */
     application_fee: fee,
-  })
-  .then(charge => generator.next(charge))
-  .catch(error => generator.throw(error));
+  }, function(error, charge) {
+    
+    if (error)  {
+      generator.throw(error);
+    }
+    else {
+      generator.next(charge);
+    }
+    
+  });
 }
 
-module.exports = makeDonation;
+module.exports = {
+  makeDonation: makeDonation,
+  _stripe: stripe,
+};

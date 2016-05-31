@@ -1,7 +1,7 @@
 'use strict';
 
-require('dotenv').config();
-require('../../../config/database');
+// require('dotenv').config();
+// require('../../../config/database');
 
 const tape = require('tape');
 const addCustomerIdOnDatabase = require('../../../monthly/addCustomerIdOnDatabase');
@@ -44,7 +44,7 @@ tape('Tests update Stripe customer attribute on User collection', test => {
         }
         
         test.end();
-        process.exit(0);
+        // process.exit(0);
     })();
     
     gen.next();

@@ -1,7 +1,7 @@
 'use strict';
 
-require('dotenv').config();
-require('../../../config/database');
+// require('dotenv').config();
+// require('../../../config/database');
 
 const tape = require('tape');
 const sinon = require('sinon');
@@ -24,6 +24,8 @@ tape('Tests creation of a new Address from AWS service', test => {
     
     let gen = (function *() {
         let john = yield findJhon(gen);
+        
+        if (!john) { logger.error({ err: new Error('John Doe was not found on User collection') }); }
         
         try {
             let pledgeId = john.pledges[0]._id;
@@ -55,7 +57,7 @@ tape('Tests creation of a new Address from AWS service', test => {
         }
         
         test.end();
-        process.exit(0);
+        // process.exit(0);
     })();
     
     gen.next();

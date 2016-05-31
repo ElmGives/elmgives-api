@@ -28,7 +28,7 @@ const removeStripeToken = require('./removeStripeToken');
 const createNewCustomer = require('./createNewCustomer');
 const addCustomerIdOnDatabase = require('./addCustomerIdOnDatabase');
 const verifyData = require('./verifyData');
-const makeDonation = require('./makeDonation');
+const makeDonation = require('./makeDonation').makeDonation;
 const createNewAddress = require('./createNewAddress').createNewAddress;
 const addCharge = require('./addCharge');
 const updateAddress = require('./updateAddress');
@@ -161,6 +161,13 @@ function *executeCharges() {
       // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
       // user simply didn't make any use on registered account
       let addressObject = yield getAddress(address, chargeGen);
+      
+      if (!addressObject.latestTransaction) {
+        let error = new Error('not-valid-address');
+        error.status = 422;
+        error.details = `What got is not a valid address: ${addressObject}`;
+        throw error;
+      }
       
       if (addressObject.charge) {
         notify({ text: `This address was already charged: ${addressObject.address}` });
