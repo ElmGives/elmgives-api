@@ -8,7 +8,11 @@ var users = {
         'user list': {
             'description': 'Users registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/users',
             'method': 'GET'
