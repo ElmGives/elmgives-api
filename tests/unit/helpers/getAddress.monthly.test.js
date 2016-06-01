@@ -7,7 +7,7 @@ const logger = require('../../../logger');
 const getAddress = require('../../../monthly/getAddress');
 const tape = require('tape');
 
-tape('Tests we can get an Address correctly', test => {
+tape('Get address helper', test => {
     test.plan(1);
     
     let gen = (function *() {
@@ -25,7 +25,7 @@ tape('Tests we can get an Address correctly', test => {
             logger.error({ err: error });
         }
         
-        test.end();
+        // test.end();
         // process.exit(0);
     })();
     

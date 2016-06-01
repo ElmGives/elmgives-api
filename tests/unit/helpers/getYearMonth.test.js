@@ -3,7 +3,7 @@
 const tape = require('tape');
 const getYearMonth = require('../../../helpers/getYearMonth');
 
-tape('Get month formatted for address retrieval for pledges', test => {
+tape('Get month year helper', test => {
     test.plan(1);
 
     const may2016 = new Date(2016, 4);

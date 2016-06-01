@@ -5,7 +5,7 @@ const logger = require('../../../logger');
 const helper = require('../../../monthly/makeDonation');
 const sinon = require('sinon');
 
-tape('Tests the helper gets the parameters it needs', test => {
+tape('Make donation helper', test => {
     test.plan(1);
     
     const stripeResponse = {
@@ -38,7 +38,7 @@ tape('Tests the helper gets the parameters it needs', test => {
             logger.error({ err: error });
         }
         
-        test.end();
+        // test.end();
     })();
     
     gen.next();

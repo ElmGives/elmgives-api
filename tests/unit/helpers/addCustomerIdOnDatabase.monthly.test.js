@@ -8,7 +8,7 @@ const addCustomerIdOnDatabase = require('../../../monthly/addCustomerIdOnDatabas
 const User = require('../../../users/user');
 const logger = require('../../../logger');
 
-tape('Tests update Stripe customer attribute on User collection', test => {
+tape('Add customer ID on database helper ', test => {
     test.plan(1);
     
     function findJhon(generator) {
@@ -43,7 +43,7 @@ tape('Tests update Stripe customer attribute on User collection', test => {
             logger.error({ err: error });
         }
         
-        test.end();
+        // test.end();
         // process.exit(0);
     })();
     

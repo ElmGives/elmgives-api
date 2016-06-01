@@ -9,7 +9,7 @@ const createNewAddress = require('../../../monthly/createNewAddress');
 const User = require('../../../users/user');
 const logger = require('../../../logger');
 
-tape('Tests creation of a new Address from AWS service', test => {
+tape('Create New Address helper', test => {
     test.plan(4);
     
     const awsResponse = {
@@ -56,7 +56,7 @@ tape('Tests creation of a new Address from AWS service', test => {
             logger.error({ err: error });
         }
         
-        test.end();
+        // test.end();
         // process.exit(0);
     })();
     

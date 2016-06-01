@@ -3,7 +3,7 @@
 const tape = require('tape');
 const calcFee = require('../../../monthly/calcFee');
 
-tape('addCharge', test => {
+tape('Calc fee helper', test => {
     test.plan(2);
     
     let amount = 5.00;

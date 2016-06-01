@@ -1,13 +1,13 @@
 'use strict';
 
-require('dotenv').config();
-require('../../../config/database');
+// require('dotenv').config();
+// require('../../../config/database');
 
 const tape = require('tape');
 const addCharge = require('../../../monthly/addCharge');
 const logger = require('../../../logger');
 
-tape('addCharge', test => {
+tape('addCharge helper', test => {
     test.plan(2);
     
     let gen = (function *() {
@@ -39,7 +39,7 @@ tape('addCharge', test => {
             logger.error({ err: error });
         }
         
-        test.end();
+        // test.end();
         // process.exit(0);
     })();
     
