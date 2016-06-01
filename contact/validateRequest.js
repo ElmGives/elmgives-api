@@ -3,6 +3,8 @@
  */
 'use strict';
 
+const emailValidator = require('../helpers/emailValidator');
+
 const categories = {
     suggest: 'suggest',
     comment: 'comment',
@@ -22,6 +24,10 @@ module.exports = function validateRequest(request) {
 
     if (!request.body.content) {
         errors.content = 'content required';
+    }
+
+    if(!emailValidator(request.body.contact)){
+        errors.email = 'invalid email';
     }
 
     return errors;

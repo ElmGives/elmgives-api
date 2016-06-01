@@ -4,7 +4,7 @@ const tape = require('tape');
 const validate = require('../../../contact/validateRequest');
 
 tape('validation helper', test => {
-    test.plan(5);
+    test.plan(6);
 
     test.equal(true, !!validate({
         body: {}
@@ -18,9 +18,15 @@ tape('validation helper', test => {
         body: {}
     }).category, 'validate category');
 
-    test.equal('email required', validate({
+    test.equal('invalid email', validate({
         body: {}
-    }).email, 'validate category');
+    }).email, 'validate email');
+
+    test.equal('invalid email', validate({
+        body: {
+            contact: 'foo'
+        }
+    }).email, 'validate contact email');
 
     test.deepEqual({}, validate({
         body: {
