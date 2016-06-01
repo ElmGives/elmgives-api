@@ -11,7 +11,8 @@ let data = {};
 let middlewares = {};
 
 let options = {
-    'get /transactions': 'get /transactions'
+    'get /transactions': 'get /transactions',
+    'get /transactions/:hash': 'get /transactions/:hash'
 };
 
 transactions.stack.map(item => {
@@ -27,7 +28,7 @@ transactions.stack.map(item => {
 });
 
 tape.test('Transaction Endpoints', test => {
-    test.plan(1);
+    test.plan(2);
 
     Object.keys(options).map(key => {
         test.equal(key, data[key], `should provide ${key} endpoint`);
@@ -35,7 +36,7 @@ tape.test('Transaction Endpoints', test => {
 });
 
 tape.test('Transaction endpoints middlewares', test => {
-    test.plan(4);
+    test.plan(8);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);

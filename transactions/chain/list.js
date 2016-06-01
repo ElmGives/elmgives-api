@@ -90,7 +90,7 @@ module.exports = function list(request, response, next) {
                 .then(results => {
                     let transactions = results.docs;
                     let data = transactions.map(transaction => {
-                        return transaction.payload;
+                        return Object.assign({hash: transaction.hash.value}, transaction._doc.payload);
                     });
 
                     return response.json({
