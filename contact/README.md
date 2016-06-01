@@ -1,6 +1,6 @@
 # Handle contact us from Mobile apps
 
-Sngle endpoint to handle _email us_ from mobile Apps to Admins
+Single endpoint to handle _email us_ from mobile Apps to Admin
 
 ## Responses
 
@@ -24,12 +24,12 @@ Sngle endpoint to handle _email us_ from mobile Apps to Admins
 ## 1. Contact us
 
 ```javascript
-// POST /emails
+// POST /contact
 
 const data = {
     content: '', // content from user input
     category: 'contact', // string representation to identify user action, i.e: suggestion, question...
-    email: '',    // user's email, used to eventually reply
+    contact: '',    // user's email, used to eventually reply
 }
 ```
 
@@ -38,11 +38,11 @@ const data = {
 - request
 
 ```javascript
-// POST /emails
+// POST /contact
 
 const data = {
     content: '', // content from user input
     category: 'npo', // string representation to identify user action, i.e: suggestion, question...
-    email: '',    // user's email, used to eventually reply
+    contact: '',    // user's email, used to eventually reply
 }
 ```
