@@ -1,7 +1,7 @@
 'use strict';
 
-// require('dotenv').config();
-// require('../../../config/database');
+require('dotenv').config();
+require('../../../config/database');
 
 const tape = require('tape');
 const addCharge = require('../../../monthly/addCharge');
