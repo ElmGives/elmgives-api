@@ -29,7 +29,7 @@ let emptyMessages = 0;
 function get(options) {
     
     // We check the number of times we have received an empty array from AWS queue
-    if (options.firstRun) {
+    if (options && options.firstRun) {
         emptyMessages = 0;
     }
     else {
@@ -110,17 +110,25 @@ function extractTransactionChainFromMessage(message) {
 
             return verifySign(address, transactionChain)
                 .then(() => {
-
+                    
                     // This code run when every transaction is processed
                     // we use message saved throught closure
+                    emptyMessages = 0;
+
                     const queue = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
                     
                     logger.info('Round up process: message processed. Deleting it from AWS queue...');
             
-                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
+                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue)
+                        .then(() => get());
                 });
         })
-        .catch(error => logger.error({ err: error }));
+        .catch(error => {
+            logger.error({ err: error })
+            
+            emptyMessages = 0;
+            get();
+        });
     }
 
     let error = new Error('no-transaction-chain');
