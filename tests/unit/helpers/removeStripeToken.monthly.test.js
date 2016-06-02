@@ -35,7 +35,7 @@ tape('Remove Stripe token helper', test => {
             expected = true;
             actual = yield findJhon(gen);
             
-            test.equal('token' in actual.stripe.wells == false, expected, 'Checked the token is not on User collection');
+            test.equal('token' in actual.stripe.wells === false, expected, 'Checked the token is not on User collection');
         }
         catch (error) {
             logger.error({ err: error });
