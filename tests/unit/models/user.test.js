@@ -9,7 +9,7 @@ const index = require('../index');
 const defaults = require('../defaults');
 
 tape('User model', test => {
-    test.plan(20);
+    test.plan(21);
 
     let user = new User({});
     let values = user.schema.paths;
