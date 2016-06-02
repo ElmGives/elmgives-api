@@ -35,11 +35,12 @@ tape.test('Transaction Endpoints', test => {
 });
 
 tape.test('Transaction endpoints middlewares', test => {
-    test.plan(3);
+    test.plan(4);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);
         test.equal('authenticate', actual[1], `should authenticate on ${key}`);
         test.equal('currentUser', actual[2], `verify current user on ${key}`);
+        test.equal('isAdmin', actual[3], `should have admin role on ${key}`);
     });
 });

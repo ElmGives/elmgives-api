@@ -3,8 +3,7 @@
  */
 'use strict';
 
-const NPO = require('../npos/npo');
-const Bank = require('../banks/bank');
+const getYearMonth = require('../helpers/getYearMonth');
 
 module.exports = function update(request, response, next) {
     const userId = request.params.id + '';
@@ -18,50 +17,38 @@ module.exports = function update(request, response, next) {
     }
 
     let user = request.currentUser;
-
-    let npo = NPO.findOne({
-        _id: request.body.npoId
-    });
-
-    let bank = Bank.findOne({
-        _id: request.body.bankId
-    });
-
     let pledge = user.pledges.id(request.params.pledgeId);
+    let active = user.pledges.find(item => item.active);
 
     if (!pledge) {
         let error = new Error();
         error.status = 422;
         error.message = 'Charity not found';
-
         return next(error);
     }
+    if (request.body.active === true && !pledge.active) {
+        pledge.active = true;
+        if (typeof active === 'object') {
+            active.active = false;
 
-    Promise
-        .all([npo, bank])
-        .then(values => {
-            if (!values[0] || !values[1]) {
-                let error = new Error();
-                error.status = 422;
-                error.message = 'Proper fields values requiered';
+            let currentYearMonth = getYearMonth();
+            let dateQuery = `addresses.${currentYearMonth}`;
+            let currentAddress = active.addresses[currentYearMonth];
 
-                return next(error);
+            if (currentAddress) {
+                pledge.set(dateQuery, currentAddress);
+                active.set(dateQuery, undefined);
             }
+        }
+    }
 
-            pledge.montlyLimit = request.body.montlyLimit || pledge.montlyLimit;
+    /* Updatas to pledge properties */
+    // (changes to monthlyLimit will be reflected in the next month)
+    pledge.monthlyLimit = request.body.monthlyLimit || pledge.monthlyLimit;
 
-            pledge.npoId = request.body.npoId || pledge.npoId;
-            pledge.bankId = request.body.bankId || pledge.bankId;
-            pledge.npo = values[0].name || pledge.npo;
-            pledge.bank = values[1].name || pledge.bank;
-
-            request.pledgeId = pledge._id;
-            return user.save();
-        }, error => {
-            return next(error);
-        })
+    user.save()
         .then(( /*user*/ ) => response.json({
-            data: [user.pledges.id(request.pledgeId)]
+            data: [pledge]
         }))
         .catch(next);
 };

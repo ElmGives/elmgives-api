@@ -24,6 +24,11 @@ require('./config/database');
 require('./scripts/requiredVariables');
 
 /**
+ * Start Pledge Address Manager
+ */
+require('./bin/pledgeAddressManager').start();
+
+/**
  * Fast, unopinionated, minimalist web framework for node
  * https://github.com/strongloop/express
  */

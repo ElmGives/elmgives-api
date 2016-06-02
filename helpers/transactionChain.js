@@ -3,28 +3,15 @@
  */
 'use strict';
 
+const stringify = require('json-stable-stringify');
 const crypto = require('crypto');
 const P      = require('bluebird');
 
 const Transaction = require('../transactions/chain/transaction');
-const transactionSchemaOrder = [
-    'count',
-    'address',
-    'amount',
-    'roundup',
-    'balance',
-    'currency',
-    'limit',
-    'previous',
-    'timestamp',
-    'reference',
-    'info'
-];
 
 module.exports = {
     create: createTransactionChain,
-    createTransaction: createTransactionData,
-    transactionSchemaOrder: transactionSchemaOrder
+    createTransaction: createTransactionData
 };
 
 
@@ -46,7 +33,7 @@ function createTransactionChain(address, previous, transactions) {
             return P.reject(data);
         }
 
-        let json = JSON.stringify(data.payload);
+        let json = stringify(data.payload);
         data.hash.value = crypto.createHash(data.hash.type).update(json).digest('hex');
         let newTransaction = new Transaction(data);
         transactionChain.push(newTransaction);
@@ -105,7 +92,7 @@ function validatePreviousTransaction(transaction) {
             /* Hash validation */
             let digest;
             try {
-                let json = JSON.stringify(transaction.payload, transactionSchemaOrder);
+                let json = stringify(transaction.payload);
                 digest = crypto.createHash(transaction.hash.type).update(json).digest('hex');
             } catch (e) {
                 return reject(e);

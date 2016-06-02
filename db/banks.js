@@ -19,7 +19,40 @@ let findOrInsert = (data) => {
 
     return Bank
         .findOne(query)
-        .then(bank => bank ? bank : new Bank(data).save());
+        .then(bank => bank ? bank : new Bank(data).save())
+        .then(bank => {
+            
+            if (bank.type === 'wells') {
+                const query = {
+                    active: true,
+                    plaid: {
+                        $exists: true
+                    },
+                    'plaid.tokens.connect': {
+                        $exists: true,
+                        $ne: {}
+                    },
+                    pledges: {
+                        $exists: true
+                    },
+                    'pledges.addresses': {
+                        $exists: true
+                    },
+                };
+                
+                const newBankId = {
+                    $set: {
+                        'pledges.0.bankId': bank._id,
+                    },
+                };
+                
+                return User
+                    .update(query, newBankId)
+                    .then(() => bank);
+            }
+            
+            return bank;
+        });
 };
 
 function all(promises) {

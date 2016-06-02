@@ -6,6 +6,7 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const mongoosePaginate = require('mongoose-paginate');
 
 let schema = new mongoose.Schema({
     hash: {
@@ -72,5 +73,6 @@ let schema = new mongoose.Schema({
 });
 
 schema.plugin(timestamps);
+schema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Transaction', schema);

@@ -15,7 +15,8 @@ let options = {
     'post /users/:id/pledges': 'post /users/:id/pledges',
     'get /users/:id/pledges/:pledgeId': 'get /users/:id/pledges/:pledgeId',
     'put /users/:id/pledges/:pledgeId': 'put /users/:id/pledges/:pledgeId',
-    'delete /users/:id/pledges/:pledgeId': 'delete /users/:id/pledges/:pledgeId'
+    'get /users/:id/pledges/:pledgeId/balances': 'get /users/:id/pledges/:pledgeId/balances',
+    'get /users/:id/pledges/:pledgeId/transactions': 'get /users/:id/pledges/:pledgeId/transactions'
 };
 
 pledges.stack.map(item => {
@@ -31,7 +32,7 @@ pledges.stack.map(item => {
 });
 
 tape.test('Charities Endpoints', test => {
-    test.plan(5);
+    test.plan(6);
 
     Object.keys(options).map(key => {
         test.equal(key, data[key], `should provide ${key} endpoint`);
@@ -42,8 +43,8 @@ tape.test('Charities Endpoints', test => {
  * Used to ensure we validate tokens, authenticate user or user current user
  * object properly, at least on functions names
  */
-tape.test('Charitiess endpoints middlewares', test => {
-    test.plan(15);
+tape.test('Charities endpoints middlewares', test => {
+    test.plan(18);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `validate token on ${key}`);

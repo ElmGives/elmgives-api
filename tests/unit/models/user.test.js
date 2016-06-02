@@ -7,14 +7,9 @@ const required = require('../required');
 const unique = require('../unique');
 const index = require('../index');
 const defaults = require('../defaults');
-const mongoose = require('mongoose');
-const mockgoose = require('mockgoose');
-const logger = require('../../../logger');
-
-mockgoose(mongoose);
 
 tape('User model', test => {
-    test.plan(22);
+    test.plan(20);
 
     let user = new User({});
     let values = user.schema.paths;
@@ -35,9 +30,11 @@ tape('User model', test => {
 
     user.validate(error => required(['email', 'password'], error.errors, test));
 
+    new User({}).validate(error => test.equal(true, !!error, 'invalid empty'));
+
     new User({
         email: 'foo@bar.com',
-        password: 'foobar',
+        password: 'Foobar123',
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 
     new User({
@@ -46,40 +43,5 @@ tape('User model', test => {
         let expected = 'foo is not a valid email';
         let actual = error.errors.email.message;
         test.equal(expected, actual, 'valid message for invalid email');
-    });
-
-    /**
-     * We are using fake database to test password hash
-     */
-    mongoose.connect('mongodb://example.com/TestingDB', function(error) {
-        if (error) {
-            return logger.error({
-                err: error
-            });
-        }
-
-        new User({
-                email: 'foo@bar.com',
-                password: 'foobar',
-                verificationToken: 1111
-            })
-            .save()
-            .then(data => {
-                test.notEqual(data.password, 'foobar', 'password hash');
-                test.equal(60, data.password.length, 'password hash length');
-
-                /**
-                 * Reset and close connection
-                 */
-                mockgoose.reset(function() {});
-                mongoose.connection.close(function() {});
-            })
-            .catch(error => {
-                logger.error({
-                    err: error
-                });
-                mockgoose.reset(function() {});
-                mongoose.connection.close(function() {});
-            });
     });
 });

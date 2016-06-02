@@ -6,6 +6,9 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const email = require('../helpers/emailValidator');
+const hexColor = require('hex-color-regex');
+
 const REGION = process.env.AWS_S3_REGION;
 const BUCKET = process.env.AWS_S3_BUCKET;
 
@@ -32,12 +35,26 @@ let schema = new mongoose.Schema({
 
     email: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: value => email(value),
+            message: '{VALUE} is not a valid email'
+        }
     },
 
     phone: {
         type: String,
         required: true
+    },
+
+    stripe: {
+        email: {
+            type: String
+        },
+        accountId: {
+            type: String,
+            default: ''
+        }
     },
 
     /**
@@ -60,6 +77,17 @@ let schema = new mongoose.Schema({
         type: String
     },
 
+    backgroundColor: {
+        type: String,
+        required: true,
+        validate: {
+            validator: value => hexColor({
+                strict: true
+            }).test(value),
+            message: '{VALUE} is not a valid hex color'
+        }
+    },
+
     address: {
         type: 'Mixed'
     }
@@ -69,6 +97,10 @@ let schema = new mongoose.Schema({
 
 schema.plugin(timestamps);
 
+schema.pre('save', function (next) {
+    this.stripe.email = this.get('stripe.email') || this.get('email');
+    next();
+});
 schema.post('init', function(doc) {
     doc.logoUrl = `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrl}`;
 });

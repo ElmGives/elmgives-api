@@ -6,6 +6,9 @@
 const Charity = require('./pledge');
 const NPO = require('../npos/npo');
 const Bank = require('../banks/bank');
+const aws = require('../lib/awsQueue');
+const logger = require('../logger');
+const getYearMonth = require('../helpers/getYearMonth');
 
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
@@ -19,11 +22,9 @@ module.exports = (request, response, next) => {
     }
 
     let user = request.currentUser;
-
     let npo = NPO.findOne({
         _id: request.body.npoId
     });
-
     let bank = Bank.findOne({
         _id: request.body.bankId
     });
@@ -32,6 +33,7 @@ module.exports = (request, response, next) => {
         return item.npoId + '' === request.body.npoId &&
             item.bankId + '' === request.body.bankId;
     });
+    let active = user.pledges.find(item => item.active);
 
     if (exist) {
         let error = new Error();
@@ -66,12 +68,42 @@ module.exports = (request, response, next) => {
             return next(error);
         })
         .then(pledge => {
-            user.pledges.push(pledge);
+            /* Transfer latest active address to the new pledge */
+            if (typeof active === 'object') {
+                active.active = false;
+
+                let currentYearMonth = getYearMonth();
+                let dateQuery = `addresses.${currentYearMonth}`;
+                let currentAddress = active.addresses[currentYearMonth];
+
+                if (currentAddress) {
+                    pledge.set(dateQuery, currentAddress);
+                    active.set(dateQuery, undefined);
+                }
+            }
+            /* Activate and add new pledge to the current user */
+            pledge.active = true;
+            user.pledges.unshift(pledge);
             request.pledgeId = pledge._id;
             return user.save();
         })
         .then(( /*user*/ ) => response.json({
             data: [user.pledges.id(request.pledgeId)]
         }))
+        .then(() => {
+            /* Request a new address only if no pledge was previously active */
+            if (typeof active === 'object') {return;}
+            aws.sendMessage({
+                userId: userId,
+                pledgeId: String(request.pledgeId),
+                limit: request.body.monthlyLimit,
+                nonce: String((new Date()).getTime())
+            }, {
+                queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
+            })
+            .catch(error => {
+                logger.error({err: error});
+            });
+        })
         .catch(next);
 };

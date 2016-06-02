@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Post model', test => {
-    test.plan(14);
+    test.plan(20);
 
     let post = new Post({});
     let values = post.schema.paths;
@@ -24,7 +24,8 @@ tape('Post model', test => {
     new Post({
         userId: 'x'.repeat(24),
         npoId: 'x'.repeat(24),
-        textContent: 'x'.repeat(10)
+        textContent: 'x'.repeat(10),
+        node: 'A'
     }).validate(error => {
         test.equal(undefined, error, 'valid with attributes');
     });
@@ -47,5 +48,20 @@ tape('Post model', test => {
         let actual = error.errors.textContent.kind;
         let expected = 'maxlength';
         test.equal(expected, actual, 'require max length for text content');
+    });
+
+    new Post({
+        node: 'foobar'
+    }).validate(error => {
+        let expected = '`foobar` is not a valid enum value for path `node`.';
+        let actual = error.errors.node.message;
+
+        test.equal(expected, actual, 'invalid node');
+    });
+
+    ['A', 'B', 'C', 'D', 'E'].map(node => {
+        new Post({
+            node: node
+        }).validate(error => test.equal(!!error, true, `valid node: ${node}`));
     });
 });

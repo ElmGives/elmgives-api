@@ -1,26 +1,44 @@
 /**
- * Generic module to find list of models based on model param
+ * Get list of posts with populated content from NPO's
+ * Paginated data,
+ * Filter by npoId
  */
 'use strict';
 
-const defaultResponse = require('../helpers/defaultResponse');
+const Post = require('./post');
+const queryOptions = require('../helpers/queryOptions');
+
 const defaultQuery = {
     archived: false
 };
 
-/**
- * Model is an instance of mongoose model
- */
-module.exports = (Model, query) => {
-    return function list(request, response, next) {
+module.exports = function list(request, response, next) {
+    let query;
+    const options = queryOptions(request, Post);
 
-        if(request.query.npoId){
-            query.npoId = request.query.npoId;
-        }
-
-        return Model
-            .find(query || defaultQuery)
-            .then(defaultResponse(response))
-            .catch(next);
+    /**
+     * @see http://mongoosejs.com/docs/api.html#query_Query-populate
+     */
+    options.populate = {
+        path: 'npoId',
+        select: 'name'
     };
+
+    if (request.query.npoId) {
+        query = {};
+        query.npoId = request.query.npoId;
+    }
+
+    return Post
+        .paginate(query || defaultQuery, options)
+        .then(data => {
+            let result = {
+                data: data.docs
+            };
+
+            data.docs = undefined;
+            result.meta = data;
+            return response.json(result);
+        })
+        .catch(next);
 };

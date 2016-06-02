@@ -4,6 +4,7 @@
 
 'use strict';
 const logger = require('../logger');
+const slack = require('../slack');
 
 /**
  * Since some of the values here are not required for development, we must check
@@ -39,7 +40,11 @@ let required = [
     'SERVER_KID',
     'SERVER_PRIVATE_KEY',
     'CLIENT_URL',
-    'MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE'
+    'MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE',
+    'MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE',
+    'SLACK_TOKEN',
+    'SLACK_ENABLED',
+    'STRIPE_SECRET_KEY'
 ];
 
 let notFound = required.filter(option => {
@@ -58,5 +63,9 @@ logger.error({
 });
 
 if (process.env.NODE_ENV === PRODUCTION) {
+    slack(error)
+        .then(data => logger.info(data))
+        .catch(error => logger.error(error));
+
     throw error;
 }

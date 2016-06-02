@@ -5,7 +5,9 @@
 
 const Session = require('./session');
 const User = require('../users/user');
+const Role = require('../roles/role');
 const token = require('../helpers/token');
+const admin = require('../helpers/admin');
 const expire = require('../helpers/expire');
 const EXPIRE = process.env.EXPIRE_HOURS;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -79,13 +81,45 @@ module.exports = function create(request, response, next) {
             }, JWT_SECRET);
         })
         .then(token => {
-            response.json({
+            /**
+             * Temporary store session data to `request` object
+             */
+            request.sessionData = {
                 expire: request.expiresIn,
                 token: token,
                 firstName: request.accountUser.firstName,
                 id: request.accountUser._id,
                 email: request.accountUser.email,
                 verified: request.accountUser.verified
+            };
+
+            /**
+             * Check if there's a role associated to user which request a
+             * session
+             */
+            const roleId = request.accountUser.roleId;
+            let role;
+
+            if (roleId) {
+                role = Role.findOne({
+                    _id: roleId
+                });
+            }
+
+            /**
+             * Either return a promise or an empty object, which is used to
+             * validate if current role is admin
+             */
+            return role || {};
+        })
+        .then(role => {
+            /**
+             * Attach new property to the response
+             */
+            request.sessionData.isAdmin = admin(role || {});
+
+            response.json({
+                data: request.sessionData
             });
         })
         .catch(next);

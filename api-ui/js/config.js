@@ -8,7 +8,11 @@ var users = {
         'user list': {
             'description': 'Users registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/users',
             'method': 'GET'
@@ -27,19 +31,75 @@ var users = {
             'description': 'Posts a user.',
             'params': {
                 name: 'string',
-                firstName: 'string',
-                lastName: 'string',
                 password: 'string',
-                email: 'string'
+                email: 'string',
+                roleId: 'string ( valid mongo id from Role )'
             },
             'url': API + '/users',
             'wrapper': '',
             'method': 'POST'
         },
+        'update user': {
+            'description': 'Updates user owned by current  user or any user from admin.',
+            'params': {
+                'id': 'string',
+                'auth_token': 'string',
+                name: 'string',
+                phone: 'string',
+                password: 'string',
+                newPassword: 'string',
+                zip: 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'PUT'
+        },
+        'delete user': {
+            'description': 'Removes an user.',
+            'params': {
+                'auth_token': 'string',
+                'id': 'string'
+            },
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
+            'wrapper': '',
+            'method': 'DELETE'
+        },
         'verify account': {
             'description': 'Verify account',
             'params': {
                 verificationToken: 'string',
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'request password change': {
+            'description': 'Ask API for a token to change password',
+            'params': {
+                changePassword: 'string ( email ) ',
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'request new password': {
+            'description': 'Ask API token to change password',
+            'params': {
+                changePassword: 'string(email)',
+                code: 'string ( four digits code )'
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'change password': {
+            'description': 'Ask API for password change',
+            'params': {
+                changePassword: 'string(email)',
+                token: 'string ( big token )',
+                password: 'string ( new password )'
             },
             'url': API + '/users',
             'wrapper': '',
@@ -124,7 +184,9 @@ var posts = {
         'post list': {
             'description': 'Posts registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'npoId': 'string',
+                dashboard: 'boolean'
             },
             'url': API + '/posts',
             'method': 'GET'
@@ -146,6 +208,7 @@ var posts = {
                 'npoId': 'string',
                 'images': 'string',
                 'videos': 'string',
+                node: 'string',
                 'textContent': 'string'
             },
             'url': API + '/posts',
@@ -180,6 +243,21 @@ var posts = {
     }
 };
 
+var roles = {
+    'name': 'Roles',
+    'description': '<p> Manage roles.</p>',
+
+    'calls': {
+        'role list': {
+            'description': 'roles registered.',
+            'params': {
+                'auth_token': 'string',
+            },
+            'url': API + '/roles',
+            'method': 'GET'
+        },
+    }
+};
 
 var images = {
     'name': 'Images',
@@ -209,7 +287,11 @@ var banks = {
         'bank list': {
             'description': 'Banks registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/banks',
             'method': 'GET'
@@ -267,7 +349,11 @@ var npos = {
         'npo list': {
             'description': 'NPOs registered.',
             'params': {
-                'auth_token': 'string'
+                'auth_token': 'string',
+                'sort': 'string ( comma separated fields )',
+                'page': 'number',
+                'perPage': 'number',
+                'fields': 'string ( comma separated NPOs fields )'
             },
             'url': API + '/npos',
             'method': 'GET'
@@ -289,6 +375,7 @@ var npos = {
                 'name': 'string',
                 'description': 'string',
                 'logoUrl': 'string',
+                'backgroundColor': 'string',
                 'email': 'string',
                 'zip': 'string',
                 'phone': 'string'
@@ -331,7 +418,9 @@ var sessions = {
             'wrapper': '',
             'method': 'POST',
             callback: function(response) {
-                localStorage.setItem('cu', JSON.stringify(response));
+                'use strict';
+                var data = response.data || [];
+                localStorage.setItem('cu', JSON.stringify(data));
             }
         },
         'delete session': {
@@ -342,7 +431,8 @@ var sessions = {
             'url': API + '/sessions/[id]',
             'wrapper': '',
             'method': 'DELETE',
-            callback: function(response) {
+            callback: function() {
+                'use strict';
                 localStorage.removeItem('cu');
             }
         }
@@ -358,6 +448,7 @@ define([], function() {
         banks: banks,
         npos: npos,
         posts: posts,
+        roles: roles,
         images: images,
         pledges: pledges
     };

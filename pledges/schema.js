@@ -36,8 +36,14 @@ let schema = new mongoose.Schema({
         required: true
     },
 
-    disabled: {
-        type: Boolean
+    addresses: {
+        type: Object,
+        default: {}
+    },
+
+    active: {
+        type: Boolean,
+        default: false
     },
 
     archived: {

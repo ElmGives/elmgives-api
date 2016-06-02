@@ -19,33 +19,54 @@ const getAddress = require('../addresses/read');
 const verifySignature  = require('../helpers/verifyJwsSignature');
 const updateTransaction  = require('../transactions/chain/update');
 const updateAddress  = require('../addresses/update');
+const logger = require('../logger');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
 
-function get() {
+let emptyMessages = 0;
+
+function get(options) {
+    
+    // We check the number of times we have received an empty array from AWS queue
+    if (options.firstRun) {
+        emptyMessages = 0;
+    }
+    else {
+        emptyMessages += 1;
+    }
+    
     const params = { queue: process.env.AWS_SQS_URL_FROM_SIGNER };
+    
+    logger.info('Round up process: requesting messages from AWS queue...');
 
     return AWSQueue.receiveMessage(params)
         .then(handleResponseFromAws);
 }
 
 /**
- * When we have no more messages to process, tell the main process there is no more to do. Doing this
- * we expect to receive a 'finish' message to exit Worker process.
- * If there is work to do, we call the extract method on every message received
+ * When Amazon doesn't have more messages, it sends an empty Array.
+ * We try a couple of times to retrieve information from Amazon queue, that's why que check on
+ * [[emptyMessages]] variabel and call the get function
  * @author Nando
- * @param   {Array}                messages An array of messages from AWS or [] if no more of those
- * @returns {promise || undefined}
+ * @param   {Array} messages An array of messages from AWS or [] if no more of those
  */
 function handleResponseFromAws(messages) {
 
     if (messages && messages.length === 0) {
-        process.send('no more on AWS');
+        
+        if (emptyMessages > 2) {
+            emptyMessages = 0;
+            return;
+        }
+        
+        get();
         return;
     }
 
-    return Promise.all(messages.map(extractTransactionChainFromMessage));
+    logger.info('Round up process: got messages from AWS queue');
+    
+    messages.map(extractTransactionChainFromMessage);
 }
 
 /**
@@ -69,21 +90,29 @@ function extractTransactionChainFromMessage(message) {
     }
 
     if (transactionChain ) {
+        logger.info('Round up process: got transactionChain from AWS queue message');
+        
+        const query = {
+            address: transactionChain.payload.address,
+        };
 
-        return getAddress(transactionChain.payload.address).then(function (addressArray) {
-            let address   = addressArray[0];
+        return getAddress(query).then(function (address) {
 
             if (!address) {
                 let error = new Error('We couldn\'t get the Address ' + transactionChain.payload.address);
                 return Promise.reject(error);
             }
+            
+            logger.info('Round up process: got address from transactionChain');
 
             return verifySign(address, transactionChain)
                 .then( () => {
                     // This code run when every transaction is processed
                     // we use message saved throught closure
-                    const queue = process.env.AWS_SQS_URL_TO_SIGNER;
+                    const queue = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
                     
+                    logger.info('Round up process: message processed. Deleting it from AWS queue...');
+            
                     return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
                 });
         });
@@ -110,6 +139,8 @@ function verifySign(address, transactionChain) {
             
             return Promise.reject(error);
         }
+        
+        logger.info('Round up process: transactionChain signature verified');
 
         return checkTransactionPayload(address, transactionChain);
     });
@@ -141,10 +172,14 @@ function checkTransactionPayload(address, transactionChain) {
     });
 
     if (latestTransaction) {
+        
+        logger.info('Round up process: latest transaction found on transactionChain payload');
 
         return verifySignature(latestTransaction, ed25519, publicKey).then(function (verifiedLatest) {
 
             if (verifiedLatest) {
+                logger.info('Round up process: verified new latest transaction');
+                
                 return updateAddressLatestTransaction(latestTransaction.hash.value, address.address);
             }
 
@@ -180,6 +215,8 @@ function updateAddressLatestTransaction(latestTransactionId, address) {
             latestTransaction: latestTransactionId,
         },
     };
+    
+    logger.info('Round up process: updating address with new latest transaction...');
 
     return updateAddress(query, newValue);
 }

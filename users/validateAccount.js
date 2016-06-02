@@ -1,9 +1,18 @@
 /**
  * Middleware to verify users accounts
+ *
+ * Find user with specified verification token
+ * If no user found, return 404 status error and response ( handled by `next` )
+ * If user found, set `verificationToken` to empty string and save user
+ * then return default response format with empty response.
  */
 'use strict';
 
 const User = require('./user');
+
+const defaultResponse = {
+    data: {}
+};
 
 module.exports = function validateAccount(request, response, next) {
     const query = {
@@ -17,14 +26,14 @@ module.exports = function validateAccount(request, response, next) {
                 let error = new Error();
                 error.status = 404;
                 error.message = 'Token already used';
-                return next(error);
+
+                return Promise.reject(error);
             }
 
             user.verificationToken = '';
+
             return user.save();
         })
-        .then(( /*userSaved*/ ) => {
-            return response.send();
-        })
+        .then(() => response.json(defaultResponse))
         .catch(next);
 };

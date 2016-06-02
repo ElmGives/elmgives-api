@@ -6,8 +6,11 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+
 const REGION = process.env.AWS_S3_REGION;
 const BUCKET = process.env.AWS_S3_BUCKET;
+
+const nodes = ['A', 'B', 'C', 'D', 'E'];
 
 let schema = new mongoose.Schema({
     userId: {
@@ -17,7 +20,8 @@ let schema = new mongoose.Schema({
 
     npoId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Npo'
     },
 
     images: {
@@ -33,6 +37,12 @@ let schema = new mongoose.Schema({
         required: false,
         minlength: 10,
         maxlength: 1000
+    },
+
+    node: {
+        type: String,
+        required: true,
+        enum: nodes
     },
 
     /**

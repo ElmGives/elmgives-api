@@ -18,13 +18,14 @@ module.exports = (request, response, next) => {
                 let error = new Error();
                 error.status = 404;
                 error.message = 'Resource not found';
+
                 return Promise.reject(error);
             }
 
             return Post.remove(query);
         })
         .then(() => response.json({
-            data: []
+            data: {}
         }))
         .catch(next);
 };

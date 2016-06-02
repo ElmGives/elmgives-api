@@ -10,19 +10,25 @@ const users = require('./users');
 const plaid = require('./plaid');
 const pledges = require('./pledges');
 const sessions = require('./sessions');
-const transactions = require('./transactions/chain');
 const posts = require('./posts');
 const images = require('./images');
+const roles = require('./roles');
+const oauth = require('./oauth');
+const transactions = require('./transactions/chain');
+const status = require('./heartbeat');
 
 module.exports = app => {
     app
+        .use(oauth)
         .use(images)
+        .use(roles)
         .use(posts)
         .use(sessions)
         .use(pledges)
-        .use(transactions)
         .use(plaid)
         .use(users)
+        .use(transactions)
         .use(banks)
+        .use(status)
         .use(npos);
 };

@@ -3,11 +3,13 @@
     "description": "We are witnessing and reporting no more than a tiny percentage of the extintion actually occurring",
     "logoUrl": "http://endangeredspeciesinternational.org/images/esi_logo.gif",
     "phone": "123",
-    "email": "communications@endangeredspeciesinternational.org"
+    "email": "communications@endangeredspeciesinternational.org",
+    "backgroundColor": "#000"
 }, {
     "name": "Foundation for Sustainable Development",
     "description": "foundation for sustainable development",
     "logoUrl": "http://www.fsdinternational.org/sites/all/themes/default/image/logo.gif",
     "phone": "(415) 283-4873",
-    "email": "http://www.fsdinternational.org"
+    "email": "info@fsdinternational.com",
+    "backgroundColor": "#000"
 }]

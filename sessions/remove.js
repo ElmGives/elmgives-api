@@ -12,6 +12,10 @@ module.exports = function remove(request, response, next) {
         agent: request.headers['user-agent']
     };
 
+    let defaultResponse = {
+        data: {}
+    };
+
     return Session
         .findOne(query)
         .then(data => {
@@ -19,10 +23,10 @@ module.exports = function remove(request, response, next) {
              * Could be deleted previously
              */
             if (!data) {
-                return response.send();
+                return response.json(defaultResponse);
             }
             return Session.remove(query);
         })
-        .then(( /*removed*/ ) => response.send())
+        .then(() => response.json(defaultResponse))
         .catch(next);
 };
