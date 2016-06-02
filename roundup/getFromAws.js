@@ -115,7 +115,7 @@ function extractTransactionChainFromMessage(message) {
                     // we use message saved throught closure
                     emptyMessages = 0;
 
-                    const queue = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
+                    const queue = { queue: process.env.AWS_SQS_URL_FROM_SIGNER };
                     
                     logger.info('Round up process: message processed. Deleting it from AWS queue...');
             
@@ -124,7 +124,7 @@ function extractTransactionChainFromMessage(message) {
                 });
         })
         .catch(error => {
-            logger.error({ err: error })
+            logger.error({ err: error });
             
             emptyMessages = 0;
             get();
