@@ -125,7 +125,7 @@ function extractTransactionChainFromMessage(message) {
 
     let error = new Error('no-transaction-chain');
     error.status = 422;
-    error.description = 'There is no a transaction chain in this message'
+    error.description = 'There is no a transaction chain in this message';
 
     return Promise.reject(error);
 }
