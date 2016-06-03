@@ -1,6 +1,6 @@
 'use strict';
 
-const Banks = require('../banks');
+const Banks = require('../banks/bank');
 
 /**
  * Finds a bank type based on ID

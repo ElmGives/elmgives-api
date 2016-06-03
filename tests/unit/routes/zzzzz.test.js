@@ -5,6 +5,7 @@
 'use strict';
 
 const tape = require('tape');
+const mongoose = require('mongoose');
 
 tape('Ends tests', test => {
     test.plan(1);
@@ -12,5 +13,8 @@ tape('Ends tests', test => {
     test.equal(true, true, 'Should end tests');
     
     test.end();
-    process.exit(0);
+    
+    mongoose.connection.removeAllListeners();
+    mongoose.disconnect();
+    // process.exit(0);
 });

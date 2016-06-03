@@ -17,7 +17,7 @@ require('../config/database');
 
 const logger = require('../logger');
 const notify = require('../slack/index');
-const getYearMonth = require('../helpers/getyearMonth');
+const getYearMonth = require('../helpers/getYearMonth');
 
 // Functions for every step
 const getBankInstitution = require('./getBankInstitution');
