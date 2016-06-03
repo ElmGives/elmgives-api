@@ -242,10 +242,10 @@ function *executeCharges() {
         const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
         
         // Then update the addresses for this donation with the new Charge ID
-        yield updateAddress(address, charge._id);
+        yield updateAddress(address, charge._id, chargeGen);
         
         if (twoMonthsBackAddress) {
-          yield updateAddress(twoMonthsBackAddress, charge._id);
+          yield updateAddress(twoMonthsBackAddress, charge._id, chargeGen);
         }
       }
       

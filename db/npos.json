@@ -4,7 +4,10 @@
     "logoUrl": "http://endangeredspeciesinternational.org/images/esi_logo.gif",
     "phone": "123",
     "email": "communications@endangeredspeciesinternational.org",
-    "backgroundColor": "#000"
+    "backgroundColor": "#000",
+    "stripe": {
+        "accountId": "acct_188DyxKGHBClKgmC"
+    }
 }, {
     "name": "Foundation for Sustainable Development",
     "description": "foundation for sustainable development",
