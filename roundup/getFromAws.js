@@ -29,7 +29,7 @@ let emptyMessages = 0;
 function get(options) {
     
     // We check the number of times we have received an empty array from AWS queue
-    if (options.firstRun) {
+    if (options && options.firstRun) {
         emptyMessages = 0;
     }
     else {
@@ -98,27 +98,43 @@ function extractTransactionChainFromMessage(message) {
 
         return getAddress(query).then(function (address) {
 
-            if (!address) {
-                let error = new Error('We couldn\'t get the Address ' + transactionChain.payload.address);
+            if (!address || (address && !address.address)) {
+                let error = new Error('address-not-found');
+                error.status = 404;
+                error.description = 'We couldn\'t get the Address ' + transactionChain.payload.address;
+                
                 return Promise.reject(error);
             }
             
             logger.info('Round up process: got address from transactionChain');
 
             return verifySign(address, transactionChain)
-                .then( () => {
+                .then(() => {
+                    
                     // This code run when every transaction is processed
                     // we use message saved throught closure
-                    const queue = { queue: process.env.AWS_SQS_URL_TO_SIGNER };
+                    emptyMessages = 0;
+
+                    const queue = { queue: process.env.AWS_SQS_URL_FROM_SIGNER };
                     
                     logger.info('Round up process: message processed. Deleting it from AWS queue...');
             
-                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue);
+                    return AWSQueue.deleteMessage(message.ReceiptHandle, queue)
+                        .then(() => get());
                 });
+        })
+        .catch(error => {
+            logger.error({ err: error });
+            
+            emptyMessages = 0;
+            get();
         });
     }
 
-    let error = new Error('There is no a transaction chain in this message');
+    let error = new Error('no-transaction-chain');
+    error.status = 422;
+    error.description = 'There is no a transaction chain in this message';
+
     return Promise.reject(error);
 }
 

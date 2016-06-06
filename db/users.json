@@ -34,6 +34,7 @@
             "monthlyLimit": 10,
             "active": true,
             "addresses": {
+                "2016-06": "wWRFTz8DQyiVQdomTWJBJqXXV8SNCbxxHi",
                 "2016-05": "wWRFTz8DQyiVQdomTWJBJqXXV8SNCbxxHi",
                 "2016-04": "wV3yFbWEEhCjBj1Y2i9gAiit9B8nc6pYeL",
                 "2016-03": "wiBUPYaaaF3QYhvWmu1bgjJavpuvhSfYmU"
@@ -41,6 +42,7 @@
         }
     ],
     "plaid": {
+        "accountId": "nban4wnPKEtnmEpaKzbYFYQvA7D7pnCaeDBMy",
         "tokens": {
             "connect": {
                 "wells": "test_wells"
