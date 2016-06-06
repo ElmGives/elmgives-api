@@ -35,7 +35,7 @@ tape('Npo model', test => {
     });
 
     new Npo({
-        userId: new Array(25).join('x'),
+        userId: '4e137bd81a6a8e00000007ac',
         name: 'foobar',
         description: 'barfoo',
         logoUrl: 'http://localhost',

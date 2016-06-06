@@ -23,9 +23,9 @@ tape('Charity model', test => {
     });
 
     new Charity({
-        userId: 'x'.repeat(24),
-        npoId: 'x'.repeat(24),
-        bankId: 'x'.repeat(24),
+        userId: '4e137bd81a6a8e00000007ac',
+        npoId: '4e137bd81a6a8e00000007ac',
+        bankId: '4e137bd81a6a8e00000007ac',
         npo: 'foobar',
         bank: 'barfoo',
         monthlyLimit: 50

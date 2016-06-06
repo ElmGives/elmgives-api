@@ -29,19 +29,22 @@ tape('Transaction model', test => {
     });
 
     new Transaction({
-        hash: {type: 'sha256', value: '1bd28a7ec31c9dae34c8ea7f6e138df19be66d2e843fe51082e6eabaac7ae37c'},
-            payload: {
-                count: 0,
-                address: 'wYAAm2TQ8ToXJAUVQFrmZQJR3pnBYcwxuL',
-                amount: 0,
-                roundup: 0,
-                balance: 0,
-                currency: 'USD',
-                limit: -10,
-                previous: null,
-                timestamp: 'Sat Apr 09 2016 08:14:07 GMT-0500 (COT)',
-                reference: 'plaid_transaction_id'
-            },
+        hash: {
+            type: 'sha256',
+            value: '1bd28a7ec31c9dae34c8ea7f6e138df19be66d2e843fe51082e6eabaac7ae37c'
+        },
+        payload: {
+            count: 0,
+            address: 'wYAAm2TQ8ToXJAUVQFrmZQJR3pnBYcwxuL',
+            amount: 0,
+            roundup: 0,
+            balance: 0,
+            currency: 'USD',
+            limit: -10,
+            previous: null,
+            timestamp: 'Sat Apr 09 2016 08:14:07 GMT-0500 (COT)',
+            reference: 'plaid_transaction_id'
+        },
         signatures: []
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 });
