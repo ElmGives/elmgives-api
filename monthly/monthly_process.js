@@ -1,7 +1,7 @@
 /**
  * In this document is coded two monthly processes:
- * - User charges. This process takes every transaction from last month and make a Stripe transfer
- * - Address assignement. This process assigns a new address for every user when a new month start
+ * - Address assignement. This process assigns a new address for every user when a new month starts
+ * - User charges. This process takes every transaction from last month and make a Stripe transfer to user NPO
  */
 'use strict';
 
@@ -41,7 +41,7 @@ let chargeGen = null;
 let addressGen = null;
 
 /**
- * Starts the process
+ * Starts the charge process
  */
 function charge() {
   logger.info('Monthly charge: Started.');
@@ -51,9 +51,9 @@ function charge() {
 }
 
 /**
- * We use two try/catch on this generator, one for when our first query to User database. With this one
+ * We use two try/catch on this generator, one for when we query User database. With this one
  * on a fail, we log the error and skip the while statement.
- * On second try/catch we wrap all the process for every person found, capturing all errors tha may be
+ * On second try/catch we wrap all the process for every person found, capturing all errors that may be
  * thrown on throw statements. Inside helper functions we forward the errors in order to capture them
  * here
  */
@@ -143,7 +143,7 @@ function *executeCharges() {
       let totalDonation = 0;
       
       // If we have two months ago information, we get that latestTransaction to know if that transaction
-      // was processed. If it was, nothing happens, but if it wasn't (because that time donation was to low)
+      // was processed. If it was, nothing happens, but if it wasn't (because that time donation was too low)
       // we add it to this month donation (a carry operation) 
       if (twoMonthsBackAddress) {
         let twoMonthsAddressObject = yield getAddress(twoMonthsBackAddress, chargeGen);
@@ -154,7 +154,7 @@ function *executeCharges() {
           if (twoMonthsVerifiedData) {
             totalDonation += twoMonthsVerifiedData.balance;
           } 
-        }  
+        }
       }
       
       // Now we look for the latestTransaction which contains the balance to charge.
@@ -179,7 +179,7 @@ function *executeCharges() {
       }
       
       // We verify that transaction hash is not tampered. Also that the address is derived from public key
-      // we get back the address, amount to charge and currency
+      // from [[verifiedData]] we get back the address, amount to charge and currency
       let verifiedData = yield verifyData(address, chargeGen);
       
       if (!verifiedData) {
@@ -198,6 +198,7 @@ function *executeCharges() {
         totalDonation = monthlyLimit;
       }
       
+      // .ach holds if we are going to charge user from credit card or savings account
       let isAchPayment = user.stripe[institution].ach;
       
       MINIMUM_DONATION_VALUE = calcFee(totalDonation, isAchPayment);
@@ -225,7 +226,7 @@ function *executeCharges() {
         const currency = verifiedData.currency;
         const customerId = user.stripe[institution].customer.id;
         const connectedAccountId = npo.stripe.accountId;
-        const fee = calcFee(cents, isAchPayment) | 0;             // We need just the integer in cents 
+        const fee = Math.ceil(calcFee(cents, isAchPayment));  // because we are in cents, we roundup to next cent
         
         let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, fee, chargeGen);
         
@@ -238,7 +239,7 @@ function *executeCharges() {
         
         logger.info('Monthly charge: Updating transaction as processed');
         
-        // we add a new Charge for this donation
+        // we add a new Charge element for this donation
         const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
         
         // Then update the addresses for this donation with the new Charge ID
@@ -260,6 +261,7 @@ function *executeCharges() {
 }
 
 /**
+ * Assign new address process
  * Starts the executeAddressAssign generator
  */
 function assignNewAddress() {

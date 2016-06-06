@@ -16,6 +16,7 @@ const NEW_ADDRESS_DAY = 1;
  * Because some months have 31 days we can't just use 30 days for our setTimeout
  */
 function run() {
+    setTimeout(run, ONE_DAY);
 
     const date = (new Date()).getDate();
 
@@ -26,8 +27,6 @@ function run() {
     if (date === NEW_ADDRESS_DAY) {
         monthlyProcess.assignNewAddress();
     }
-
-    setTimeout(run, ONE_DAY);
 }
 
 run();
