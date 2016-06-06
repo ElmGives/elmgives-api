@@ -1,7 +1,7 @@
 'use strict';
 
-// require('dotenv').config();
-// require('../../../config/database');
+require('dotenv').config();
+require('../../../config/database');
 
 const tape = require('tape');
 const addCustomerIdOnDatabase = require('../../../monthly/addCustomerIdOnDatabase');
@@ -43,7 +43,7 @@ tape('Add customer ID on database helper ', test => {
             logger.error({ err: error });
         }
         
-        // test.end();
+        test.end();
         // process.exit(0);
     })();
     

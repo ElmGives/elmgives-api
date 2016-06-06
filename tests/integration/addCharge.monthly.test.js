@@ -39,7 +39,7 @@ tape('addCharge helper', test => {
             logger.error({ err: error });
         }
         
-        // test.end();
+        test.end();
         // process.exit(0);
     })();
     

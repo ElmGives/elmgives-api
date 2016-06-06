@@ -1,7 +1,7 @@
 'use strict';
 
-// require('dotenv').config();
-// require('../../../config/database');
+require('dotenv').config();
+require('../../../config/database');
 
 const tape = require('tape');
 const removeStripeToken = require('../../../monthly/removeStripeToken');
@@ -41,7 +41,7 @@ tape('Remove Stripe token helper', test => {
             logger.error({ err: error });
         }
         
-        // test.end();
+        test.end();
         // process.exit(0);
     })();
     

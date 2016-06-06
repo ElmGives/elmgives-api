@@ -1,7 +1,7 @@
 'use strict';
 
-// require('dotenv').config();
-// require('../../../config/database');
+require('dotenv').config();
+require('../../../config/database');
 
 const logger = require('../../../logger');
 const getAddress = require('../../../monthly/getAddress');
@@ -25,7 +25,7 @@ tape('Get address helper', test => {
             logger.error({ err: error });
         }
         
-        // test.end();
+        test.end();
         // process.exit(0);
     })();
     
