@@ -26,6 +26,7 @@ module.exports = function updatePassword(body, user) {
         })
         .then(hash => {
             user.password = hash;
+            user.archived = false;
             return user.save();
         });
 };
