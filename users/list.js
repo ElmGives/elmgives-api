@@ -5,6 +5,7 @@
 
 const User = require('./user');
 const queryOptions = require('../helpers/queryOptions');
+const queryFilters = require('../helpers/queryFilters');
 
 const defaultQuery = {
     archived: false
@@ -12,9 +13,11 @@ const defaultQuery = {
 
 module.exports = function list(request, response, next) {
     const options = queryOptions(request, User);
+    const filterQuery = queryFilters(request, User);
+    const query = Object.assign({}, defaultQuery, filterQuery);
 
     return User
-        .paginate(defaultQuery, options)
+        .paginate(query, options)
         .then(data => {
             let result = data.docs.map(user => {
                 user.password = undefined;
