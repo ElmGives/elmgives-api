@@ -5,6 +5,7 @@
 
 const User = require('../../users/user');
 const Transaction = require('./transaction');
+const queryOptions = require('../../helpers/queryOptions');
 
 const getPledgeAddressByDate = (pledge, date) => pledge.addresses[date];
 
@@ -77,27 +78,29 @@ module.exports = function list(request, response, next) {
             }
 
             /* Pagination and sorting */
-            let options = {
-                offset: request.query.offset || 0,
-                limit: request.query.limit || 100,
-                sort: {
-                    'payload.timestamp': request.query.oldestFirst ? 'ascending' : 'descending'
-                }
-            };
+            let options = queryOptions(request, Transaction);
+            let sort = request.query.sort;
+            options.sort = options.sort || {};
+            if (sort && sort.indexOf('timestamp') >= 0) {
+                options.sort['payload.timestamp'] = sort.indexOf('-') === 0 ? 'descending' : 'ascending';
+            } else {
+                options.sort['payload.timestamp'] = 'descending';
+            }
 
             return Transaction
                 .paginate(query, options)
                 .then(results => {
                     let transactions = results.docs;
                     let data = transactions.map(transaction => {
-                        return transaction.payload;
+                        return Object.assign({hash: transaction.hash.value}, transaction._doc.payload);
                     });
 
                     return response.json({
                         data: data,
                         meta: {
                             count: transactions.length,
-                            email: email
+                            email: email,
+                            options: options
                         }
                     });
                 });
