@@ -6,3 +6,7 @@ deployment:
     branch: develop
     commands:
       - sh ./scripts/deploy_staging.sh
+  production:
+      branch: master
+    commands:
+      - sh ./scripts/deploy_production.sh
