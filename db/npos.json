@@ -5,9 +5,7 @@
     "phone": "123",
     "email": "communications@endangeredspeciesinternational.org",
     "backgroundColor": "#000",
-    "stripe": {
-        "accountId": "acct_188DyxKGHBClKgmC"
-    }
+    "stripe": {}
 }, {
     "name": "Foundation for Sustainable Development",
     "description": "foundation for sustainable development",

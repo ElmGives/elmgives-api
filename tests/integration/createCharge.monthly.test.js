@@ -4,10 +4,10 @@ require('dotenv').config();
 require('../../../config/database');
 
 const tape = require('tape');
-const addCharge = require('../../../monthly/addCharge');
+const createCharge = require('../../../monthly/createCharge');
 const logger = require('../../../logger');
 
-tape('addCharge helper', test => {
+tape('createCharge helper', test => {
     test.plan(2);
     
     let gen = (function *() {
@@ -18,7 +18,7 @@ tape('addCharge helper', test => {
         let actual = null;
         
         try {
-            actual = yield addCharge(addresses, amount, currency, gen);
+            actual = yield createCharge(addresses, amount, currency, gen);
             let expected = 2;        // Numberof addresses inside new charge
             
             test.equal(actual.addresses.length, expected, 'Should add both addresses on the new charge');
@@ -30,7 +30,7 @@ tape('addCharge helper', test => {
         try {
             addresses = ['one', undefined];
             
-            actual = yield addCharge(addresses, amount, currency, gen);
+            actual = yield createCharge(addresses, amount, currency, gen);
             let expected = 1;
             
             test.equal(actual.addresses.length, expected, 'Should add just one addresses on the new charge');

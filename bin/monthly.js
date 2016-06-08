@@ -2,7 +2,7 @@
 
 /**
  * This process runs every month.
- * Is in charge of charge users and transfer those charges to user selected NPO
+ * Is in charge of charge users and transfering those charges to user selected NPO
  */
 
 const monthlyProcess = require('../monthly/monthly_process');

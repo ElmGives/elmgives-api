@@ -1,5 +1,5 @@
 /**
- * In this document is coded two monthly processes:
+ * In this document two monthly processes are implementd:
  * - Address assignement. This process assigns a new address for every user when a new month starts
  * - User charges. This process takes every transaction from last month and make a Stripe transfer to user NPO
  */
@@ -30,7 +30,7 @@ const addCustomerIdOnDatabase = require('./addCustomerIdOnDatabase');
 const verifyData = require('./verifyData');
 const makeDonation = require('./makeDonation').makeDonation;
 const createNewAddress = require('./createNewAddress').createNewAddress;
-const addCharge = require('./addCharge');
+const createCharge = require('./createCharge');
 const updateAddress = require('./updateAddress');
 const calcFee = require('./calcFee');
 
@@ -83,7 +83,7 @@ function *executeCharges() {
       if (activePledge.length === 0) {
         let error = new Error('active-pledge-not-found');
         error.status = 404;
-        error.details = `User with ID ${user._id} has not an active pledge`;
+        error.details = `User with ID ${user._id} has no active pledge`;
         throw error;
       }
 
@@ -165,7 +165,7 @@ function *executeCharges() {
       if (!addressObject.latestTransaction) {
         let error = new Error('not-valid-address');
         error.status = 422;
-        error.details = `What got is not a valid address: ${addressObject}`;
+        error.details = `Invalid address record (has no latestTransaction property): ${addressObject}`;
         throw error;
       }
       
@@ -240,7 +240,7 @@ function *executeCharges() {
         logger.info('Monthly charge: Updating transaction as processed');
         
         // we add a new Charge element for this donation
-        const charge = yield addCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
+        const charge = yield createCharge([address, twoMonthsBackAddress], totalDonation, verifiedData.currency, chargeGen);
         
         // Then update the addresses for this donation with the new Charge ID
         yield updateAddress(address, charge._id, chargeGen);

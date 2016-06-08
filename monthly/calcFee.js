@@ -6,7 +6,7 @@ const STRIPE_CREDIT_CARD_MINIMUM = 0.3;
 const ELM_FEE = 0;                      // TODO: Not yet defined 
 
 /**
- * Calculates what stripe fee parameter should be when making payments
+ * Calculates what stripe fee parameter should be used when making payments
  * @param   {Number}    amount          What is going to be charged to user
  * @param   {boolean}   isAchPayment    false if it is a credit card charge
  * @returns {Number}                    actual fee

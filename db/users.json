@@ -49,9 +49,7 @@
     },
     "stripe": {
         "wells": {
-            "customer": {
-                "id": "cus_8YQOAeQ47FMwAP"
-            }
+            "customer": {}
         }
     }
 }]
