@@ -79,9 +79,13 @@ module.exports = function list(request, response, next) {
 
             /* Pagination and sorting */
             let options = queryOptions(request, Transaction);
-            options.sort = {
-                'payload.timestamp': request.query.ascending ? 'ascending' : 'descending'
-            };
+            let sort = request.query.sort;
+            options.sort = options.sort || {};
+            if (sort && sort.indexOf('timestamp') >= 0) {
+                options.sort['payload.timestamp'] = sort.indexOf('-') === 0 ? 'descending' : 'ascending';
+            } else {
+                options.sort['payload.timestamp'] = 'descending';
+            }
 
             return Transaction
                 .paginate(query, options)
