@@ -6,7 +6,7 @@ const update = require('../addresses/update');
  * @param   {String}    address
  * @param   {generator} generator
  */
-function updateAddress(address, chargeId, generator) {
+function updateAddressCharge(address, chargeId, generator) {
     const query = {
         address: address,
     };
@@ -22,4 +22,4 @@ function updateAddress(address, chargeId, generator) {
         .catch(error => generator.throw(error));
 }
 
-module.exports = updateAddress;
+module.exports = updateAddressCharge;

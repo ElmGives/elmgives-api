@@ -5,7 +5,8 @@
  * Is in charge of charge users and transfering those charges to user selected NPO
  */
 
-const monthlyProcess = require('../monthly/monthly_process');
+const chargeProcess = require('../monthly/charge_process');
+const assignAddressProcess = require(',./monthly/assign_address_process');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const CHARGE_DAY = 5;
@@ -21,11 +22,11 @@ function run() {
     const date = (new Date()).getDate();
 
     if (date === CHARGE_DAY) {
-        monthlyProcess.charge();
+        chargeProcess();
     }
 
     if (date === NEW_ADDRESS_DAY) {
-        monthlyProcess.assignNewAddress();
+        assignAddressProcess();
     }
 }
 

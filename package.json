@@ -24,7 +24,8 @@
     "start-test": "DB_NAME=elm-test node ./bin/www",
     "acceptance": "tape tests/acceptance/**/*.js | tap-spec",
     "roundup": "pm2 start ./bin/roundup-pm2.js",
-    "monthly": "pm2 start ./bin/monthly.js"
+    "monthly": "pm2 start ./bin/monthly.js",
+    "manual-charge": "pm2 start ./bin/manual_charge.js"
   },
   "engines": {
     "node": "5.9.0"

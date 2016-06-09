@@ -4,7 +4,7 @@ require('dotenv').config();
 require('../../../config/database');
 
 const tape = require('tape');
-const updateAddress = require('../../../monthly/updateAddress');
+const updateAddressCharge = require('../../../monthly/updateAddressCharge');
 const Address = require('../../../addresses/address');
 const logger = require('../../../logger');
 
@@ -22,7 +22,7 @@ tape('Update address helper', test => {
         const charge = 'one_' + Date.now();
         
         try {
-            yield updateAddress(address, charge, gen);
+            yield updateAddressCharge(address, charge, gen);
             
             let expected = charge;
             let actual = yield getAddress(address, gen);

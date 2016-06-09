@@ -21,4 +21,4 @@ let schema = new mongoose.Schema({
 
 schema.plugin(timestamps);
 
-module.exports = mongoose.model('Charges', schema);
+module.exports = mongoose.model('Charge', schema);

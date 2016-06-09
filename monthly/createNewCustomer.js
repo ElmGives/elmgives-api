@@ -4,13 +4,14 @@ const createStripeCustomer = require('../plaid/link/exchange').createStripeCusto
 
 /**
  * We create a new Stripe customer on ELM dashboard
- * @param {object}    user
- * @param {String}    token     Stripe token
- * @param {generator} generator
+ * @param   {object}    user
+ * @param   {String}    token     Stripe token
+ * @param   {generator} generator
+ * @returns {promise}
  */
 function createNewCustomer(user, token, generator) {
   
-  createStripeCustomer(user, token)
+  return createStripeCustomer(user, token)
     .then(customer => generator.next(customer))
     .catch(error => generator.throw(error));
 }

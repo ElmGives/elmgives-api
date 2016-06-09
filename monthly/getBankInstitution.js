@@ -25,7 +25,7 @@ function getBankInstitution(bankId, generator) {
         const error = new Error(`There is no bank with ID ${bankId}`);
         generator.throw(error);
         return;
-        }
+      }
             
       generator.next(bank.type);
     })
