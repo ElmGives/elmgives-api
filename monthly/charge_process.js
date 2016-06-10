@@ -251,7 +251,7 @@ function *calculateTotalAndGetCurrency(addresses, user, chargeGen) {
         let currentAddress = addresses[index];
         let addressObject = yield getAddress(currentAddress, chargeGen);
 
-        if (addressObject.charge && index === 0) {
+        if (index === 0) {
 
             // Now we look for the latestTransaction which contains the balance to charge.
             // We verify it is not charged yet. If it is, maybe something went wrong on the round up process or
