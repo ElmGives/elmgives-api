@@ -119,7 +119,7 @@ PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, q
         );
     })
     .catch(error => {
-        logger.error(error);
+        logger.error({err: error});
     });
 };
 
@@ -167,7 +167,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
 
             return P.all([transaction, address])
                 .spread((transaction, address) => {
-                    let currentYearMonth = getYearMonth();
+                    let currentYearMonth = getYearMonth(new Date());
                     let currentAddress = pledge.addresses[currentYearMonth];
 
                     if (!currentAddress) {
@@ -176,7 +176,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
                         let error = new Error();
                         error.message = 'An address for the current month has already been added.';
                         error.details = `month: ${currentYearMonth}, address: ${currentAddress}`;
-                        logger.error(error);
+                        logger.error({err: error});
                     }
 
                     return [
@@ -184,7 +184,8 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
                         transaction,
                         address
                     ];
-                });
+                })
+                .catch(error => logger.error({err: error}));
         });
 };
 
