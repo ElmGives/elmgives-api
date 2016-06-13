@@ -58,9 +58,9 @@ function request(personData) {
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
-        'options': {
+        'options': JSON.stringify({
             'gte':  YESTERDAY,
-        }
+        })
     });
 
     logger.info('Round up process: Request plaid information');
