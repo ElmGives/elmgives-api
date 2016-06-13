@@ -12,9 +12,9 @@ API will move user@elm.com to something like user[ramdon string here]@elm.com wi
 
 #### Tasks on delete account
 
-- [ ] Change email (for our convenience)
-- [ ] set `archived` to true
-- [ ] set any pledge `active` = false
+- [x] hange email (for our convenience)
+- [x] set `archived` to true
+- [x] set any pledge `active` = false
 - [ ] remove any pending charge
 - [ ] remove any reference to any queque
 
