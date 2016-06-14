@@ -5,6 +5,7 @@ require('../../../config/database');
 
 const tape = require('tape');
 const sinon = require('sinon');
+const aws = require('../../../lib/awsQueue');
 const createNewAddress = require('../../../monthly/createNewAddress');
 const User = require('../../../users/user');
 const logger = require('../../../logger');
@@ -16,7 +17,7 @@ tape('Create New Address helper', test => {
         MessageId: 'one',
     };
     
-    sinon.stub(createNewAddress._aws, 'sendMessage').returns(Promise.resolve(awsResponse));
+    sinon.stub(aws, 'sendMessage').returns(Promise.resolve(awsResponse));
     
     function findJhon(generator) {
         User.findOne({ name: 'johndoe' }).then(john => generator.next(john));
@@ -48,7 +49,7 @@ tape('Create New Address helper', test => {
             test.equal(actual, expected, 'Monthly limit should be greater than zero');
             
             expected = true;
-            actual = yield createNewAddress.createNewAddress(john._id, pledgeId, monthlyLimit, gen);
+            actual = yield createNewAddress(john._id, pledgeId, monthlyLimit, gen);
             
             test.equal(!!actual, expected, 'We should have something from AWS manager');
         }

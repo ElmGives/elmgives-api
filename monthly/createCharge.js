@@ -1,6 +1,6 @@
 'use strict';
 
-const Charges = require('../charges/charge');
+const Charge = require('../charges/charge');
 
 /**
  * Adds a new entry to Charges collection detailing what addresses were involved in the charge
@@ -30,7 +30,7 @@ function createCharge(addresses, amount, currency, generator) {
         currency: currency,
     };
 
-    new Charges(query)
+    new Charge(query)
         .save()
         .then(charge => generator.next(charge))
         .catch(error => generator.throw(error));

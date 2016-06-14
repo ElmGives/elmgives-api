@@ -24,7 +24,4 @@ function createNewAddress(userId, pledgeId, monthlyLimit, generator) {
   .catch(error => generator.throw(error));
 }
 
-module.exports = {
-  createNewAddress: createNewAddress,
-  _aws: aws,
-};
+module.exports = createNewAddress;

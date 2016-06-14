@@ -17,7 +17,6 @@ require('../config/database');
 
 const logger = require('../logger');
 const getUsers = require('./getUsers');
-const getYearMonth = require('../helpers/getYearMonth');
 const getBankInstitution = require('./getBankInstitution');
 const removeStripeToken = require('./removeStripeToken');
 const createNewCustomer = require('./createNewCustomer');
@@ -30,9 +29,10 @@ const getNpo = require('./getNpo');
 const makeDonation = require('./makeDonation').makeDonation;
 const createCharge = require('./createCharge');
 const updateAddressCharge = require('./updateAddressCharge');
+const getActivePledge = require('./getActivePledge');
+const getPastAddresses = require('./getPastAddresses');
 
 // GLOBAL VARIABLES
-const MONTHS_TO_PROCESS = 2;
 
 let minimumDonationValue = null;
 let chargeGen = null;
@@ -131,51 +131,6 @@ function *executeCharges() {
     }
     
     logger.info('Monthly charge: Finished');
-}
-
-/**
- * Gets user active pledge
- * @param   {Object[]}  pledges
- * @param   {String}    userId
- * @returns {Object}
- */
-function getActivePledge(pledges, userId) {
-
-    let activePledge = pledges.filter(pledge => pledge.active);
-
-    if (activePledge.length === 0) {
-        let error = new Error('active-pledge-not-found');
-        error.status = 404;
-        error.details = `User with ID ${userId} has no active pledge`;
-        throw error;
-    }
-
-    return activePledge[0];
-}
-
-/**
- * Looks for addresses for months specified by [[MONTHS_TO_PROCESS]]
- * @param   {Object}    activePledge
- * @returns {String[]}  addresses
- */
-function getPastAddresses(activePledge) {
-    let addresses = [];
-
-    // We need to get transactions for last month
-    let date = new Date();
-
-    for (let month = 0; month < MONTHS_TO_PROCESS; month += 1) {
-
-        date.setMonth(date.getMonth() - 1);
-        let lastMonth = getYearMonth(date);
-        let address = activePledge.addresses[lastMonth];
-
-        if (address) {
-            addresses.push(address);
-        }
-    }
-
-    return addresses;
 }
 
 /**

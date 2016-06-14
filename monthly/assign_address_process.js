@@ -18,7 +18,7 @@ require('../config/database');
 const logger = require('../logger');
 const getUsers = require('./getUsers');
 const getYearMonth = require('../helpers/getYearMonth');
-const createNewAddress = require('./createNewAddress').createNewAddress;
+const createNewAddress = require('./createNewAddress');
 
 // GLOBAL VARIABLES
 let addressGen = null;
