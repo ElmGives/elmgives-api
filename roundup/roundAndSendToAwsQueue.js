@@ -113,7 +113,7 @@ function processData(data, personData) {
         return Promise.reject(error);
     }
 
-    if (plaidTransactions) {
+    if (plaidTransactions && plaidTransactions.length) {
         
         logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
@@ -142,6 +142,7 @@ function processData(data, personData) {
                     .then(sendPostToAws);
             });
     } else {
+        logger.info('No plaid transactions found');
         return Promise.resolve();
     }
 }
