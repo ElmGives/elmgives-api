@@ -114,7 +114,7 @@ function *executeCharges() {
             }
         
             // every charge is in cents. We get user pledge npo object to get access to stripe connect account
-            let cents = totalDonation * 100;
+            let cents = Math.ceil(totalDonation * 100);
             let npo = yield *getNPO(activePledge, user._id, chargeGen);
             
             if (cents > 0) {
@@ -238,7 +238,7 @@ function *calculateTotalAndGetCurrency(addresses, user, chargeGen) {
                 throw error;
             }
             
-            totalDonation += verifiedData.balance;
+            totalDonation += Math.abs(verifiedData.balance);
 
         // If we have two months ago information, we get that latestTransaction to know if that transaction
         // was processed. If it was, nothing happens, but if it wasn't (because that time donation was too low)
@@ -266,7 +266,7 @@ function *calculateTotalAndGetCurrency(addresses, user, chargeGen) {
  * @returns {Object}    npo
  */
 function *getNPO(activePledge, userId, chargeGen) {
-    let npo = yield getNpo(activePledge.npo, chargeGen);
+    let npo = yield getNpo(activePledge.npoId, chargeGen);
             
     if (!npo) {
         let error = new Error('pledge-name-not-found');

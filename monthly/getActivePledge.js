@@ -8,7 +8,7 @@
  */
 function getActivePledge(pledges, userId) {
     console.assert(Array.isArray(pledges), 'pledges must be an Array', pledges);
-    console.assert(typeof userId === 'string', 'userId must be a String', userId);
+    console.assert(!!userId, 'userId must exists', userId);
 
     let activePledge = pledges.filter(pledge => pledge.active);
 
