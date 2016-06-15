@@ -161,7 +161,7 @@ function roundUpAndSave(personData, transaction) {
         userId: personData._id,
         transactionId: transaction._id,
         amount: transaction.amount,
-        date: transaction.date,
+        date: (new Date(transaction.date)).toISOString(),
         name: transaction.name,
         roundup: roundupValue,
         summed: false,    // This one is to know if we have already ran the process on this transaction
