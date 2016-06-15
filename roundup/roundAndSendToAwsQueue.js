@@ -16,6 +16,7 @@ require('../config/database');
 
 const https = require('https');
 const http = require('http');
+const url = require('url');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const logger = require('../logger');
@@ -217,13 +218,11 @@ function sendToQueue(transactionChain) {
  * @returns {promise}
  */
 function sendPostToAws() {
-
-    // we have the URL with this format: http://<IP>:<port>
-    let url = process.env.SIGNER_URL.split(':');    // [http, //<IP>, <port>]
+    let awsUrl = url.parse(process.env.SIGNER_URL);
     
     const options = {
-        host: url[1].replace('//', ''),     // We take only the <IP>
-        port: url[2],
+        host: awsUrl.hostname,
+        port: awsUrl.port,
         path: '/aws/sqs',
         method: 'POST',
     };
