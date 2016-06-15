@@ -108,7 +108,8 @@ function processData(data, personData) {
 
         plaidTransactions = JSON.parse(data).transactions
             .filter(transactionFilter.bind(null, personData.plaidAccountId))
-            .map(roundUpAndSave.bind(null, personData));
+            .map(roundUpAndSave.bind(null, personData))
+            .filter(plaidTransaction => plaidTransaction.roundup !== 0);
     }
     catch (error) {
         return Promise.reject(error);
@@ -166,7 +167,9 @@ function roundUpAndSave(personData, transaction) {
         summed: false,    // This one is to know if we have already ran the process on this transaction
     };
 
-    savePlaid(plaidTransaction);
+    if (roundupValue) {
+        savePlaid(plaidTransaction);
+    }
 
     return plaidTransaction;
 }
