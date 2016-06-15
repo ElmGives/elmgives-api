@@ -23,9 +23,8 @@ const data = {
 API steps:
 
 1. Handle **POST** request to `/socials`
-2. Looks for *Social* model instance where `token` and `providerId` equals provided data
-3. Create a sessiona and return content to APP.
-4. If there's no information, means user is about to be created.
-5. Create an user based on social information:
-    - email
-    - token
+2. Validate `token` from social login with facebook against Facebook API
+3. If token is invalid, return error, otherwise, find Social with provided information
+4. If social not found, create social and user. Then move to next step
+5. Looks for *User* model instance where `email` matches provided data
+6. Create a session and return content to APP.
