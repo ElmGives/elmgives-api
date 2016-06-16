@@ -19,6 +19,8 @@ const logger = require('../logger');
 const getUsers = require('./getUsers');
 const getYearMonth = require('../helpers/getYearMonth');
 const createNewAddress = require('./createNewAddress');
+const updateLastRun = require('../runs/update');
+const notify = require('../slack/index');
 
 // GLOBAL VARIABLES
 let addressGen = null;
@@ -29,6 +31,7 @@ let addressGen = null;
  */
 function assignNewAddress() {
     logger.info('Monthly address assignement: started');
+    notify('Address assignement process starts');
     
     addressGen = executeAddressAssign();
     addressGen.next();
@@ -97,6 +100,17 @@ function *executeAddressAssign() {
     }
     
     logger.info('Monthly address assignement: Finished');
+
+    let query = {
+        process: 'addressAssignment',
+    };
+
+    let newValue = {
+        last: Date.now(),
+    };
+
+    updateLastRun(query, newValue);
+    notify('Address assignement process ends');
 }
 
 module.exports = assignNewAddress;

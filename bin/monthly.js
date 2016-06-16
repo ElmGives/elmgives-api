@@ -7,6 +7,8 @@
 
 const chargeProcess = require('../monthly/charge_process');
 const assignAddressProcess = require(',./monthly/assign_address_process');
+const notify = require('../slack/index');
+const logger = require('../logger');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const CHARGE_DAY = 5;
@@ -22,11 +24,27 @@ function run() {
     const date = (new Date()).getDate();
 
     if (date === CHARGE_DAY) {
-        chargeProcess();
+
+        try {
+            chargeProcess();
+        }
+        catch (error) {
+            notify('Charge process got an unexpected error: ' + error);
+
+            logger.error({ err: error });
+        }
     }
 
     if (date === NEW_ADDRESS_DAY) {
-        assignAddressProcess();
+
+        try {
+            assignAddressProcess();
+        }
+        catch (error) {
+            notify('Address assignment process got an unexpected error: ' + error);
+            
+            logger.error({ err: error });
+        }
     }
 }
 

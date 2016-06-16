@@ -31,6 +31,7 @@ const createCharge = require('./createCharge');
 const updateAddressCharge = require('./updateAddressCharge');
 const getActivePledge = require('./getActivePledge');
 const getPastAddresses = require('./getPastAddresses');
+const updateLastRun = require('../runs/update');
 
 // GLOBAL VARIABLES
 
@@ -42,6 +43,7 @@ let chargeGen = null;
  */
 function charge() {
     logger.info('Monthly charge: Started.');
+    notify('Charge process starts');
     
     chargeGen = executeCharges();
     chargeGen.next();
@@ -131,9 +133,20 @@ function *executeCharges() {
     }
     
     logger.info('Monthly charge: Finished');
+
+    let query = {
+        process: 'charge',
+    };
+
+    let newValue = {
+        last: Date.now(),
+    };
+
+    updateLastRun(query, newValue);
+    notify('Charge process ends');
 }
 
-/**
+/**`
  * Finds bank institution
  * @param   {object}    activePledge
  * @param   {object}    user
@@ -220,7 +233,7 @@ function *calculateTotalAndGetCurrency(addresses, user, chargeGen) {
             }
 
             if (addressObject.charge) {
-                notify({ text: `This address was already charged: ${addressObject.address}` });
+                notify({ text: `Charge process: This address was already charged: ${addressObject.address}` });
                 
                 let error = new Error('address-already-processed');
                 error.status = 422;
