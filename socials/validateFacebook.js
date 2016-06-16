@@ -17,18 +17,26 @@ module.exports = function valdiateFacebook(token) {
         return Promise.reject(error);
     }
 
-    https.get(url + token, function(res) {
-        var string = '';
+    return new Promise((resolve, reject) => {
 
-        res.on('data', function(chunk) {
-            string += chunk;
-        });
+        /**
+         * TODO:
+         *     Improve this request using another library or solution to deal
+         *     with json responses
+         */
+        https.get(`${url}${token}`, function(response) {
+            var string = '';
 
-        res.on('error', Promise.reject);
+            response.on('data', function(chunk) {
+                string += chunk;
+            });
 
-        res.on('end', function() {
-            var response = JSON.parse(string);
-            Promise.resolve(!!response.id);
-        });
-    }).end();
+            response.on('error', Promise.reject);
+
+            response.on('end', function() {
+                var response = JSON.parse(string);
+                resolve(!!response.id);
+            });
+        }).end();
+    });
 };
