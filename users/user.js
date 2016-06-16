@@ -54,8 +54,9 @@ let schema = new mongoose.Schema({
     },
 
     plaid: {
-        accountId: {
-            type: String
+        account: {
+            type: Object,
+            default: {}
         },
         tokens: {
             connect: {

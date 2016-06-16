@@ -125,7 +125,7 @@ function extractInformationFromPerson(person) {
             return;
         }
         
-        const accountId = person.plaid.accountId;
+        const accountId = person.plaid.accounts[bank.type];
         const plaidToken = person.plaid.tokens.connect[bank.type];
         const monthlyLimit = activePledge[0].monthlyLimit;
         
