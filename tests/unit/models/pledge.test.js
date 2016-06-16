@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Charity model', test => {
-    test.plan(13);
+    test.plan(12);
 
     let pledge = new Charity({});
     let values = pledge.schema.paths;
