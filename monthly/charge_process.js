@@ -35,7 +35,7 @@ const updateLastRun = require('../runs/update');
 
 // GLOBAL VARIABLES
 
-let minimumDonationValue = null;
+let minimumDonationValue = process.env.MINIMUM_DONATION;
 let chargeGen = null;
 
 /**
@@ -107,9 +107,6 @@ function *executeCharges() {
             // .ach holds if we are going to charge user from credit card or savings account
             let isAchPayment = user.stripe[institution].ach;
             
-            // calcFee calculates on cents, so we multiply
-            minimumDonationValue = calcFee(totalDonation * 100, isAchPayment) / 100;
-                
             // If we can't make the minimum donation we skip this month
             if (totalDonation < minimumDonationValue) {
                 continue;

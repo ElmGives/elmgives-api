@@ -33,7 +33,7 @@ let schema = new mongoose.Schema({
 
     monthlyLimit: {
         type: Number,
-        required: true
+        default: 5000
     },
 
     addresses: {
