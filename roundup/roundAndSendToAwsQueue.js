@@ -109,7 +109,12 @@ function processData(data, personData) {
         plaidTransactions = JSON.parse(data).transactions
             .filter(transactionFilter.bind(null, personData.plaidAccountId))
             .map(roundUpAndSave.bind(null, personData))
-            .filter(plaidTransaction => plaidTransaction.roundup !== 0);
+            .filter(plaidTransaction => plaidTransaction.roundup !== 0)
+            .sort((a, b) => {
+                if (a.date < b.date) { return -1; }
+                if (a.date > b.date) { return 1; }
+                return 0;
+            });
     }
     catch (error) {
         return Promise.reject(error);
