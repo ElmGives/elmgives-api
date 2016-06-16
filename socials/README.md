@@ -16,6 +16,7 @@ const data = {
     profile: {},
     token: 'string',
     providerId: 'user identifier',
+    provider: 'facebook', // or any other like: 'google', 'twitter'
     token: 'token from facebook'
 };
 ```

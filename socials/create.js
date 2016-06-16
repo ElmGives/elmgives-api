@@ -5,17 +5,34 @@
  * 2.  If provided token is invalid, return error, otherwise, find Social with
  *     provided providerId and email
  * 3.  If social found, create session and return , otherwise, create social,
+ *     user and move to next step
  * 4.  Create session and return
  */
 'use strict';
 
-const Social = require('/social');
+/**
+ * Generate random string based on Regex.
+ * Used to generate a random password that matches required attributes for User
+ * model
+ * @see  https://github.com/fent/randexp.js
+ */
+const Randexp = require('randexp');
+
+const Social = require('./social');
 const User = require('../users/user');
 const Session = require('../sessions/session');
 const uniqueToken = require('../helpers/token');
 const expire = require('../helpers/expire');
-const EXPIRE = process.env.EXPIRE_HOURS;
+
+/**
+ * In the future, we will validate `request.body.provider` and use proper
+ * helper to validate token provided. For now only using facebook
+ * @see  https://goo.gl/k0zzqu
+ */
 const validateFacebook = require('./validateFacebook');
+
+const EXPIRE = process.env.EXPIRE_HOURS;
+const REGEX = process.env.EMAIL_REGEX || /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 module.exports = function create(request, response, next) {
     let token = request.body.token;
@@ -30,8 +47,18 @@ module.exports = function create(request, response, next) {
         return next(error);
     }
 
+    /**
+     * TODO:
+     * Once new provider is added to social login options, validate
+     * `request.body.provider` and use proper helper instead of hardcoded
+     * `validateFacebook`
+     */
     return validateFacebook(token)
         .then(valid => {
+
+            /**
+             * If validate token returns false, let's reject this request
+             */
             if (!valid) {
                 let error = Error();
                 error.message = 'invalid token';
@@ -45,38 +72,61 @@ module.exports = function create(request, response, next) {
                 email: email
             };
 
+            /**
+             * If provided token is valid, let's find Social record associated
+             */
             return Social.findOne(query);
         })
         .then(social => {
             if (!social) {
-                // create social, and user and return
-                // user data needed to create an account: email and password
-                // Since password is not present on social login, @cooper said
-                // let's use a random
+                /**
+                 * If no social found, means we need to create a Social record
+                 * and a User.
+                 * To create an user we use provided email and a random password
+                 */
                 let userData = {
                     email: email,
-                    password: uniqueToken()
+                    password: new Randexp(REGEX).gen()
                 };
 
-                new User(userData).save();
-                return new Social(request.body).save();
+                /**
+                 * First we need an user, then create a Social record, but,
+                 * return user since we need user information to create a
+                 * session
+                 */
+                return new User(userData).save().then(user => {
+                    request.body.userId = user._id;
+                    new Social(request.body).save();
+
+                    return user;
+                });
             }
 
-            return social;
-        })
-        .then(social => {
-            let query = {
-                email: social.email,
-            };
             /**
-             * If request get's here, means:
-             *     user's token is a valid Facebook token, social information
-             *     exist and we are ready to find related user and create a
-             *     session.
+             * If social information found, means we can find user by email.
+             * User is needed in order to create a session
              */
+            let query = {
+                email: email
+            };
+
             return User.findOne(query);
         })
-        .then(user => {
+        .then((user) => {
+
+            /**
+             * It's possible to get here without an user?
+             * Maybe we delete user and not social information.
+             * Validate before return session
+             */
+            if (!user) {
+                let error = Error();
+                error.status = 422;
+                error.message = 'Cant process request';
+
+                return Promise.reject(error);
+            }
+
             let session = {
                 token: uniqueToken(),
                 expire: expire(EXPIRE),
