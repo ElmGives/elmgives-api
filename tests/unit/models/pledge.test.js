@@ -17,7 +17,7 @@ tape('Charity model', test => {
 
     pledge.validate(error => {
         let fields = [
-            'userId', 'bankId', 'npoId', 'monthlyLimit', 'npo', 'bank'
+            'userId', 'bankId', 'npoId', 'npo', 'bank'
         ];
         required(fields, error.errors, test);
     });
