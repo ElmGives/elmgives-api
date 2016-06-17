@@ -11,8 +11,8 @@ const notify = require('../slack/index');
 const logger = require('../logger');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
-const CHARGE_DAY = 5;
-const NEW_ADDRESS_DAY = 1;
+const CHARGE_DAY = process.env.CHARGE_DAY;
+const NEW_ADDRESS_DAY = process.env.NEW_ADDRESS_DAY;
 
 /**
  * We run this monthly process every [[CHARGE_DAY]] and [[NEW_ADDRESS_DAY]] day of the month.
