@@ -58,9 +58,9 @@ function request(personData) {
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
-        'options': {
+        'options': JSON.stringify({
             'gte':  YESTERDAY,
-        }
+        })
     });
 
     logger.info('Round up process: Request plaid information');
@@ -113,7 +113,7 @@ function processData(data, personData) {
         return Promise.reject(error);
     }
 
-    if (plaidTransactions) {
+    if (plaidTransactions && plaidTransactions.length) {
         
         logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
@@ -142,6 +142,7 @@ function processData(data, personData) {
                     .then(sendPostToAws);
             });
     } else {
+        logger.info('No plaid transactions found');
         return Promise.resolve();
     }
 }
