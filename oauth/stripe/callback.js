@@ -37,6 +37,7 @@ module.exports = function exchangeStripeOAuthCode(request, response, next) {
         /* Find and save the account ID to the NPO model*/
         return storeNpoConnectedAccountID(accountID)
             .then(updated => {
+                if (!updated) {return Promise.reject();}
                 response.redirect('http://www.elmgives.com/npo-link-success/');
             })
             .catch(err => {
