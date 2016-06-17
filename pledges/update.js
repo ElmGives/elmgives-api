@@ -3,7 +3,9 @@
  */
 'use strict';
 
+const Bank = require('../banks/bank');
 const getYearMonth = require('../helpers/getYearMonth');
+const objectId = require('mongoose').Types.ObjectId;
 
 module.exports = function update(request, response, next) {
     const userId = request.params.id + '';
@@ -46,9 +48,35 @@ module.exports = function update(request, response, next) {
     // (changes to monthlyLimit will be reflected in the next month)
     pledge.monthlyLimit = request.body.monthlyLimit || pledge.monthlyLimit;
 
-    user.save()
+    checkAndUpdateBankId(pledge, request.body.bankId)
+        .then(() => {
+            return user.save();
+        })
         .then(( /*user*/ ) => response.json({
             data: [pledge]
         }))
         .catch(next);
 };
+
+function checkAndUpdateBankId(pledge, bankId) {
+    if (!bankId) {
+        return Promise.resolve();
+    }
+
+    let bankObjectId;
+    let error = new Error();
+    error.message = 'invalid-bank-id';
+
+    try {
+        bankObjectId = objectId(bankId);
+    } catch (e) {
+        return Promise.reject({error});
+    }
+
+    return Bank.findOne({_id: bankObjectId})
+        .then(bank => {
+            pledge.bankId = bank._id;
+            pledge.bank = bank.name;
+        })
+        .catch(() => Promise.reject({error}));
+}
