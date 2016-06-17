@@ -13,5 +13,5 @@ module.exports = function updateRun(query, newValues) {
     return Run
         .findOneAndUpdate(query, newValues, { upsert: true })
         .exec()
-        .catch(logger.error);
+        .catch(error => logger.info( error ));
 };
