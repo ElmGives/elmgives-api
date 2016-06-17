@@ -29,6 +29,7 @@ const createTransaction = require('../transactions/chain/create');
 const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
+const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
@@ -48,8 +49,8 @@ const options = {
 let _result = '';
 
 /**
- * Sends an https request to plaid requesting user history data
- * @param {object} personData Its needed personID, along with person plaid access token
+ * We query Plaid services for user transaction history
+ * @param   {object}    personData
  */
 function request(personData) {
 
@@ -57,9 +58,9 @@ function request(personData) {
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
-        'options': {
+        'options': JSON.stringify({
             'gte':  YESTERDAY,
-        }
+        })
     });
 
     logger.info('Round up process: Request plaid information');
@@ -78,7 +79,7 @@ function requestHandler(personData, res) {
 
     res.on('data', chunk => _result += chunk);
 
-    res.on('end', () => {
+    res.on('end', function() {
 
         if (res.statusCode !== 200) {
             logger.error({ err: _result }, 'There was an error with the https request');
@@ -86,17 +87,8 @@ function requestHandler(personData, res) {
             return;
         }
 
-        processData(_result, personData).then(() => {
-            _result = '';
-
-            // We tell main process we are ready for more work
-            process.send('ready');
-        }).catch(error => {
-            logger.error({ err: error });
-
-            // We tell main process we are ready for more work
-            process.send('ready');
-        });
+        processData(_result, personData)
+            .catch(error => logger.error({ err: error }));
     });
 }
 
@@ -114,31 +106,43 @@ function processData(data, personData) {
     try {
 
         plaidTransactions = JSON.parse(data).transactions
-            .filter(transactionFilter)
+            .filter(transactionFilter.bind(null, personData.plaidAccountId))
             .map(roundUpAndSave.bind(null, personData));
     }
     catch (error) {
         return Promise.reject(error);
     }
 
-    if (plaidTransactions) {
+    if (plaidTransactions && plaidTransactions.length) {
         
         logger.info('Round up process: plaid transactions found, rounded up and saved on DB.');
 
         return getPreviousChain(personData)
-            .then(previousChain => {
+            .then(checkMonthlyLimit.bind(null, personData, plaidTransactions))
+            .then(params => {
+                
+                // NOTE: Use destructuring when available
+                let previousChain = params[0];
+                let checkedPlaidTransactions = params[1];
 
-                return Promise.all([
-                    previousChain,
-                    personData.address,
-                    transactionChain.create(personData.address, previousChain, plaidTransactions),
-                ]);
-            })
-            .then(saveTransactions)
-            .then(sign)
-            .then(sendToQueue)
-            .then(sendPostToAws);
+                // If the user has reached his/her monthly limit, we just skip the rest of this process
+                if (checkedPlaidTransactions.length === 0) {
+                    return Promise.resolve();
+                }
+
+                return Promise
+                    .all([
+                        previousChain,
+                        personData.address,
+                        transactionChain.create(personData.address, previousChain, checkedPlaidTransactions),
+                    ])
+                    .then(saveTransactions)
+                    .then(sign)
+                    .then(sendToQueue)
+                    .then(sendPostToAws);
+            });
     } else {
+        logger.info('No plaid transactions found');
         return Promise.resolve();
     }
 }

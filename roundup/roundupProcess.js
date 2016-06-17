@@ -23,6 +23,7 @@ const logger = require('../logger');
 
 const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
 const getFromAws = require('./getFromAws');
+const getYearMonth = require('../helpers/getYearMonth');
 
 const ONE_MINUTE = 1000 * 60;
 
@@ -38,6 +39,9 @@ function run() {
         active: true,
         plaid: {
             $exists: true
+        },
+        'plaid.accountId': {
+            $exists: true,
         },
         'plaid.tokens.connect': {
             $exists: true,
@@ -63,7 +67,7 @@ function run() {
         .then(people => {
 
             if (!people || people.length === 0) {
-                logger.log('There is no people information to process');
+                logger.info('There is no people information to process');
                 return;
             }
 
@@ -84,13 +88,30 @@ function run() {
  * @param   {object}    person
  */
 function extractInformationFromPerson(person) {
+    const activePledge = person.pledges.filter(pledge => pledge.active);
     
-    // NOTE: We assume user has only one bank account registered on the application for pledge
-    const firstPledge = person.pledges[0];
-    const firstAddress = firstPledge.addresses[0];
+    if (activePledge.length === 0) {
+        const error = new Error(`User with ID ${person._id} has not an active pledge`);
 
+        logger.error({ err: error });
+        return;
+    }
+    
+    const thisMonth = getYearMonth(new Date());
+    const address = activePledge[0].addresses[thisMonth];
+    
+    if (!address) {
+        const error = new Error('address-not-found');
+        error.status = 422;
+        error.description = `User ${person._id} doesn't have an address for this month`;
+
+        logger.error({ err: error });
+        return;
+    }
+
+    // NOTE: We assume user has only one bank account registered on the application for pledge
     const query = {
-        _id: firstPledge.bankId
+        _id: activePledge[0].bankId,
     };
     
     findOneBank(query).then(bank => {
@@ -104,10 +125,16 @@ function extractInformationFromPerson(person) {
             return;
         }
         
+        const accountId = person.plaid.accountId;
+        const plaidToken = person.plaid.tokens.connect[bank.type];
+        const monthlyLimit = activePledge[0].monthlyLimit;
+        
         let options = {
             _id: person._id,
-            token: person.plaid.tokens.connect[bank.type],
-            address: firstAddress,
+            plaidAccountId: accountId,
+            token: plaidToken,
+            address: address,
+            limit: monthlyLimit,
         };
         
         roundAndSendToAmazon.request(options);

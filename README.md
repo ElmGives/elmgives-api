@@ -20,7 +20,6 @@ npm run update
 
 and follow instructions. We are using `npm-check` package
 
-
 #### 1. About env variables
 
 Copy `.env.example` to `.env` and set proper values for each env variable. We introduce a helper
@@ -155,6 +154,44 @@ Should use 4xx status code
     message: ' error from server'
     status: 422, /* status code for the response, same as status code header */
 }
+```
+
+## Pagination
+
+```
+GET /resource?
+```
+
+#### 1. return some fields
+
+```
+GET /resource?fields=field1,field2
+```
+
+#### 2. sort by some field or fields
+
+Sort **ascending** just use the field, to sort **descending** use **-**field
+
+```
+GET /resource?sort=field1,-field2
+```
+
+#### 3. return results for a page
+
+```
+GET /resource?page=2
+```
+
+#### 4. return more results per page(up to 50 by default)
+
+```
+GET /resource?perPage=30
+```
+
+#### 5. Combine as you need:
+
+```
+GET /resource?fields=-field1,field2&sort=field1&perPage=30
 ```
 
 ## Folder structure

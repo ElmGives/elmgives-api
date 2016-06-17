@@ -19,11 +19,14 @@ module.exports = function readAddress(query) {
         .then(address => {
             
             if (!address) {
-                let error = new Error('No address found');
+                let error = new Error('no-address-found');
+                error.status = 404;
+                error.description = `Address ${ query.address } doesn't exist on Address collection`;
+                
                 return Promise.reject(error);
             }
             
             return address;
-        }).catch(error => logger.error);
+        }).catch(error => logger.error({ err: error }));
 };
 

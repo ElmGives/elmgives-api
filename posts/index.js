@@ -15,12 +15,11 @@ const currentUser = require('../lib/currentUser');
 const isAdmin = require('../lib/isAdmin');
 const customMiddlewares = require('../lib/customMiddlewares');
 
-const Post = require('./post');
 const create = require('./create');
 const remove = require('./remove');
 const update = require('./update');
 const list = require('./list');
-const show = require('../lib/show');
+const show = require('./show');
 const postsDashboard = require('./postsDashboard');
 
 const PATH = '/posts';
@@ -38,7 +37,7 @@ function validateRequest(request, response, next) {
 
 router
     .get(PATH, defaultMiddlewares, validateRequest)
-    .get(SINGLE, defaultMiddlewares, show(Post))
+    .get(SINGLE, defaultMiddlewares, show)
     .put(SINGLE, defaultMiddlewares, update)
     .delete(SINGLE, defaultMiddlewares, remove)
     .post(PATH, defaultMiddlewares, create);

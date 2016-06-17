@@ -1,9 +1,12 @@
 /**
- * Generic module to find list of models based on model param
+ * Get list of posts with populated content from NPO's
+ * Paginated data,
+ * Filter by npoId
  */
 'use strict';
 
 const Post = require('./post');
+const queryOptions = require('../helpers/queryOptions');
 
 const defaultQuery = {
     archived: false
@@ -11,6 +14,15 @@ const defaultQuery = {
 
 module.exports = function list(request, response, next) {
     let query;
+    const options = queryOptions(request, Post);
+
+    /**
+     * @see http://mongoosejs.com/docs/api.html#query_Query-populate
+     */
+    options.populate = {
+        path: 'npoId',
+        select: 'name'
+    };
 
     if (request.query.npoId) {
         query = {};
@@ -18,9 +30,15 @@ module.exports = function list(request, response, next) {
     }
 
     return Post
-        .find(query || defaultQuery)
-        .then(list => response.json({
-            data: list
-        }))
+        .paginate(query || defaultQuery, options)
+        .then(data => {
+            let result = {
+                data: data.docs
+            };
+
+            data.docs = undefined;
+            result.meta = data;
+            return response.json(result);
+        })
         .catch(next);
 };
