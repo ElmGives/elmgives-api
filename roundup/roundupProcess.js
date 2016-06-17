@@ -67,7 +67,7 @@ function run() {
         .then(people => {
 
             if (!people || people.length === 0) {
-                logger.log('There is no people information to process');
+                logger.info('There is no people information to process');
                 return;
             }
 

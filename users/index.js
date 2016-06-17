@@ -18,12 +18,14 @@ const update = require('./update');
 const remove = require('./remove');
 const adminOrOwner = require('./adminOrOwner');
 const validateAccount = require('./validateAccount');
+const getBalances = require('./getBalances');
 const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
 const resetPassword = require('./resetPassword');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
+const BALANCES = '/users/:id/balances';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
@@ -82,6 +84,7 @@ function validateRequest(request, response, next) {
 router
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
     .get(PATH, defaultMiddlewares, isAdmin, list)
+    .get(BALANCES, defaultMiddlewares, getBalances)
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
     .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
     .post(PATH, validateRequest);
