@@ -1,4 +1,4 @@
-### Recovey password
+### Recovery password
 
 We agree on sent a recovery code with four digits code.
 

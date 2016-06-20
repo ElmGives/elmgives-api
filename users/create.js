@@ -24,7 +24,7 @@ function sendEmail(user) {
 
     let options = [{
         name: 'link',
-        content: `${CLIENT_URL}${user.verificationToken}`
+        content: `${CLIENT_URL}/${user.verificationToken}`
     }];
 
     return email.send(TEMPLATE, to, options)
