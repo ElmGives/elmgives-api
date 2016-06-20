@@ -23,10 +23,18 @@ let schema = new mongoose.Schema({
 
 let QueryFilters = mongoose.model('QueryFilters', schema);
 
+schema.statics.searchable = {
+    name: 1,
+    email: 1,
+    amount: 1
+};
+
 tape('queryFilters helper', test => {
     test.plan(4);
 
-    test.deepEqual(queryFilters({query: {}}, QueryFilters), {}, 'proper filters with empty values');
+    test.deepEqual(queryFilters({
+        query: {}
+    }, QueryFilters), {}, 'proper filters with empty values');
 
     test.deepEqual(queryFilters({
         query: {

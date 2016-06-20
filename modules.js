@@ -14,6 +14,7 @@ const posts = require('./posts');
 const images = require('./images');
 const roles = require('./roles');
 const oauth = require('./oauth');
+const contact = require('./contact');
 const transactions = require('./transactions/chain');
 const status = require('./heartbeat');
 
@@ -29,6 +30,7 @@ module.exports = app => {
         .use(users)
         .use(transactions)
         .use(banks)
+        .use(contact)
         .use(status)
         .use(npos);
 };
