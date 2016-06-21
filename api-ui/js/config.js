@@ -1,4 +1,4 @@
-var API = 'http://localhost:3000';
+var API = 'http://stage-api.elmgives.com';
 
 var users = {
     'name': 'Users',
@@ -97,11 +97,14 @@ var users = {
         'submit password for reset': {
             'description': 'Submit the new password for password reset',
             'params': {
+                'auth_token': 'string',
+                'id': 'string',
                 changePassword: 'string(email)',
                 token: 'string ( big token )',
                 password: 'string ( new password )'
             },
-            'url': API + '/users',
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
             'wrapper': '',
             'method': 'POST'
         },
@@ -113,7 +116,7 @@ var users = {
             },
             'url': API + '/users',
             'wrapper': '',
-            'method': 'POST'
+            'method': 'PUT'
         }
     }
 };

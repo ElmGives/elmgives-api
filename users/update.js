@@ -24,6 +24,12 @@ const defaultResponse = {
 
 module.exports = function update(request, response, next) {
 
+    if (!request.params.id) {
+        return response.status(422).json({
+            error: 'required params missing'
+        });
+    }
+
     let query = {
         _id: request.params.id
     };
