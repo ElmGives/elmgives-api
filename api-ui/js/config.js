@@ -75,8 +75,8 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'request password change': {
-            'description': 'Ask API for a token to change password',
+        'request to reset password': {
+            'description': 'Ask API for a CODE to change password',
             'params': {
                 changePassword: 'string ( email ) ',
             },
@@ -84,7 +84,7 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'request new password': {
+        'verify reset password code': {
             'description': 'Ask API token to change password',
             'params': {
                 changePassword: 'string(email)',
@@ -94,12 +94,22 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'change password': {
-            'description': 'Ask API for password change',
+        'submit password for reset': {
+            'description': 'Submit the new password for password reset',
             'params': {
                 changePassword: 'string(email)',
                 token: 'string ( big token )',
                 password: 'string ( new password )'
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'POST'
+        },
+        'change password': {
+            'description': 'Ask API for password change for existing user',
+            'params': {
+                password: 'string ( existing user password )',
+                newPassword: 'string( new password )'
             },
             'url': API + '/users',
             'wrapper': '',
@@ -434,7 +444,7 @@ var sessions = {
             'url': API + '/sessions',
             'wrapper': '',
             'method': 'POST',
-            callback: function(response) {
+            callback: function (response) {
                 'use strict';
                 var data = response.data || [];
                 localStorage.setItem('cu', JSON.stringify(data));
@@ -448,7 +458,7 @@ var sessions = {
             'url': API + '/sessions/[id]',
             'wrapper': '',
             'method': 'DELETE',
-            callback: function() {
+            callback: function () {
                 'use strict';
                 localStorage.removeItem('cu');
             }
@@ -456,7 +466,7 @@ var sessions = {
     }
 };
 
-define([], function() {
+define([], function () {
     'use strict';
 
     var services = {
