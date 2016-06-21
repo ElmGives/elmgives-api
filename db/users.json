@@ -48,5 +48,10 @@
                 "wells": "test_wells"
             }
         }
+    },
+    "stripe": {
+        "wells": {
+            "customer": {}
+        }
     }
 }]
