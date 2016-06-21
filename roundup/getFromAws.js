@@ -19,7 +19,9 @@ const getAddress = require('../addresses/read');
 const verifySignature  = require('../helpers/verifyJwsSignature');
 const updateTransaction  = require('../transactions/chain/update');
 const updateAddress  = require('../addresses/update');
+const updateLastRun = require('../runs/update');
 const logger = require('../logger');
+const notify = require('../slack/index');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
@@ -57,6 +59,17 @@ function handleResponseFromAws(messages) {
         
         if (emptyMessages > 2) {
             emptyMessages = 0;
+
+            let query = {
+                process: 'roundup',
+            };
+
+            let newValue = {
+                last: Date.now(),
+            };
+
+            updateLastRun(query, newValue);
+            notify('Round up process ends.');
             return;
         }
         

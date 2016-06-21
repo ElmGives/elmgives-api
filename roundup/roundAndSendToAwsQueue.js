@@ -16,20 +16,19 @@ require('../config/database');
 
 const https = require('https');
 const http = require('http');
+const url = require('url');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const logger = require('../logger');
 const padNumber = require('../helpers/padNumber');
-const transactionFilter = require('../helpers/plaidTransactionFilter');
 const transactionChain = require('../helpers/transactionChain');
-const roundup = require('../helpers/roundup');
-const createPlaidTransaction = require('../transactions/create');
 const getTransaction = require('../transactions/chain/read');
 const createTransaction = require('../transactions/chain/create');
 const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
 const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
+const filterMapOrder = require('../helpers/filterMapOrderPlaidTransactoins');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
@@ -104,10 +103,7 @@ function processData(data, personData) {
     let plaidTransactions = null;
 
     try {
-
-        plaidTransactions = JSON.parse(data).transactions
-            .filter(transactionFilter.bind(null, personData.plaidAccountId))
-            .map(roundUpAndSave.bind(null, personData));
+        plaidTransactions = filterMapOrder(JSON.parse(data).transactions, personData);
     }
     catch (error) {
         return Promise.reject(error);
@@ -145,37 +141,6 @@ function processData(data, personData) {
         logger.info('No plaid transactions found');
         return Promise.resolve();
     }
-}
-
-/**
- * Takes a transaction, rounds up the amount and save this as a plaidTransaction for later processing
- * @param {string} personData
- * @param {object} transaction
- */
-function roundUpAndSave(personData, transaction) {
-    let roundupValue = roundup(transaction.amount);
-
-    let plaidTransaction = {
-        userId: personData._id,
-        transactionId: transaction._id,
-        amount: transaction.amount,
-        date: transaction.date,
-        name: transaction.name,
-        roundup: roundupValue,
-        summed: false,    // This one is to know if we have already ran the process on this transaction
-    };
-
-    savePlaid(plaidTransaction);
-
-    return plaidTransaction;
-}
-
-/**
- * We pass transaction to be saved on DB
- * @param {object} plaidTransaction
- */
-function savePlaid(plaidTransaction) {
-    createPlaidTransaction(plaidTransaction);
 }
 
 /**
@@ -217,11 +182,11 @@ function sendToQueue(transactionChain) {
  * @returns {promise}
  */
 function sendPostToAws() {
-    let url = process.env.SIGNER_URL.split(':');
+    let awsUrl = url.parse(process.env.SIGNER_URL);
     
     const options = {
-        host: url[0],
-        port: url[1],
+        host: awsUrl.hostname,
+        port: awsUrl.port,
         path: '/aws/sqs',
         method: 'POST',
     };
