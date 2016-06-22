@@ -279,9 +279,9 @@ function *getNPO(activePledge, userId, chargeGen) {
     let npo = yield getNpo(activePledge.npoId, chargeGen);
             
     if (!npo) {
-        let error = new Error('pledge-name-not-found');
+        let error = new Error('pledge-not-found');
         error.status = 404;
-        error.details = `User ${userId}, doesn't have a valid pledge name`;
+        error.details = `User ${userId} pledge doesn't exist or doesn't have a pledge account ID`;
         throw error;
     }
 
