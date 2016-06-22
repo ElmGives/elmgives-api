@@ -6,7 +6,7 @@
 
 module.exports = (data, options) => {
     const CHANNEL = process.env.SLACK_CHANNEL || 'build';
-    const USERNAME = process.env.SLACK_USERNAME || 'Custom ELM Integration';
+    const USERNAME = process.env.SLACK_USERNAME || 'ELM System Notification';
     const EMOJI = process.env.SLACK_EMOJI || ':elmgives:';
 
     return {
