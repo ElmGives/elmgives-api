@@ -1,4 +1,24 @@
-### Recovery password
+### Delete Account.
+
+1. We can't just delete data because it will cause a lot of issues.
+2. We can't archive because user may want to create a new account again with same information
+3. Move user information to another 'non real' user.
+
+```
+DELETE /users/:id
+```
+
+API will move user@elm.com to something like user[ramdon string here]@elm.com with this way we can manage some background processes to deal with charges.
+
+#### Tasks on delete account
+
+- [x] change email (for our convenience)
+- [x] set `archived` to true
+- [x] set any pledge `active` = false
+- [ ] remove any pending charge
+- [ ] remove any reference to any queque
+
+### Recovey password
 
 We agree on sent a recovery code with four digits code.
 
