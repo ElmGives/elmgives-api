@@ -43,11 +43,14 @@ function mapData(data) {
 }
 
 module.exports = function dashboard(request, response, next) {
+    let pledge = request.currentUser.pledges.find(item => item.active);
+    let npoId = typeof pledge === 'object' ? pledge.npoId : null;
 
     let promises = nodes.map(node => {
         let query = {
             node: node
         };
+        if (npoId) {query.npoId = npoId;}
 
         return Post
             .find(query, select)
