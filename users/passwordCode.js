@@ -14,6 +14,7 @@ const RecoveryCode = require('./recoveryCode');
 const code = require('../helpers/verificationCode');
 
 const TEMPLATE = process.env.MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE;
+const SUBJECT = 'Elm Password Reset Code';
 
 module.exports = function requestPassword(request, response, next) {
     const query = {
@@ -51,7 +52,7 @@ module.exports = function requestPassword(request, response, next) {
                 content: recovery.code
             }];
 
-            return email.send(TEMPLATE, to, options);
+            return email.send(TEMPLATE, to, SUBJECT, options);
         })
         .then(sent => {
             sent = sent[0] || {};

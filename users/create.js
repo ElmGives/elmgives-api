@@ -16,6 +16,7 @@ const slack = require('../slack');
 
 const CLIENT_URL = process.env.CLIENT_URL;
 const TEMPLATE = process.env.MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE;
+const SUBJECT = 'Verify Elm Account Email';
 
 function sendEmail(user) {
     let to = [{
@@ -27,7 +28,7 @@ function sendEmail(user) {
         content: `${CLIENT_URL}/${user.verificationToken}`
     }];
 
-    return email.send(TEMPLATE, to, options)
+    return email.send(TEMPLATE, to, SUBJECT, options)
         .then(sent => {
             logger.info({
                 verificationEmail: sent

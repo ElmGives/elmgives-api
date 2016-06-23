@@ -17,6 +17,8 @@ const MAIL_HANDLEBARS_VARS = [{
 
 const TEMPLATE_NAME = 'testtemplateone';
 
+const SUBJECT = 'TEST EMAIL';
+
 // In this test:
 // First list templates in Mandrill
 // Then it shows them on console
@@ -27,9 +29,9 @@ const TEMPLATE_NAME = 'testtemplateone';
 // Then exist the app if everything is OK.
 email.listTemplates()
 	.then(msg => logger.info(msg))
-	.then(() => email.send(TEMPLATE_NAME, TO, MAIL_HANDLEBARS_VARS))
+	.then(() => email.send(TEMPLATE_NAME, TO, SUBJECT, MAIL_HANDLEBARS_VARS))
 	.then(msg => logger.info(msg))
-    .then(() => email.send(TEMPLATE_NAME, TO))
+    .then(() => email.send(TEMPLATE_NAME, TO, SUBJECT ))
     .then(msg => logger.info(msg))
 	.then(() => process.exit(0))
 	.catch(err => logger.info(err));

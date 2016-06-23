@@ -51,13 +51,14 @@ const Mandrill = {
      * Method to send email using Mandrill Templates
      *     templateName = 'value from Mandrill template'
      *     to = Array of recipients
+     *     subject = subject line of email
      *     globalMergeVars = array of objects like: [{name: '', content: ''}]
      * More about globalMergeVars
      * https://mandrillapp.com/api/docs/messages.nodejs.html#method=send-template
      *
      * This method returns a Promise instance
      */
-    send(templateName, to, globalMergeVars) {
+    send(templateName, to, subject, globalMergeVars) {
 
         const options = {
             'template_name': templateName,
