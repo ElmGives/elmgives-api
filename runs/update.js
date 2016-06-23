@@ -1,7 +1,7 @@
 'use strict';
 
 const Run = require('./run');
-const logger = require('../../logger');
+const logger = require('../logger');
 
 module.exports = function updateRun(query, newValues) {
     

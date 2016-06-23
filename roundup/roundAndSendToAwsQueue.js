@@ -28,7 +28,7 @@ const getAddress = require('../addresses/read');
 const AWSQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
 const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
-const filterMapOrder = require('../helpers/filterMapOrderPlaidTransactoins');
+const filterMapOrder = require('../helpers/filterMapOrderPlaidTransactions');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');

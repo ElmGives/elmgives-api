@@ -54,7 +54,7 @@ let schema = new mongoose.Schema({
     },
 
     plaid: {
-        account: {
+        accounts: {
             type: Object,
             default: {}
         },

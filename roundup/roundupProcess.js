@@ -38,20 +38,21 @@ function run() {
     const query = {
         active: true,
         plaid: {
-            $exists: true
-        },
-        'plaid.accountId': {
             $exists: true,
+        },
+        'plaid.accounts': {
+            $exists: true,
+            $ne: {},
         },
         'plaid.tokens.connect': {
             $exists: true,
-            $ne: {}
+            $ne: {},
         },
         pledges: {
-            $exists: true
+            $exists: true,
         },
         'pledges.addresses': {
-            $exists: true
+            $exists: true,
         },
     };
 

@@ -6,7 +6,7 @@
  */
 
 const chargeProcess = require('../monthly/charge_process');
-const assignAddressProcess = require(',./monthly/assign_address_process');
+const assignAddressProcess = require('../monthly/assign_address_process');
 const notify = require('../slack/index');
 const logger = require('../logger');
 
