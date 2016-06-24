@@ -31,6 +31,11 @@ let schema = new mongoose.Schema({
         required: true
     },
 
+    // Last 4 digits of the account used for the pledge
+    last4: {
+        type: String
+    },
+
     monthlyLimit: {
         type: Number,
         default: 5000
