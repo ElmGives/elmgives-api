@@ -48,7 +48,7 @@ module.exports = function update(request, response, next) {
     // (changes to monthlyLimit will be reflected in the next month)
     pledge.monthlyLimit = request.body.monthlyLimit || pledge.monthlyLimit;
 
-    checkAndUpdateBankId(pledge, request.body.bankId)
+    checkAndUpdateBankId(user, pledge, request.body.bankId)
         .then(() => {
             return user.save();
         })
@@ -58,7 +58,7 @@ module.exports = function update(request, response, next) {
         .catch(next);
 };
 
-function checkAndUpdateBankId(pledge, bankId) {
+function checkAndUpdateBankId(user, pledge, bankId) {
     if (!bankId) {
         return Promise.resolve();
     }
@@ -75,8 +75,13 @@ function checkAndUpdateBankId(pledge, bankId) {
 
     return Bank.findOne({_id: bankObjectId})
         .then(bank => {
+            if (!bank) {return Promise.reject({error});}
+
             pledge.bankId = bank._id;
             pledge.bank = bank.name;
+
+            pledge.last4 = user.plaid.accounts[bank.type] ?
+                user.plaid.accounts[bank.type].last4 : null;
         })
         .catch(() => Promise.reject({error}));
 }

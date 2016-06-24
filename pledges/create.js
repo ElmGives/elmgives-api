@@ -54,12 +54,17 @@ module.exports = (request, response, next) => {
                 return next(error);
             }
 
+            let bankType = values[1].type;
+            let last4digits = user.plaid.accounts[bankType] ?
+                user.plaid.accounts[bankType].last4 : null;
+
             let pledge = {
                 monthlyLimit: request.body.monthlyLimit,
                 npoId: request.body.npoId,
                 bankId: request.body.bankId,
                 npo: values[0].name,
                 bank: values[1].name,
+                last4: last4digits,
                 userId: request.session.userId
             };
 
@@ -83,7 +88,7 @@ module.exports = (request, response, next) => {
             }
             /* Activate and add new pledge to the current user */
             pledge.active = true;
-            user.pledges.unshift(pledge);
+            user.pledges.push(pledge);
             request.pledgeId = pledge._id;
             return user.save();
         })
