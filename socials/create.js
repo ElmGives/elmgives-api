@@ -96,9 +96,8 @@ module.exports = function create(request, response, next) {
                  */
                 return new User(userData).save().then(user => {
                     request.body.userId = user._id;
-                    new Social(request.body).save();
-
-                    return user;
+                    return new Social(request.body).save()
+                        .then(() => user);
                 });
             }
 
