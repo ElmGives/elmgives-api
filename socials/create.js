@@ -23,6 +23,8 @@ const User = require('../users/user');
 const Session = require('../sessions/session');
 const uniqueToken = require('../helpers/token');
 const expire = require('../helpers/expire');
+const JWT_SECRET = process.env.JWT_SECRET;
+const jwt = require('../helpers/jwt');
 
 /**
  * In the future, we will validate `request.body.provider` and use proper
@@ -134,7 +136,16 @@ module.exports = function create(request, response, next) {
                 verified: true
             };
 
-            return new Session(session).save();
+            return new Session(session).save()
+                .then(session => {
+                    return jwt({
+                        token: session.token
+                    }, JWT_SECRET)
+                    .then(token => {
+                        session.token = token;
+                        return session;
+                    });
+                });
         })
         .then(data => response.json(data))
         .catch(next);
