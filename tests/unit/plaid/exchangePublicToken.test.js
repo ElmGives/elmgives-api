@@ -113,7 +113,7 @@ tape('Exchange Plaid Public Token (middleware)', test => {
     let request = {
         body: {
             public_token: tokens.plaid,
-            account_id: accountID,
+            bank_account_id: accountID,
             institution: 'bankName'
         },
         currentUser: {

@@ -51,7 +51,8 @@ function middleware(request, response, next) {
         .then(exchanged => {
             let query = {};
             data.success.plaid = true;
-            query[`plaid.accounts.${institution}`] = roundupAccountID || bankAccountID;
+            query[`plaid.accounts.${institution}.id`] = roundupAccountID || bankAccountID;
+            query[`plaid.accounts.${institution}.last4`] = request.body.last4;
             query[`plaid.tokens.connect.${institution}`] = exchanged.plaidAccessToken;
             query[`stripe.${institution}.ach`] = !stripeToken; // true: Stripe ACH, false: Stripe Credit Card
             let token = stripeToken || exchanged.stripeBankAccountToken;
