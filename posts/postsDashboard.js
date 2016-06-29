@@ -44,7 +44,7 @@ function mapData(data) {
 
 module.exports = function dashboard(request, response, next) {
     let pledge = request.currentUser.pledges.find(item => item.active);
-    let npoId = typeof pledge === 'object' ? pledge.npoId : null;
+    let npoId = typeof pledge === 'object' ? pledge.npoId : request.query.npoId;
 
     let promises = nodes.map(node => {
         let query = {
