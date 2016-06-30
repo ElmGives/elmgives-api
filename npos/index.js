@@ -9,6 +9,7 @@
 'use strict';
 
 const Npo = require('./npo');
+const NpoSuggestion = require('./suggestion');
 const router = require('express').Router();
 const create = require('../lib/create');
 const list = require('../lib/list');
@@ -20,12 +21,14 @@ const authenticate = require('../lib/authenticate');
 
 const PATH = '/npos';
 const SINGLE = '/npos/:id';
+const SUGGESTION = '/npos/suggestions';
 
 router
     .get(PATH, verifyToken, authenticate, list(Npo))
     .post(PATH, verifyToken, authenticate, create(Npo))
     .get(SINGLE, verifyToken, authenticate, show(Npo))
     .put(SINGLE, verifyToken, authenticate, update(Npo))
-    .delete(SINGLE, verifyToken, authenticate, archive(Npo));
+    .delete(SINGLE, verifyToken, authenticate, archive(Npo))
+    .post(SUGGESTION, verifyToken, authenticate, create(NpoSuggestion));
 
 module.exports = router;
