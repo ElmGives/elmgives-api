@@ -12,7 +12,7 @@ tape('Npo Suggestion model', test => {
     let values = npoSuggestion.schema.paths;
 
     let stringProperties = [
-        'name', 'description', 'email', 'phone'
+        'name', 'url', 'email', 'phone'
     ];
 
     types(stringProperties, values, test, 'String');
@@ -31,7 +31,7 @@ tape('Npo Suggestion model', test => {
     new NpoSuggestion({
         userId: new Array(25).join('x'),
         name: 'foobar',
-        description: 'barfoo',
+        url: 'barfoo',
         email: 'foo@bar.com',
         phone: 'some phone',
         address: 'some street'
@@ -40,7 +40,7 @@ tape('Npo Suggestion model', test => {
     new NpoSuggestion({
         userId: new Array(25).join('x'),
         name: 'foobar',
-        description: 'barfoo',
+        url: 'barfoo',
         email: 'foo',
         phone: 'some phone',
     }).validate(error => test.equal(true, !!error, 'invalid email'));

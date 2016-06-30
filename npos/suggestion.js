@@ -19,7 +19,7 @@ let schema = new mongoose.Schema({
         required: true
     },
 
-    description: {
+    url: {
         type: String
     },
 
