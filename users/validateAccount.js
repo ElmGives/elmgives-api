@@ -10,13 +10,9 @@
 
 const User = require('./user');
 
-const defaultResponse = {
-    data: {}
-};
-
 module.exports = function validateAccount(request, response, next) {
     const query = {
-        verificationToken: request.body.verificationToken
+        verificationToken: request.params.token
     };
 
     return User
@@ -27,13 +23,15 @@ module.exports = function validateAccount(request, response, next) {
                 error.status = 404;
                 error.message = 'Token already used';
 
-                return Promise.reject(error);
+                return response.redirect(
+                    'https://www.elmgives.com/verification-link-error?token=' + query.verificationToken
+                );
             }
 
             user.verificationToken = '';
 
-            return user.save();
+            return user.save()
+                .then(() => response.redirect('https://www.elmgives.com/verification-link-success/'));
         })
-        .then(() => response.json(defaultResponse))
         .catch(next);
 };

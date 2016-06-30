@@ -26,6 +26,7 @@ const resetPassword = require('./resetPassword');
 const PATH = '/users';
 const SINGLE = '/users/:id';
 const BALANCES = '/users/:id/balances';
+const VERIFICATION = '/users/verification/:token';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
@@ -41,10 +42,6 @@ const showOwner = [show];
  */
 function validateRequest(request, response, next) {
     const token = request.headers.authorization;
-
-    if (request.body.verificationToken) {
-        return validateAccount(request, response, next);
-    }
 
     if (request.body.changePassword && !request.body.code && !request.body.token) {
         /**
@@ -82,6 +79,7 @@ function validateRequest(request, response, next) {
 }
 
 router
+    .get(VERIFICATION, validateAccount)
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
     .get(PATH, defaultMiddlewares, isAdmin, list)
     .get(BALANCES, defaultMiddlewares, getBalances)
