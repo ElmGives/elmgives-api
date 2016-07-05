@@ -6,7 +6,6 @@
 const Npo = require('../npos/npo');
 const Transaction = require('../transactions/chain/transaction');
 const arraySort = require('../helpers/arraySort');
-const objectId = require('mongoose').Types.ObjectId;
 
 module.exports = function getPledgeTransactionHistory(request, response, next) {
     let all = request.query.all;
@@ -38,7 +37,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             });
     });
 
-    Npo.findOne({_id: objectId(pledge.npoId)})
+    Npo.findOne({_id: pledge.npoId})
         .then(_npo => {
             npo = _npo;
             return Promise.all(promises);
