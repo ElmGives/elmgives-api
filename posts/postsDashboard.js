@@ -26,7 +26,7 @@ const LIMIT_POST_DAHSHBOARD = process.env.LIMIT_POST_DAHSHBOARD || 1;
  */
 const nodes = ['A', 'B', 'C', 'D', 'E'];
 const select = '_id npoId videos images node';
-const npoSelect = '_id logoUrl backgroundColor node';
+const npoSelect = '_id logoUrl backgroundColor node available';
 const sort = {
     createdAt: -1
 };
