@@ -12,7 +12,8 @@
  */
 function checkMonthlyLimit(personData, plaidTransactions, previousChain) {
     const monthlyLimit = personData.limit;
-    let verifiedPladiTransactions = [];
+    let plaidTransactionsToRoundup = [];
+    let addressLimit = Math.abs(previousChain.payload.limit);
     
     let accumulatedBalance = previousChain.payload.balance;
     
@@ -22,18 +23,18 @@ function checkMonthlyLimit(personData, plaidTransactions, previousChain) {
     }
     
     for (let plaidTransaction of plaidTransactions) {
-        
+
         accumulatedBalance += plaidTransaction.roundup;
-        
-        if (accumulatedBalance < monthlyLimit) {    
-            verifiedPladiTransactions.push(plaidTransaction);
+
+        if (accumulatedBalance < monthlyLimit && accumulatedBalance < addressLimit) {
+            plaidTransactionsToRoundup.push(plaidTransaction);
         }
         else {
             accumulatedBalance -= plaidTransaction.roundup;
         }
     }
     
-    return [previousChain, verifiedPladiTransactions];
+    return [previousChain, plaidTransactionsToRoundup];
 }
 
 module.exports = checkMonthlyLimit;
