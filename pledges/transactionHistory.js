@@ -3,6 +3,7 @@
  */
 'use strict';
 
+const Npo = require('../npos/npo');
 const Transaction = require('../transactions/chain/transaction');
 const arraySort = require('../helpers/arraySort');
 
@@ -13,6 +14,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     let pledgeID = request.params.pledgeId;
     let pledge = user.pledges.find(pledge => String(pledge._id) === pledgeID);
     let error = new Error();
+    let npo;
 
     if (String(request.session.userId) !== userID) {
         error.status = 401;
@@ -35,7 +37,11 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             });
     });
 
-    Promise.all(promises)
+    Npo.findOne({_id: pledge.npoId})
+        .then(_npo => {
+            npo = _npo;
+            return Promise.all(promises);
+        })
         .then(transactions => {
             /* Group all transactions in one array regardless of their address */
             if (transactions.length) {
@@ -43,7 +49,11 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
                 transactions.sort(arraySort('timestamp', request.query.newestFirst));
             }
             response.json({
-                data: transactions,
+                data: {
+                    id: npo._id,
+                    logo: npo.logoUrl,
+                    transactions
+                },
                 meta: {
                     count: transactions.length
                 }
