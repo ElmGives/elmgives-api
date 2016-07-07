@@ -29,7 +29,7 @@ const PATH = '/users';
 const SINGLE = '/users/:id';
 const BALANCES = '/users/:id/balances';
 const VERIFICATION = '/users/verification/:token';
-const VALIDATE = '/users/validate';
+const VALIDATE = '/users/validation';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
