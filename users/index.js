@@ -23,6 +23,7 @@ const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
 const passwordValidator = require('../helpers/passwordValidator');
 const resetPassword = require('./resetPassword');
+const User = require('./user');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
