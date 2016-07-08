@@ -21,15 +21,14 @@ const validateAccount = require('./validateAccount');
 const getBalances = require('./getBalances');
 const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
-const passwordValidator = require('../helpers/passwordValidator');
 const resetPassword = require('./resetPassword');
-const User = require('./user');
+const checkEmailAvailability = require('./checkEmailAvailability');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
 const BALANCES = '/users/:id/balances';
 const VERIFICATION = '/users/verification/:token';
-const VALIDATE = '/users/validation';
+const AVAILABILITY = '/users/availability';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
@@ -81,41 +80,6 @@ function validateRequest(request, response, next) {
     return customMiddlewares([create], request, response, next);
 }
 
-/**
- * Used as a preliminary check for a valid user before user is actually created
- * Called by the client to verify email & password, but the actual create will
- * not occur until the user agrees with the Terms and Conditions
- *
- * @param request
- * @param response
- * @param next
- */
-function validateNewUser( request, response, next ) {
-    const defaultResponse = {
-        data: {}
-    };
-
-    let query = {
-        email: request.params.email
-    };
-
-    return User
-        .findOne(query)
-        .then(user => {
-            if (user) {
-                let error = new Error();
-                error.status = 422;
-                error.message = 'That email is already in use';
-
-                return Promise.reject(error);
-            }
-
-            return passwordValidator(request.body.password);
-        })
-        .then(() => response.json(defaultResponse))
-        .catch(next);
-}
-
 router
     .get(VERIFICATION, validateAccount)
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
@@ -124,6 +88,6 @@ router
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
     .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
     .post(PATH, validateRequest)
-    .post(VALIDATE, validateNewUser);
+    .post(AVAILABILITY, checkEmailAvailability);
 
 module.exports = router;
