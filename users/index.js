@@ -22,11 +22,13 @@ const getBalances = require('./getBalances');
 const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
 const resetPassword = require('./resetPassword');
+const checkEmailAvailability = require('./checkEmailAvailability');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
 const BALANCES = '/users/:id/balances';
 const VERIFICATION = '/users/verification/:token';
+const AVAILABILITY = '/users/availability';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
@@ -85,6 +87,7 @@ router
     .get(BALANCES, defaultMiddlewares, getBalances)
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
     .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
-    .post(PATH, validateRequest);
+    .post(PATH, validateRequest)
+    .post(AVAILABILITY, checkEmailAvailability);
 
 module.exports = router;
