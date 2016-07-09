@@ -30,7 +30,7 @@ tape('Make donation helper', test => {
        
         try {
             let expected = 'one';
-            let actual = yield helper.makeDonation(10, 'usd', 'cus_khkjh', 'sadasd', 5, gen);
+            let actual = yield helper.makeDonation(10, 'usd', 'cus_khkjh', 'sadasd', 5, 'description', gen);
             
             test.equal(actual && actual.id, expected, 'We should receive a stripe response object');
         }
