@@ -12,16 +12,17 @@ const RecoveryCode = require('./recoveryCode');
 
 module.exports = function passwordToken(request, response, next) {
     const query = {
-        code: +request.body.code
+        code: +request.body.code,
+        userEmail: request.body.changePassword
     };
 
     return RecoveryCode
         .findOne(query)
-        .then(data => {
-            if (!data) {
+        .then(recoveryCode => {
+            if (!recoveryCode) {
                 let error = new Error();
                 error.status = 404;
-                error.message = 'Code already used';
+                error.message = 'No recovery code for this email';
 
                 return Promise.reject(error);
             }
@@ -31,10 +32,12 @@ module.exports = function passwordToken(request, response, next) {
              * and it's used to verify new password against user who requested.
              */
             let toEncode = {
-                token: data.code
+                token: recoveryCode.code
             };
 
-            return jsonWebToken(toEncode, data.userEmail);
+            /* Remove code record and generate a JSON web token */
+            return recoveryCode.remove()
+                .then(() => jsonWebToken(toEncode, recoveryCode.userEmail));
         })
         .then(token => {
             response.json({
