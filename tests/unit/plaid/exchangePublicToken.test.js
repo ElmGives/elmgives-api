@@ -30,7 +30,7 @@ let plaid = {
     }
 };
 
-tape('Exchange Plaid Public Token (methods)', test => {
+tape.skip('Exchange Plaid Public Token (methods)', test => {
     test.plan(13);
 
     PlaidLinkExchanger.createStripeCustomer(user, tokens.stripe).then(createdCustomer => {     
