@@ -55,6 +55,7 @@ tape('Exchange Plaid Public Token (methods)', test => {
         });
 
     plaid.client.exchangeToken = sinon.stub();
+    sinon.stub(PlaidLinkExchanger, 'upgradeAccessToken').returns(Promise.resolve({}));
     PlaidLinkExchanger.exchangePublicToken(plaid, tokens.plaid, accountID).then(createdCustomer => {     
         let plaidArgs = plaid.client.exchangeToken.getCall(0).args;
         test.equal(plaidArgs[0], tokens.plaid,
