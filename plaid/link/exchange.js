@@ -120,7 +120,10 @@ function exchangePublicToken(plaid, publicToken, bankAccountID) {
                 return reject(error);
             }
 
-            PlaidLinkExchanger.upgradeAccessToken(plaid, plaidAccessToken)
+            let promise = (bankAccountID) ? Promise.resolve() :
+                PlaidLinkExchanger.upgradeAccessToken(plaid, plaidAccessToken);
+
+            promise
                 .then(result => {
                     return resolve({
                         plaidAccessToken: plaidAccessToken,
