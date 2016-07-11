@@ -10,13 +10,14 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
  * @param {generator} generator
  */
-function makeDonation(amount, currency, customer, connectedStripeAccount, fee, generator) {
+function makeDonation(amount, currency, customer, connectedStripeAccount, fee, description, generator) {
 
   stripe.charges.create({
     amount: amount,
     currency: currency,
     customer: customer,
     destination: connectedStripeAccount,
+    description: description,
     /* jshint camelcase: false */
     application_fee: fee,
   }, function(error, charge) {

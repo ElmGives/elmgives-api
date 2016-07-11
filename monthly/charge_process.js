@@ -306,8 +306,9 @@ function *donateAndUpdateAddresses(user, cents, currency, institution, isAchPaym
     const customerId = user.stripe[institution].customer.id;
     const connectedAccountId = npo.stripe.accountId;
     const fee = Math.ceil(calcFee(cents, isAchPayment));  // because we are in cents, we roundup to next cent
-    
-    let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, fee, chargeGen);
+    const description = npo.name ? `Donation to ${npo.name}` : '';
+
+    let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, fee, description, chargeGen);
     
     if (!donationSuccess) {
         let error = new Error('donation-failed');
