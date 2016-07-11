@@ -27,6 +27,7 @@ module.exports = function getVerifiedAddressBalance(address) {
     })
     .then(address => {
         return Transaction.find({
+            'signatures.0': {$exists:true},
             'payload.address': address
         }, null, {
             limit: 1,
