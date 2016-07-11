@@ -31,7 +31,7 @@ module.exports = function getVerifiedAddressBalance(address) {
         }, null, {
             limit: 1,
             sort: {
-                'payload.timestamp': -1,
+                'payload.count': -1,
                 'createdAt': -1
             }
         })
