@@ -6,9 +6,9 @@
  *
  * const templateName = 'tempalte name provided from Mandrill';
  * const to = [{email: 'foobar@foo.com'}];
- * const globalBars = [{name: 'defined name on mandrill', content: 'var value'}]
+ * const globalVars = [{name: 'defined name on mandrill', content: 'var value'}]
  *
- * email.send(templateName, to, globalBars)
+ * email.send(templateName, to, globalVars)
  *     .then(sent => console.log(sent))
  *     .catch(error => console.log(error))
  */
@@ -65,6 +65,7 @@ const Mandrill = {
             'template_content': [],
             message: {
                 to: to,
+                'from_name' : 'Elm',
                 'from_email': MANDRILL_EMAIL_SENDER,
                 'global_merge_vars': globalMergeVars || []
             },

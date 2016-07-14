@@ -41,7 +41,7 @@ AWS_S3_ACL='public-read'
 ## Mandrill
 ### These templates are named Mandrill templates, see Mandrill account
 MANDRILL_API_KEY='MANDRILL_API_KEY'
-MANDRILL_EMAIL_SENDER='danny@elmgives.com'
+MANDRILL_EMAIL_SENDER='danny@elmgives.com' - Email all outbound emails come from
 MANDRILL_ADMIN_EMAIL=''  -  Email Contact Us emails are sent to
 MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE=''
 MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE=''
