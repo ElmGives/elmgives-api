@@ -48,5 +48,5 @@ tape('Plaid Transaction filter', test => {
         pending    : false,
     };
 
-    test.equal(plaidTransaction(accountId, transactionFor), false, 'Should return false when is a different type of transaction');
+    test.equal(plaidTransaction(accountId, transactionFor), true, 'Should return true for any type of transaction');
 });
