@@ -31,7 +31,10 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     let dates = Object.keys(pledge.addresses || {}).sort().reverse();
     let addresses = dates.map(date => pledge.addresses[date]).slice(0, all ? undefined : 1);
     let promises = addresses.map(address => {
-        return Transaction.find({'payload.address': address})
+        return Transaction.find({
+                'payload.address': address,
+                'payload.balance': {$gte: -pledge.monthlyLimit}
+            })
             .then(transactions => {
                 return transactions.map(transaction => transaction.payload);
             });

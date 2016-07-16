@@ -10,6 +10,8 @@ const aws = require('../lib/awsQueue');
 const logger = require('../logger');
 const getYearMonth = require('../helpers/getYearMonth');
 
+const hardCodedMonthlyLimit = 5000; // 5.000 USD
+
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
 
@@ -101,7 +103,7 @@ module.exports = (request, response, next) => {
             aws.sendMessage({
                 userId: userId,
                 pledgeId: String(request.pledgeId),
-                limit: request.body.monthlyLimit,
+                limit: hardCodedMonthlyLimit, // before: request.body.monthlyLimit,
                 nonce: String((new Date()).getTime())
             }, {
                 queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS
