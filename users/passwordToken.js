@@ -35,9 +35,8 @@ module.exports = function passwordToken(request, response, next) {
                 token: recoveryCode.code
             };
 
-            /* Remove code record and generate a JSON web token */
-            return recoveryCode.remove()
-                .then(() => jsonWebToken(toEncode, recoveryCode.userEmail));
+            /* Generate a JSON web token */
+            return jsonWebToken(toEncode, recoveryCode.userEmail);
         })
         .then(token => {
             response.json({
