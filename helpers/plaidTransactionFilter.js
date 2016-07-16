@@ -10,7 +10,7 @@
 module.exports = function plaidTransactionFilter(accountId, transaction) {
 
     return !!((transaction && transaction.type && transaction.type.primary && 'pending' in transaction) &&
-        (transaction.type.primary === 'place' || transaction.type.primary === 'digital') &&
+        // (transaction.type.primary !== '...') && // in case a type is to be filtered in the future
         (transaction.pending === false) &&
         (transaction._account === accountId));
 };
