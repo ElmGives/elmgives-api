@@ -28,7 +28,8 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     }
 
     /* Retrieve the transactions of (each/all of) the pledge addresses */
-    let dates = Object.keys(pledge.addresses || {}).sort().reverse();
+    let dates = Object.keys(pledge.addresses || {}).sort();
+    dates = request.query.newestFirst ? dates.reverse() : dates;
     let addresses = dates.map(date => pledge.addresses[date]).slice(0, all ? undefined : 1);
     let promises = addresses.map(address => {
         return Transaction.find({
@@ -36,7 +37,8 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
                 'payload.balance': {$gte: -pledge.monthlyLimit}
             })
             .then(transactions => {
-                return transactions.map(transaction => transaction.payload);
+                return transactions.map(transaction => transaction.payload)
+                    .sort(arraySort('count', request.query.newestFirst));
             });
     });
 
@@ -49,7 +51,6 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             /* Group all transactions in one array regardless of their address */
             if (transactions.length) {
                 transactions = transactions.reduce((txs1, txs2) => txs1.concat(txs2));
-                transactions.sort(arraySort('timestamp', request.query.newestFirst));
             }
             response.json({
                 data: {
