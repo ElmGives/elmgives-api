@@ -18,6 +18,7 @@ const update = require('./update');
 const remove = require('./remove');
 const adminOrOwner = require('./adminOrOwner');
 const validateAccount = require('./validateAccount');
+const getCharges = require('./getCharges');
 const getBalances = require('./getBalances');
 const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
@@ -26,6 +27,7 @@ const checkEmailAvailability = require('./checkEmailAvailability');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
+const CHARGES = '/users/:id/charges';
 const BALANCES = '/users/:id/balances';
 const VERIFICATION = '/users/verification/:token';
 const AVAILABILITY = '/users/availability';
@@ -85,6 +87,7 @@ router
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
     .get(PATH, defaultMiddlewares, isAdmin, list)
     .get(BALANCES, defaultMiddlewares, getBalances)
+    .get(CHARGES, defaultMiddlewares, getCharges)
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
     .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
     .post(PATH, validateRequest)
