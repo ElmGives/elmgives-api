@@ -36,7 +36,8 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
                 'payload.balance': {$gte: -pledge.monthlyLimit}
             })
             .then(transactions => {
-                return transactions.map(transaction => transaction.payload);
+                return transactions.map(transaction => transaction.payload)
+                    .sort(arraySort('count', request.query.newestFirst));
             });
     });
 
@@ -49,7 +50,6 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             /* Group all transactions in one array regardless of their address */
             if (transactions.length) {
                 transactions = transactions.reduce((txs1, txs2) => txs1.concat(txs2));
-                transactions.sort(arraySort('timestamp', request.query.newestFirst));
             }
             response.json({
                 data: {
