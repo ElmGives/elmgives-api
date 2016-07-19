@@ -28,7 +28,8 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     }
 
     /* Retrieve the transactions of (each/all of) the pledge addresses */
-    let dates = Object.keys(pledge.addresses || {}).sort().reverse();
+    let dates = Object.keys(pledge.addresses || {}).sort();
+    dates = request.query.newestFirst ? dates.reverse() : dates;
     let addresses = dates.map(date => pledge.addresses[date]).slice(0, all ? undefined : 1);
     let promises = addresses.map(address => {
         return Transaction.find({
