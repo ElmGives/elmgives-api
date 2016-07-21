@@ -25,8 +25,8 @@ const LIMIT_POST_DAHSHBOARD = process.env.LIMIT_POST_DAHSHBOARD || 1;
  * Default values for query on posts
  */
 const nodes = ['A', 'B', 'C', 'D', 'E'];
-const select = '_id npoId videos images node';
-const npoSelect = '_id logoUrl backgroundColor node available';
+const select = '_id npoId videos images node available';
+const npoSelect = '_id logoUrl backgroundColor node';
 const sort = {
     createdAt: -1
 };
