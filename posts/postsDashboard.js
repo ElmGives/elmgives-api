@@ -50,7 +50,7 @@ module.exports = function dashboard(request, response, next) {
         let query = {
             node: node
         };
-        if (npoId) {query.npoId = npoId;}
+        if (npoId && node !== 'C') {query.npoId = npoId;}
 
         return Post
             .find(query, select)
