@@ -20,12 +20,14 @@ require('../config/database');
 const User = require('../users/user');
 const findOneBank = require('../banks/readOne');
 const logger = require('../logger');
+const P = require('bluebird');
 
 const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
 const getFromAws = require('./getFromAws');
 const getYearMonth = require('../helpers/getYearMonth');
 
 const ONE_MINUTE = 1000 * 60;
+const PROMISE_CONCURRENCY = 10;
 
 /**
  * Query User collection for people with plaid token and created pledge addresses
@@ -71,12 +73,15 @@ function run() {
                 logger.info('There is no people information to process');
                 return;
             }
-
-            // Round up and send to AWS queue for every person
-            people.map(extractInformationFromPerson);
             
             // Then extract from AWS queue transaction chain signed information for every person
             setTimeout(() => getFromAws.get({ firstRun: true }), ONE_MINUTE);
+
+            // Round up and send to AWS queue for every person
+            return P.map(people, person => {
+                return extractInformationFromPerson(person)
+                    .catch(error => logger.error({err: error}));
+            }, {concurrency: PROMISE_CONCURRENCY});
         })
         .catch(error => logger.error({
             err: error
@@ -115,7 +120,7 @@ function extractInformationFromPerson(person) {
         _id: activePledge[0].bankId,
     };
     
-    findOneBank(query).then(bank => {
+    return findOneBank(query).then(bank => {
     
         if (!bank) {
             const error = new Error('There is no bank on banks collection with this ID: ' + query._id);
@@ -138,7 +143,7 @@ function extractInformationFromPerson(person) {
             limit: monthlyLimit,
         };
         
-        roundAndSendToAmazon.request(options);
+        return roundAndSendToAmazon.request(options);
     });
 }
 
