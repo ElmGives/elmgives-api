@@ -9,3 +9,4 @@ tape('Pad Number', test => {
     test.equal(padNumber(2), '02', 'Should add one zero leading this number');
     test.equal(padNumber(11), '11', 'Should not add one zero leading this number and return a string');
 });
+ 
