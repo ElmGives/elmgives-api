@@ -8,11 +8,13 @@
 'use strict';
 
 module.exports  = function roundup(amount) {
+    let roundup = 0;
+    let fractional = Math.abs(parseFloat(amount)) % 1;
 
-    // This is necessary because of JavaScript float point arithmetic
-    let number  = parseFloat(amount);
-    let ceil    = Math.ceil(number);
-    let hundred = (ceil * 100 ) - (number * 100);
+    if (fractional > 0 && fractional < 1) {
+        roundup = 1 - fractional.toFixed(2);
+        roundup = parseFloat(roundup.toFixed(2));
+    }
 
-    return hundred / 100;
+    return roundup;
 };
