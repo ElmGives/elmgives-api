@@ -4,8 +4,11 @@
 'use strict';
 
 const Npo = require('../npos/npo');
+const Charge = require('../charges/charge');
 const Transaction = require('../transactions/chain/transaction');
 const arraySort = require('../helpers/arraySort');
+const P = require('bluebird');
+const PROMISE_CONCURRENCY = 10;
 
 module.exports = function getPledgeTransactionHistory(request, response, next) {
     let all = request.query.all;
@@ -31,21 +34,38 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     let dates = Object.keys(pledge.addresses || {}).sort();
     dates = request.query.newestFirst ? dates.reverse() : dates;
     let addresses = dates.map(date => pledge.addresses[date]).slice(0, all ? undefined : 1);
-    let promises = addresses.map(address => {
-        return Transaction.find({
-                'payload.address': address,
-                'payload.balance': {$gte: -pledge.monthlyLimit}
+    let lastAddressIndex = addresses.length - 1;
+
+    let promises = P.map(addresses, address => {
+        return Charge.findOne({addresses: {$in: [address]}})
+            .then(charge => {
+                let balanceThreshold = -Infinity;
+
+                /* Use the amount charged on previous months to filter transactions */
+                if (charge && typeof charge.amount === 'number' &&
+                    charge.addresses.indexOf(address) === 0) {
+                    balanceThreshold = -Math.abs(charge.amount);
+                /* Or use the current pledge monthly limit if the address is used for the current month */
+                } else if (request.query.newestFirst && addresses.indexOf(address) === 0 ||
+                    !request.query.newestFirst && addresses.indexOf(address) === lastAddressIndex) {
+                    balanceThreshold = -pledge.monthlyLimit;
+                }
+
+                return Transaction.find({
+                    'payload.address': address,
+                    'payload.balance': {$gte: balanceThreshold}
+                });
             })
             .then(transactions => {
                 return transactions.map(transaction => transaction.payload)
                     .sort(arraySort('count', request.query.newestFirst));
             });
-    });
+    }, {concurrency: PROMISE_CONCURRENCY});
 
     Npo.findOne({_id: pledge.npoId})
         .then(_npo => {
             npo = _npo;
-            return Promise.all(promises);
+            return promises;
         })
         .then(transactions => {
             /* Group all transactions in one array regardless of their address */
