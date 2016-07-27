@@ -56,6 +56,8 @@ module.exports = function update(request, response, next) {
              * Remove password and avoid store plain password to db
              */
             delete request.body.password;
+            delete request.body.stripe;
+            delete request.body.plaid;
 
             return User.update(query, request.body, options);
         })
