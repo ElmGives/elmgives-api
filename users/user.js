@@ -26,7 +26,18 @@ let schema = new mongoose.Schema({
     },
 
     name: {
-        type: String
+        type: String,
+        default: ''
+    },
+
+    firstName: {
+        type: String,
+        default: ''
+    },
+
+    lastName: {
+        type: String,
+        default: ''
     },
 
     email: {

@@ -9,12 +9,12 @@ const index = require('../index');
 const defaults = require('../defaults');
 
 tape('User model', test => {
-    test.plan(20);
+    test.plan(22);
 
     let user = new User({});
     let values = user.schema.paths;
     let stringProperties = [
-        'name', 'password', 'phone', 'email', 'zip', 'verificationToken'
+        'name', 'firstName', 'lastName', 'password', 'phone', 'email', 'zip', 'verificationToken'
     ];
 
     types(stringProperties, values, test, 'String');
