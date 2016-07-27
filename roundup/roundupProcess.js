@@ -100,7 +100,7 @@ function extractInformationFromPerson(person) {
         const error = new Error(`User with ID ${person._id} has not an active pledge`);
 
         logger.error({ err: error });
-        return;
+        return Promise.resolve();
     }
     
     const thisMonth = getYearMonth(new Date());
@@ -112,7 +112,7 @@ function extractInformationFromPerson(person) {
         error.description = `User ${person._id} does not have an address for this month`;
 
         logger.error({ err: error });
-        return;
+        return Promise.resolve();
     }
 
     // NOTE: We assume user has only one bank account registered on the application for pledge
@@ -128,7 +128,7 @@ function extractInformationFromPerson(person) {
                 err: error
             });
 
-            return;
+            return Promise.resolve();
         }
         
         const accountId = person.plaid.accounts[bank.type].id;
