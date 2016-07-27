@@ -14,10 +14,8 @@ require('dotenv').config();
  */
 require('../config/database');
 
-const https = require('https');
 const http = require('http');
 const url = require('url');
-const querystring = require('querystring');
 const crypto = require('crypto');
 const logger = require('../logger');
 const padNumber = require('../helpers/padNumber');
@@ -29,65 +27,53 @@ const AWSQueue = require('../lib/awsQueue');
 const stringify = require('json-stable-stringify');
 const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
 const filterMapOrder = require('../helpers/filterMapOrderPlaidTransactions');
+const request = require('request');
+const P = require('bluebird');
 
 const elliptic = require('elliptic');
 const ed25519 = new elliptic.ec('ed25519');
-
-const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 48));
-const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
 
 const options = {
     host: process.env.PLAID_ENV.replace('https://', ''),
     method: 'POST',
     path: '/connect/get',
+    json: true,
     headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
     },
 };
-
-let _result = '';
 
 /**
  * We query Plaid services for user transaction history
  * @param   {object}    personData
  */
-function request(personData) {
+function requestPlaidTransactions(personData, days) {
+    const numberOfDays = typeof days === 'number' ? parseInt(days) : 1;
+    const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24 * numberOfDays));
+    const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
 
-    const postData = querystring.stringify({
+    const postData = {
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
-        'options': JSON.stringify({
+        'options': {
             'gte':  YESTERDAY,
-        })
-    });
+        }
+    };
 
     logger.info('Round up process: Request plaid information');
 
-    let req = https.request(options, requestHandler.bind(null, personData));
+    let plaidRequestParams = Object.assign({}, options);
+    plaidRequestParams.url = process.env.PLAID_ENV + options.path;
+    plaidRequestParams.body = postData;
 
-    req.on('error', logger.error);
-    req.write(postData);
-    req.end();
-}
+    return new P((resolve, reject) => {
+        request(plaidRequestParams, (err, res, body) => {
+            if (err) {return reject(err);}
 
-function requestHandler(personData, res) {
-    res.setEncoding('utf8');
-
-    _result = '';
-
-    res.on('data', chunk => _result += chunk);
-
-    res.on('end', function() {
-
-        if (res.statusCode !== 200) {
-            logger.error({ err: _result }, 'There was an error with the https request');
-            _result = '';
-            return;
-        }
-
-        processData(_result, personData)
-            .catch(error => logger.error({ err: error }));
+            return processData(body, personData)
+                .then(resolve).catch(reject);
+        });
     });
 }
 
@@ -103,7 +89,7 @@ function processData(data, personData) {
     let plaidTransactions = null;
 
     try {
-        plaidTransactions = filterMapOrder(JSON.parse(data).transactions, personData);
+        plaidTransactions = filterMapOrder(data.transactions, personData);
     }
     catch (error) {
         return Promise.reject(error);
@@ -280,7 +266,7 @@ function sign(params) {
 }
 
 let RoundAndSend = {
-    request: request,
+    request: requestPlaidTransactions,
 };
 
 module.exports = RoundAndSend;
