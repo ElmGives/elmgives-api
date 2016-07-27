@@ -33,6 +33,11 @@ let schema = new mongoose.Schema({
         required: true
     },
 
+    logoUrls: {
+        type: Object,
+        default: {}
+    },
+
     email: {
         type: String,
         required: true,
