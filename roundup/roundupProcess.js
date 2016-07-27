@@ -94,9 +94,9 @@ function run() {
  * @param   {object}    person
  */
 function extractInformationFromPerson(person) {
-    const activePledge = person.pledges.filter(pledge => pledge.active);
-    
-    if (activePledge.length === 0) {
+    const activePledge = person.pledges.find(pledge => pledge.active);
+
+    if (!activePledge || !activePledge.addresses) {
         const error = new Error(`User with ID ${person._id} has not an active pledge`);
 
         logger.error({ err: error });
@@ -104,12 +104,12 @@ function extractInformationFromPerson(person) {
     }
     
     const thisMonth = getYearMonth(new Date());
-    const address = activePledge[0].addresses[thisMonth];
+    const address = activePledge.addresses[thisMonth];
     
     if (!address) {
         const error = new Error('address-not-found');
         error.status = 422;
-        error.description = `User ${person._id} doesn't have an address for this month`;
+        error.description = `User ${person._id} does not have an address for this month`;
 
         logger.error({ err: error });
         return;
@@ -117,7 +117,7 @@ function extractInformationFromPerson(person) {
 
     // NOTE: We assume user has only one bank account registered on the application for pledge
     const query = {
-        _id: activePledge[0].bankId,
+        _id: activePledge.bankId,
     };
     
     return findOneBank(query).then(bank => {
@@ -133,7 +133,7 @@ function extractInformationFromPerson(person) {
         
         const accountId = person.plaid.accounts[bank.type].id;
         const plaidToken = person.plaid.tokens.connect[bank.type];
-        const monthlyLimit = activePledge[0].monthlyLimit;
+        const monthlyLimit = activePledge.monthlyLimit;
         
         let options = {
             _id: person._id,
