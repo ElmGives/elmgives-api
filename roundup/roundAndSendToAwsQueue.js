@@ -47,8 +47,9 @@ const options = {
  * We query Plaid services for user transaction history
  * @param   {object}    personData
  */
-function requestPlaidTransactions(personData) {
-    const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24));
+function requestPlaidTransactions(personData, days) {
+    const numberOfDays = typeof days === 'number' ? parseInt(days) : 1;
+    const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24 * numberOfDays));
     const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
 
     const postData = {
