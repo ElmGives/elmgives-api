@@ -75,33 +75,7 @@ function requestPlaidTransactions(personData, days) {
                 .then(resolve).catch(reject);
         });
     });
-
-    // let req = https.request(options, requestHandler.bind(null, personData));
-
-    // req.on('error', logger.error);
-    // req.write(postData);
-    // req.end();
 }
-
-// function requestHandler(personData, res) {
-//     res.setEncoding('utf8');
-
-//     let _result = '';
-
-//     res.on('data', chunk => _result += chunk);
-
-//     res.on('end', function() {
-
-//         if (res.statusCode !== 200) {
-//             logger.error({ err: _result }, 'There was an error with the https request');
-//             _result = '';
-//             return;
-//         }
-
-//         processData(_result, personData)
-//             .catch(error => logger.error({ err: error }));
-//     });
-// }
 
 /**
  * We take the transactions array from plaid and filter out those that we don't need and that are not pending.
