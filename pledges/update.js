@@ -28,7 +28,8 @@ module.exports = function update(request, response, next) {
         error.message = 'Charity not found';
         return next(error);
     }
-    if (request.body.active === true && !pledge.active) {
+    /* Change active pledge */
+    if (!pledge.active && request.body.active === true ) {
         pledge.active = true;
         if (typeof active === 'object') {
             active.active = false;
@@ -42,6 +43,11 @@ module.exports = function update(request, response, next) {
                 active.set(dateQuery, undefined);
             }
         }
+    }
+    /* Pause or resume pledge */
+    if (pledge.active && request.body.paused === true ||
+        pledge.active && request.body.paused === false) {
+        pledge.paused = request.body.paused;
     }
 
     /* Updatas to pledge properties */

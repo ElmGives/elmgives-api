@@ -51,6 +51,11 @@ let schema = new mongoose.Schema({
         default: false
     },
 
+    paused: {
+        type: Boolean,
+        default: false
+    },
+
     archived: {
         type: Boolean
     }

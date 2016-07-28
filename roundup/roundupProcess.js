@@ -97,9 +97,12 @@ function extractInformationFromPerson(person) {
     const activePledge = person.pledges.find(pledge => pledge.active);
 
     if (!activePledge || !activePledge.addresses) {
-        const error = new Error(`User with ID ${person._id} has not an active pledge`);
+        const error = new Error(`User with ID ${person._id} has no active pledge.`);
 
         logger.error({ err: error });
+        return Promise.resolve();
+    } else if (activePledge.paused) {
+        logger.info(`User with ID ${person._id} has an active pledge but it is paused.`);
         return Promise.resolve();
     }
     
