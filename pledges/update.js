@@ -45,8 +45,7 @@ module.exports = function update(request, response, next) {
         }
     }
     /* Pause or resume pledge */
-    if (pledge.active && request.body.paused === true ||
-        pledge.active && request.body.paused === false) {
+    if (pledge.active && typeof request.body.paused === 'boolean') {
         pledge.paused = request.body.paused;
     }
 
