@@ -39,6 +39,12 @@ let schema = new mongoose.Schema({
         required: true
     },
 
+    logoUrls: {
+        selectScreen: {
+            type: String
+        }
+    },
+
     email: {
         type: String,
         required: true,
