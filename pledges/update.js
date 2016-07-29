@@ -33,6 +33,7 @@ module.exports = function update(request, response, next) {
         pledge.active = true;
         if (typeof active === 'object') {
             active.active = false;
+            active.paused = false;
 
             let currentYearMonth = getYearMonth(new Date());
             let dateQuery = `addresses.${currentYearMonth}`;
