@@ -22,9 +22,9 @@ tape('Post model', test => {
     });
 
     new Post({
-        userId: 'x'.repeat(24),
-        npoId: 'x'.repeat(24),
-        textContent: 'x'.repeat(10),
+        userId: '4e137bd81a6a8e00000007ac',
+        npoId: '4e137bd81a6a8e00000007ac',
+        textContent: '4e137bd81a6a8e00000007ac',
         node: 'A'
     }).validate(error => {
         test.equal(undefined, error, 'valid with attributes');

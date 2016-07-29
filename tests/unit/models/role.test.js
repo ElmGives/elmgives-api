@@ -18,7 +18,7 @@ tape('Role model', test => {
     role.validate(error => required(['userId', 'title'], error.errors, test));
 
     new Role({
-        userId: 'x'.repeat(24),
+        userId: '4e137bd81a6a8e00000007ac',
         title: 'foobar'
     }).validate(error => test.equal(undefined, error, 'valid with attributes'));
 

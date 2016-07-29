@@ -33,7 +33,7 @@ tape('Bank model', test => {
     });
 
     new Bank({
-        userId: new Array(25).join('x'),
+        userId: '4e137bd81a6a8e00000007ac',
         name: 'foobar',
         type: 'foobar',
         description: 'barfoo',
