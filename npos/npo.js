@@ -34,8 +34,18 @@ let schema = new mongoose.Schema({
     },
 
     logoUrls: {
-        type: Object,
-        default: {}
+        unvisited: {
+            type: String
+        },
+        visited: {
+            type: String
+        },
+        selectScreen: {
+            type: String
+        },
+        npoPage: {
+            type: String
+        }
     },
 
     email: {

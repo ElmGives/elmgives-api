@@ -7,13 +7,14 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Npo model', test => {
-    test.plan(23);
+    test.plan(27);
 
     let npo = new Npo({});
     let values = npo.schema.paths;
 
     let stringProperties = [
-        'name', 'description', 'logoUrl', 'email', 'phone'
+        'name', 'description', 'logoUrl', 'email', 'phone',
+        'logoUrls.unvisited', 'logoUrls.visited', 'logoUrls.selectScreen', 'logoUrls.npoPage'
     ];
 
     types(stringProperties, values, test, 'String');
