@@ -11,7 +11,7 @@ const Charge = require('../charges/charge');
  * @param   {String}    currency
  * @param   {generator} generator
  */
-function createCharge(addresses, amount, currency, generator) {
+function createCharge(addresses, amount, currency, userId, npoId, report, generator) {
     
     if (!addresses.length) {
         let error = new Error('addresses-not-an-array');
@@ -28,6 +28,9 @@ function createCharge(addresses, amount, currency, generator) {
         addresses: addresses,
         amount: amount,
         currency: currency,
+        userId,
+        npoId,
+        report
     };
 
     new Charge(query)

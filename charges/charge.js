@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const timestamps = require('mongoose-timestamp');
+const emailValidator = require('../helpers/emailValidator');
 
 let schema = new mongoose.Schema({
     addresses: {
@@ -15,6 +16,35 @@ let schema = new mongoose.Schema({
     currency: {
         type: String,
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    npoId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    report: {
+        name: {
+            type: String,
+        },
+        email: {
+            type: String,
+            validate: {
+                validator: value => emailValidator(value),
+                message: '{VALUE} is not a valid email'
+            }
+        },
+        fee: {
+            type: Number,
+        },
+        net: {
+            type: Number,
+        },
+        ach: {
+            type: Boolean
+        },
+    }
 }, {
     versionKey: false,
 });
