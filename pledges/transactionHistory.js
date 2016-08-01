@@ -72,6 +72,12 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
             if (transactions.length) {
                 transactions = transactions.reduce((txs1, txs2) => txs1.concat(txs2));
             }
+
+            let page = request.query.page || {};
+            let offset = isNaN(page.offset) ? 0 : Number(page.offset);
+            let limit = isNaN(page.limit) ? transactions.length : Number(page.limit);
+            transactions = transactions.slice(offset, offset + limit);
+
             response.json({
                 data: {
                     id: npo._id,
