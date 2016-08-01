@@ -109,7 +109,7 @@ PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, q
         if (!user) {
             return Promise.reject(new Error('user-not-found'));
         }
-        return this.requestWalletAddress(user, message.pledgeId, message.nonce)
+        return this.requestWalletAddress(user, message.pledgeId, message.limit, message.nonce)
             .then(models => P.map(models, model => model.save()));
     })
     .then(() => {
@@ -123,7 +123,7 @@ PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, q
     });
 };
 
-PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, nonce) {
+PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, limit, nonce) {
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
     let pledge = user.pledges.id(pledgeId);
@@ -136,7 +136,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
         payload: {
             type: 'pledge-address',
             reference: pledge._id,
-            limit: pledge.monthlyLimit,
+            limit: limit,
             nonce: nonce
         },
         signatures: [{

@@ -27,7 +27,7 @@ let messages = [message];
 
 
 tape('Pledge Address Manager methods', test => {
-    test.plan(16);
+    test.plan(17);
 
     /* #pollQueue */
     sinon.stub(manager, 'parsePledgeAddressRequests').returns(P.resolve(messages));
@@ -72,7 +72,8 @@ tape('Pledge Address Manager methods', test => {
             test.equal(manager.models.user.findOne.calledOnce, true, 'the User model is queried');
             test.equal(manager.requestWalletAddress.calledOnce, true, '#requestWalletAddress was called');
             test.equal(manager.requestWalletAddress.getCall(0).args[1], message.pledgeId, '#requestWalletAddress was called with the pledgeId');
-            test.equal(manager.requestWalletAddress.getCall(0).args[2], message.nonce, '#requestWalletAddress was called with the nonce');
+            test.equal(manager.requestWalletAddress.getCall(0).args[2], message.limit, '#requestWalletAddress was called with the limit');
+            test.equal(manager.requestWalletAddress.getCall(0).args[3], message.nonce, '#requestWalletAddress was called with the nonce');
             test.equal(queue.deleteMessage.calledOnce, true, 'queue#deleteMessage was called');
             test.deepEqual(queue.deleteMessage.getCall(0).args[1], params, '#deleteMessage was called with params');
         });
