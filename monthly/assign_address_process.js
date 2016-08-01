@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * In this document Address assignement process is implementd:
+ * In this document Address assignment process is implementd:
  * This process assigns a new address for every user when a new month starts
  */
 
@@ -31,8 +31,8 @@ const hardCodedMonthlyLimit = 5000;
  * Starts the executeAddressAssign generator
  */
 function assignNewAddress() {
-    logger.info('Monthly address assignement: started');
-    notify('Address assignement process starts');
+    logger.info('Monthly address assignment: started');
+    notify('Address assignment process starts');
     
     addressGen = executeAddressAssign();
     addressGen.next();
@@ -49,7 +49,7 @@ function *executeAddressAssign() {
     try {
         users = yield getUsers(addressGen);
         
-        logger.info('Monthly address assignement: Got users');
+        logger.info('Monthly address assignment: Got users');
     } catch( error ) {
         logger.error({ err: error });
         users = [];
@@ -60,7 +60,7 @@ function *executeAddressAssign() {
     while((user = users.pop())) {
         
         try {
-        logger.info('Monthly address assignement: Trying to get a new address');
+        logger.info('Monthly address assignment: Trying to get a new address');
         
         // First we get the first active pledge
         const activePledge = user.pledges.find(pledge => pledge.active);
@@ -74,7 +74,7 @@ function *executeAddressAssign() {
         if (typeof activePledge.addresses !== 'object') {
             let error = new Error('active-pledge-without-addresses');
             error.status = 422;
-            error.details = `User with ID ${user._id} does not have an "addresses" object`;
+            error.details = `No "addresses" object in the active pledge of user ${user._id}`;
             throw error;
         }
         
@@ -84,7 +84,7 @@ function *executeAddressAssign() {
         let existentAddress = activePledge.addresses[thisMonth];
         
         if (existentAddress) {
-            logger.info(`Monthly address assignement: User ${user._id} already has an address.`);
+            logger.info(`Monthly address assignment: User ${user._id} already has an address.`);
             continue;
         }
         
@@ -100,13 +100,13 @@ function *executeAddressAssign() {
             throw error;
         }
         
-        logger.info('Monthly address assignement: Address created successfully.');
+        logger.info('Monthly address assignment: Address created successfully.');
         } catch(error) {
             logger.error({ err: error });
         }
     }
     
-    logger.info('Monthly address assignement: Finished');
+    logger.info('Monthly address assignment: Finished');
 
     let query = {
         process: 'addressAssignment',
@@ -117,7 +117,7 @@ function *executeAddressAssign() {
     };
 
     updateLastRun(query, newValue);
-    notify('Address assignement process ends');
+    notify('Address assignment process ends');
 }
 
 module.exports = assignNewAddress;
