@@ -100,6 +100,9 @@ schema.plugin(timestamps);
 
 schema.post('init', function(doc) {
     doc.logoUrl = `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrl}`;
+    doc.logoUrls = doc.logoUrls || {};
+    doc.logoUrls.selectScreen = !doc.logoUrls.visited ? '' :
+        `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrls.selectScreen}`;
 });
 
 module.exports = mongoose.model('Bank', schema);

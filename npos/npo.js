@@ -118,6 +118,15 @@ schema.pre('save', function (next) {
 });
 schema.post('init', function(doc) {
     doc.logoUrl = `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrl}`;
+    doc.logoUrls = doc.logoUrls || {};
+    doc.logoUrls.unvisited = !doc.logoUrls.unvisited ? '' :
+        `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrls.unvisited}`;
+    doc.logoUrls.visited = !doc.logoUrls.visited ? '' :
+        `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrls.visited}`;
+    doc.logoUrls.selectScreen = !doc.logoUrls.selectScreen ? '' :
+        `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrls.selectScreen}`;
+    doc.logoUrls.npoPage = !doc.logoUrls.npoPage ? '' :
+        `https://${REGION}.amazonaws.com/${BUCKET}/${doc.logoUrls.npoPage}`;
 });
 
 module.exports = mongoose.model('Npo', schema);
