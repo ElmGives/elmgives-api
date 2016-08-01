@@ -24,6 +24,7 @@ const notify = require('../slack/index');
 
 // GLOBAL VARIABLES
 let addressGen = null;
+const hardCodedMonthlyLimit = 5000;
 
 /**
  * Assign new address process
@@ -62,19 +63,25 @@ function *executeAddressAssign() {
         logger.info('Monthly address assignement: Trying to get a new address');
         
         // First we get the first active pledge
-        const activePledge = user.pledges.filter(pledge => pledge.active);
+        const activePledge = user.pledges.find(pledge => pledge.active);
         
-        if (activePledge.length === 0) {
+        if (!activePledge) {
             let error = new Error('active-pledge-not-found');
             error.status = 404;
-            error.details = `User with ID ${user._id} has not an active pledge`;
+            error.details = `User with ID ${user._id} has no active pledge`;
+            throw error;
+        }
+        if (typeof activePledge.addresses !== 'object') {
+            let error = new Error('active-pledge-without-addresses');
+            error.status = 422;
+            error.details = `User with ID ${user._id} does not have an "addresses" object`;
             throw error;
         }
         
         // we check user doesn't have already an address for this month. If it exists, we skip the process
         let date = new Date();
         let thisMonth = getYearMonth(date);
-        let existentAddress = activePledge[0].addresses[thisMonth];
+        let existentAddress = activePledge.addresses[thisMonth];
         
         if (existentAddress) {
             logger.info(`Monthly address assignement: User ${user._id} already has an address.`);
@@ -82,14 +89,14 @@ function *executeAddressAssign() {
         }
         
         // We need to request a new address for active user pledge to start a new month
-        const pledgeId = activePledge[0]._id;
-        const monthlyLimit = activePledge[0].monthlyLimit;
+        const pledgeId = activePledge._id;
+        const monthlyLimit = hardCodedMonthlyLimit;// before: activePledge.monthlyLimit;
         let newAddress = yield createNewAddress(user._id, pledgeId, monthlyLimit, addressGen);
         
         if (!newAddress) {
             let error = new Error('new-address-failed');
             error.status = 422;
-            error.details = `Couldn't send AWS a request for new Address for user ${user._id}`;
+            error.details = `Could not send AWS a request for new Address for user ${user._id}`;
             throw error;
         }
         
