@@ -306,21 +306,38 @@ function *donateAndUpdateAddresses(user, cents, currency, institution, isAchPaym
     const customerId = user.stripe[institution].customer.id;
     const connectedAccountId = npo.stripe.accountId;
     const fee = Math.ceil(calcFee(cents, isAchPayment));  // because we are in cents, we roundup to next cent
+    const net = +(totalDonation - fee/100).toFixed(2);
     const description = npo.name ? `Donation to ${npo.name}` : '';
+
+    let report = {
+        name: user.name || `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        fee,
+        net, 
+        ach: isAchPayment
+    };
 
     let donationSuccess = yield makeDonation(cents, currency, customerId, connectedAccountId, fee, description, chargeGen);
     
     if (!donationSuccess) {
         let error = new Error('donation-failed');
         error.status = 422;
-        error.details = `Donation couldn't be made for user ${user._id}`;
+        error.details = `Donation could not be made for user ${user._id}`;
         throw error;
     }
     
     logger.info('Monthly charge: Updating transaction as processed');
     
     // we add a new Charge element for this donation
-    const charge = yield createCharge(addresses, totalDonation, currency, chargeGen);
+    const charge = yield createCharge(
+        addresses,
+        totalDonation,
+        currency,
+        user._id,
+        npo._id,
+        report,
+        chargeGen
+    );
     
     // Then update the addresses for this donation with the new Charge ID
     for (let currentAddress of addresses) {
