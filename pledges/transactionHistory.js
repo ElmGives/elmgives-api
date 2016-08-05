@@ -36,6 +36,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
     dates = request.query.newestFirst ? dates.reverse() : dates;
     let addresses = dates.map(date => pledge.addresses[date]);
     let lastAddressIndex = addresses.length - 1;
+    let lifetimeCharges = 0;
 
     let promises = P.map(addresses, address => {
         return Charge.findOne({addresses: {$in: [address]}})
@@ -46,6 +47,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
                 if (charge && typeof charge.amount === 'number' &&
                     charge.addresses.indexOf(address) === 0) {
                     balanceThreshold = -Math.abs(charge.amount);
+                    lifetimeCharges += Math.abs(charge.amount);
                 /* Or use the current pledge monthly limit if the address is used for the current month */
                 } else if (request.query.newestFirst && addresses.indexOf(address) === 0 ||
                     !request.query.newestFirst && addresses.indexOf(address) === lastAddressIndex) {
@@ -83,6 +85,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
                 data: {
                     id: npo._id,
                     logo: npo.logoUrl,
+                    totalCharges: lifetimeCharges,
                     transactions
                 },
                 meta: {
