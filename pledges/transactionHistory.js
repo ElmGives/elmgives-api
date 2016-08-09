@@ -32,7 +32,7 @@ module.exports = function getPledgeTransactionHistory(request, response, next) {
 
     /* Retrieve the transactions of (each/all of) the pledge addresses */
     let dates = Object.keys(pledge.addresses || {}).sort();
-    dates = dates.slice(all ? 0 : dates.length - 1);
+    dates = dates.slice(all ? 0 : dates.length - 2); // return at least the latest two months
     dates = request.query.newestFirst ? dates.reverse() : dates;
     let addresses = dates.map(date => pledge.addresses[date]);
     let lastAddressIndex = addresses.length - 1;
