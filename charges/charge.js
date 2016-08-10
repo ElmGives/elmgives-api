@@ -15,6 +15,7 @@ let schema = new mongoose.Schema({
     },
     currency: {
         type: String,
+        required: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,6 +45,10 @@ let schema = new mongoose.Schema({
         ach: {
             type: Boolean
         },
+    },
+    status: {
+        type: String,
+        default: 'pending'
     }
 }, {
     versionKey: false,
