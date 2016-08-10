@@ -25,6 +25,10 @@ let schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    bankType: {
+        type: String,
+        required: true
+    },
     report: {
         name: {
             type: String,
