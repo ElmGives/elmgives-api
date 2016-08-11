@@ -42,7 +42,7 @@ module.exports = function triggerCharge(options) {
             let chargeOptions = {
                 destination: npo.stripe.accountId,
                 description: npo.name,
-                'application_fee': charge.report.fee
+                'application_fee': charge.details.fee
             };
 
             return processCharge(charge, customer, chargeOptions);

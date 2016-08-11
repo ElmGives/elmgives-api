@@ -29,7 +29,7 @@ let schema = new mongoose.Schema({
         type: String,
         required: true
     },
-    report: {
+    details: {
         name: {
             type: String,
         },
