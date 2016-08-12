@@ -50,8 +50,7 @@ module.exports = function calculateCharge(user, pledge, addresses, options) {
 
             /* Calculate charge fee */
             charge.fee = calculateFee(charge.amount, options.ach);
-
-            console.log(charge);
+            charge.net = charge.amount - charge.fee;
 
             return charge;
         });
