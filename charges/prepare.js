@@ -43,7 +43,9 @@ function prepareCharge(user, options) {
             return Charge.create(chargeParams);
         })
         .catch(error => {
-            logger.error({err: error});
+            if (error instanceof Error) {
+                logger.error({err: error});
+            }
         });
 }
 
@@ -53,7 +55,8 @@ function buildChargeParams(user, options) {
     if (!activePledge) {
         return Promise.reject(new Error('no-active-pledge'));
     } else if (!activePledge.addresses[date]) {
-        return Promise.reject(new Error('no-address-for-date'));
+        logger.info(`No address for user ${user._id} on ${date}`);
+        return Promise.reject('no-address-for-date');
     }
 
     let chargeParams = {
@@ -79,7 +82,9 @@ function buildChargeParams(user, options) {
             chargeParams.bankType = bank.type;
             chargeParams.details.ach = user.stripe[bank.type].ach;
 
-            return calculateCharge(user, chargeParams.addresses);
+            return calculateCharge(user, activePledge, chargeParams.addresses, {
+                ach: chargeParams.details.ach
+            });
         })
         .then(charge => {
             chargeParams.amount = charge.amount;
