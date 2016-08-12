@@ -4,13 +4,13 @@
 'use strict';
 
 const Charge = require('./charge');
-const processCharge = require('./process');
+const triggerCharge = require('./trigger');
 
 const P = require('bluebird');
 const PROMISE_CONCURRENCY = 10;
 const logger = require('../logger');
 
-module.exports = function triggerCharge(options) {
+module.exports = function triggerCharges(options) {
     let query = {
         status: 'pending'
     };
@@ -23,7 +23,13 @@ module.exports = function triggerCharge(options) {
             }
 
             return P.map(charges, charge => {
-                return processCharge(charge);
+                return triggerCharge(charge)
+                    .catch(error => {
+                        error.details = {
+                            chargeId: charge._id
+                        };
+                        logger.error({err: error});
+                    });
             }, {concurrency: PROMISE_CONCURRENCY});
         })
         .catch(error => {

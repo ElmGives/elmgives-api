@@ -9,17 +9,19 @@ const User = require('../users/user');
 const processCharge = require('./process');
 
 module.exports = function triggerCharge(options) {
-    let charge;
+    let charge = options.charge;
     let query = {
         _id: options.id
     };
 
-    return Charge.findOne(query)
+    let promise = charge ? Promise.resolve(charge) : Charge.findOne(query);
+
+    return promise
         .then(_charge => {
             charge = _charge;
             if (!charge) {
                 return Promise.reject(new Error('charge-not-found'));
-            } else if (charge.status !== 'pending') {
+            } else if (!options.status && charge.status !== 'pending') {
                 return Promise.reject(new Error('charge-not-pending'));
             } else if (!charge.bankType) {
                 return Promise.reject(new Error('missing-charge-bank-type'));
