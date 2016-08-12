@@ -71,7 +71,7 @@ function buildChargeParams(user, options) {
         }
     };
 
-    return Bank.findOne()
+    return Bank.findOne({_id: objectId(activePledge.bankId)})
         .then(bank => {
             if (!bank) {
                 return Promise.reject('pledge-bank-not-found');
