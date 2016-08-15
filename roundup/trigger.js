@@ -5,13 +5,14 @@
 
 const User = require('../users/user');
 const Bank = require('../banks/bank');
-const requestAndRoundup = require('./roundAndSendToAwsQueue');
+const requestAndRoundup = require('./roundAndSendToAwsQueue').request;
 const objectId = require('mongoose').Types.ObjectId;
 const logger = require('../logger');
 const moment = require('moment');
 const P = require('bluebird');
 
 const ROUNDUP_CONCURRENCY = 10;
+const YMD = 'YYYY-MM-DD';
 
 module.exports = function triggerRoundups(options) {
     options = typeof options === 'object' ? options : {};
@@ -31,7 +32,7 @@ module.exports = function triggerRoundups(options) {
         _id: 1,
         plaid: 1,
         pledges: 1,
-        latestRoundup: 1
+        latestRoundupDate: 1
     };
 
     if (typeof options.id === 'string') {
@@ -53,11 +54,15 @@ module.exports = function triggerRoundups(options) {
 };
 
 function processRoundups(user, options) {
+    let dateOptions = setupDateOptions(options, user.latestRoundupDate);
     return buildRoundupParams(user, options)
         .then(roundupParams => {
-            let dateOptions = {};
             logger.info(`Triggering roundup process for user ${user._id}:${user.email}`);
-            return requestAndRoundup(roundupParams, dateOptions);
+            return requestAndRoundup(roundupParams, dateOptions)
+              .then(() => {
+                  user.latestRoundupDate = moment().format(YMD);
+                  return user.save();
+              });
         })
         .catch(error => {
             error.details = {userId: user._id, userEmail: user.email};
@@ -90,4 +95,25 @@ function buildRoundupParams(user, options) {
 
             return params;
         });
+}
+
+function setupDateOptions(options, latestRoundupDate) {
+    let dateOptions = {
+        lte: options.lte,
+        gte: options.gte
+    };
+
+    let lteDate = moment(dateOptions.lte);
+    if (lteDate.isValid() && lteDate.format(YMD) < moment().format(YMD)) {
+        dateOptions.lte = lteDate.format(YMD);
+    }
+
+    let gteDate = moment(dateOptions.gte || latestRoundupDate);
+    if (gteDate.isValid() && gteDate.format(YMD) < moment().format(YMD)) {
+        dateOptions.gte = gteDate.format(YMD);
+    } else if (options.month) {
+        dateOptions.gte = moment().format('YYYY-MM-01'); // first day of the month
+    }
+
+    return dateOptions;
 }

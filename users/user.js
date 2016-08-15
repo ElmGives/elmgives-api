@@ -106,6 +106,10 @@ let schema = new mongoose.Schema({
         type: String
     },
 
+    latestRoundupDate: {
+        type: String,
+    },
+
     pledges: [pledgeSchema]
 }, {
     versionKey: false

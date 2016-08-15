@@ -50,13 +50,8 @@ const options = {
 function requestPlaidTransactions(personData, dateOptions) {
     dateOptions = typeof dateOptions === 'object' ? dateOptions : {};
 
-    let gteDate;
-    if (dateOptions.month) {
-        gteDate = moment.format('YYYY-MM-01');
-    } else {
-        let numberOfDays = typeof dateOptions.days === 'number' ? parseInt(dateOptions.days) : 1;
-        gteDate = dateOptions.gte || moment().subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    }
+    let lteDate = dateOptions.lte || moment().subtract(1, 'days').format('YYYY-MM-DD');
+    let gteDate = dateOptions.gte || lteDate;
 
     const postData = {
         'client_id': process.env.PLAID_CLIENTID,
@@ -64,7 +59,7 @@ function requestPlaidTransactions(personData, dateOptions) {
         'access_token': personData.token,
         'options': {
             gte: gteDate,
-            lte: dateOptions.lte
+            lte: lteDate
         }
     };
 
