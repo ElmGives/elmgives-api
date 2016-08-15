@@ -7,11 +7,10 @@ const getVerifiedAddressBalance = require('../helpers/verifiedAddressBalance');
 const logger = require('../logger');
 const P = require('bluebird');
 
-const STRIPE_ACH_FEE = 0.008;           // 0.8%
-const STRIPE_CC_FEE = 0.029;            // 2.9%
-const ELM_ACH_FEE = 50;                 // 50 cents for ACH
-const ELM_CC_FEE = 80;                  // 80 cents for Credit Cards
-const centCurrencies = ['usd'];
+const STRIPE_ACH_FEE = 0.008;      // 0.8%
+const STRIPE_CC_FEE = 0.029;       // 2.9%
+const ELM_ACH_FEE = 0.5;           // 50 cents for ACH
+const ELM_CC_FEE = 0.8;            // 80 cents for Credit Cards
 
 module.exports = function calculateCharge(user, pledge, addresses, options) {
     options = typeof options === 'object' ? options : {};
@@ -32,7 +31,7 @@ module.exports = function calculateCharge(user, pledge, addresses, options) {
         .then(addresses => {
             /* Calculate total charge amount */
             let roundupsAmount = addresses.map(address => Math.abs(address.balance))
-                .reduce((amount1, amount2) => amount1 + amount2);
+                .reduce((amount1, amount2) => +(amount1 + amount2).tofixed(2));
             let donationAmount = Math.min(roundupsAmount, pledge.monthlyLimit);
             if (isNaN(donationAmount) || donationAmount === 0) {
                 return Promise.reject(new Error('invalid-charge-amount'));
@@ -44,23 +43,25 @@ module.exports = function calculateCharge(user, pledge, addresses, options) {
                 .reduce((currency1, currency2) => currency1 === currency2 && currency1);
             if (!charge.currency) {
                 return Promise.reject(new Error('address-currencies-not-equal'));
-            } else if (centCurrencies.indexOf(charge.currency) >= 0) {
-                charge.amount *= 100; // convert to cents
             }
 
             /* Calculate charge fee */
             charge.fee = calculateFee(charge.amount, options.ach);
-            charge.net = charge.amount - charge.fee;
+            charge.net = +(charge.amount - charge.fee).toFixed(2);
 
             return charge;
         });
 };
 
 function calculateFee(amount, ach) {
+    let fee;
+
     if (ach) {
-        return Math.ceil(amount * STRIPE_ACH_FEE + ELM_ACH_FEE);
+        fee = amount * STRIPE_ACH_FEE + ELM_ACH_FEE;
     }
     else {
-        return Math.ceil(amount * STRIPE_CC_FEE + ELM_CC_FEE);
+        fee = amount * STRIPE_CC_FEE + ELM_CC_FEE;
     }
+
+    return +fee.toFixed(2);
 }

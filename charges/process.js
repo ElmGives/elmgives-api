@@ -7,6 +7,8 @@ const logger = require('../logger');
 const StripeCharge = require('./charge-stripe');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const centCurrencies = ['usd'];
+
 module.exports = function processCharge(charge, customer, params) {
     customer = typeof customer === 'object' ? customer : {};
     params = typeof params === 'object' ? params : {};
@@ -42,6 +44,10 @@ function processStripeCharge(charge, customer, params) {
         currency: charge.currency,
         customer: customer.id
     }, params);
+
+    if (centCurrencies.indexOf(stripeChargeParams.currency) >= 0) {
+        stripeChargeParams.amount *= 100; // convert to cents
+    }
 
     return stripe.charges.create(stripeChargeParams)
         .then(stripeCharge => {
