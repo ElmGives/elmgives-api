@@ -18,7 +18,6 @@ const http = require('http');
 const url = require('url');
 const crypto = require('crypto');
 const logger = require('../logger');
-const padNumber = require('../helpers/padNumber');
 const transactionChain = require('../helpers/transactionChain');
 const getTransaction = require('../transactions/chain/read');
 const createTransaction = require('../transactions/chain/create');
@@ -28,6 +27,7 @@ const stringify = require('json-stable-stringify');
 const checkMonthlyLimit = require('../helpers/checkMonthlyLimit');
 const filterMapOrder = require('../helpers/filterMapOrderPlaidTransactions');
 const request = require('request');
+const moment = require('moment');
 const P = require('bluebird');
 
 const elliptic = require('elliptic');
@@ -47,17 +47,24 @@ const options = {
  * We query Plaid services for user transaction history
  * @param   {object}    personData
  */
-function requestPlaidTransactions(personData, days) {
-    const numberOfDays = typeof days === 'number' ? parseInt(days) : 1;
-    const yesterdate = new Date(Date.now() - (1000 * 60 * 60 * 24 * numberOfDays));
-    const YESTERDAY = `${yesterdate.getFullYear()}-${padNumber(yesterdate.getMonth() + 1)}-${padNumber(yesterdate.getDate())}`;
+function requestPlaidTransactions(personData, dateOptions) {
+    dateOptions = typeof dateOptions === 'object' ? dateOptions : {};
+
+    let gteDate;
+    if (dateOptions.month) {
+        gteDate = moment.format('YYYY-MM-01');
+    } else {
+        let numberOfDays = typeof dateOptions.days === 'number' ? parseInt(dateOptions.days) : 1;
+        gteDate = dateOptions.gte || moment().subtract(numberOfDays, 'days').format('YYYY-MM-DD');
+    }
 
     const postData = {
         'client_id': process.env.PLAID_CLIENTID,
         'secret': process.env.PLAID_SECRET,
         'access_token': personData.token,
         'options': {
-            'gte':  YESTERDAY,
+            gte: gteDate,
+            lte: dateOptions.lte
         }
     };
 
