@@ -5,13 +5,16 @@
 
 const User = require('../users/user');
 const Bank = require('../banks/bank');
+const getFromAws = require('./getFromAws').get;
 const requestAndRoundup = require('./roundAndSendToAwsQueue').request;
+
 const objectId = require('mongoose').Types.ObjectId;
 const logger = require('../logger');
 const moment = require('moment');
 const P = require('bluebird');
 
 const ROUNDUP_CONCURRENCY = 10;
+const ONE_MINUTE = 60 * 1000;
 const YMD = 'YYYY-MM-DD';
 
 module.exports = function triggerRoundups(options) {
@@ -51,6 +54,13 @@ module.exports = function triggerRoundups(options) {
             return P.map(users, user => processRoundups(user, options), {
                 concurrency: ROUNDUP_CONCURRENCY
             });
+        })
+        .then(users => {
+            if (!users || users.length === 0) { return; }
+            /* Since there is currently no feedback from the signer server regarding the
+               availability of the requested transaction chain signatures, this code waits
+               for one minute before polling the AWS queue for the response signatures */
+            return P.delay(ONE_MINUTE).then(() => getFromAws({firstRun:true}));
         });
 };
 
