@@ -47,6 +47,7 @@ module.exports = function triggerRoundups(options) {
 
     return queryPromise
         .then(users => {
+            users = users instanceof Array ? users : [users];
             return P.map(users, user => processRoundups(user, options), {
                 concurrency: ROUNDUP_CONCURRENCY
             });
@@ -55,6 +56,11 @@ module.exports = function triggerRoundups(options) {
 
 function processRoundups(user, options) {
     let dateOptions = setupDateOptions(options, user.latestRoundupDate);
+    if (typeof dateOptions === 'string') {
+        logger.info(`Skipping roundup process for user ${user._id}:${user.email} (${dateOptions})`);
+        return Promise.resolve();
+    }
+
     return buildRoundupParams(user, options)
         .then(roundupParams => {
             logger.info(`Triggering roundup process for user ${user._id}:${user.email}`);
@@ -98,18 +104,23 @@ function buildRoundupParams(user, options) {
 }
 
 function setupDateOptions(options, latestRoundupDate) {
+    let today = moment().format(YMD);
+    if (latestRoundupDate === today) {
+        return 'already-run-today';
+    }
+
     let dateOptions = {
         lte: options.lte,
         gte: options.gte
     };
 
     let lteDate = moment(dateOptions.lte);
-    if (lteDate.isValid() && lteDate.format(YMD) < moment().format(YMD)) {
+    if (lteDate.isValid() && lteDate.format(YMD) < today) {
         dateOptions.lte = lteDate.format(YMD);
     }
 
     let gteDate = moment(dateOptions.gte || latestRoundupDate);
-    if (gteDate.isValid() && gteDate.format(YMD) < moment().format(YMD)) {
+    if (gteDate.isValid() && gteDate.format(YMD) < today) {
         dateOptions.gte = gteDate.format(YMD);
     } else if (options.month) {
         dateOptions.gte = moment().format('YYYY-MM-01'); // first day of the month
