@@ -39,7 +39,8 @@ module.exports = function getBalances(request, response, next) {
         });
         return Promise.all(promises)
             .then(balances => {
-                return Npo.findOne({_id: objectId(pledge.npoId)}, {select: 'logoUrl'})
+                let selectFields = {logoUrl: 1, logoUrls: 1};
+                return Npo.findOne({_id: objectId(pledge.npoId)}, selectFields)
                     .then(npo => {
                         if (!npo) {
                             let error = new Error();
