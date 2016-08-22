@@ -23,7 +23,7 @@ let schema = new mongoose.Schema({
      */
     provider: {
         type: String,
-        required: true,
+        // required: true,
         enum: providers
     },
 
