@@ -12,5 +12,6 @@ module.exports = function plaidTransactionFilter(accountId, transaction) {
     return !!((transaction && transaction.type && transaction.type.primary && 'pending' in transaction) &&
         // (transaction.type.primary !== '...') && // in case a type is to be filtered in the future
         (transaction.pending === false) &&
+        (Number(transaction.amount) > 0) &&
         (transaction._account === accountId));
 };
