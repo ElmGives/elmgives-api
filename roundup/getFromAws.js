@@ -70,6 +70,8 @@ function handleResponseFromAws(messages) {
 
             updateLastRun(query, newValue);
             notify('Round up process ends.');
+            logger.info('Roundup process ends');
+            process.exit(); // pending: chain promises!
             return;
         }
         
