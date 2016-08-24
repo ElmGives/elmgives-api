@@ -69,17 +69,24 @@ module.exports = function create(request, response, next) {
                 return Promise.reject(error);
             }
 
-            let query = {
+            let socialQuery = {
                 providerId: providerId,
                 email: email
             };
+            let userQuery = {email};
 
             /**
              * If provided token is valid, let's find Social record associated
              */
-            return Social.findOne(query);
+            return Promise.all([
+                Social.findOne(socialQuery),
+                User.findOne(userQuery)
+            ]);
         })
-        .then(social => {
+        .then(results => {
+            let social = results[0];
+            let user = results[1];
+
             if (!social) {
                 /**
                  * If no social found, means we need to create a Social record
@@ -90,13 +97,14 @@ module.exports = function create(request, response, next) {
                     email: email,
                     password: new Randexp(REGEX).gen()
                 };
+                let userPromise = user ? Promise.resolve(user) : new User(userData).save();
 
                 /**
                  * First we need an user, then create a Social record, but,
                  * return user since we need user information to create a
                  * session
                  */
-                return new User(userData).save().then(user => {
+                return userPromise.then(user => {
                     request.body.userId = user._id;
                     return new Social(request.body).save()
                         .then(() => user);
