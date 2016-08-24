@@ -6,12 +6,12 @@ const types = require('../types');
 const required = require('../required');
 
 tape('social model', test => {
-    test.plan(16);
+    test.plan(14);
 
     let social = new Social({});
     let values = social.schema.paths;
     let stringProperties = [
-        'provider', 'providerId', 'email', 'token'
+        'providerId', 'email', 'token'
     ];
 
     types(stringProperties, values, test, 'String');
@@ -20,7 +20,7 @@ tape('social model', test => {
     types(['userId'], values, test, 'ObjectID');
 
     social.validate(error => {
-        let fields = ['provider', 'userId', 'providerId', 'email'];
+        let fields = ['userId', 'providerId', 'email'];
         required(fields, error.errors, test);
     });
 
