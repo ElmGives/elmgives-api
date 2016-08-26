@@ -23,6 +23,6 @@ module.exports = function findLatestTransactionTimestamp(address) {
         })
         .catch(error => {
             logger.error({err: error});
-            return null; // no latest transaction timestamp
+            return; // no latest transaction timestamp
         });
 };
