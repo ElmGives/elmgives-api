@@ -6,6 +6,7 @@
 const User = require('../users/user');
 const Bank = require('../banks/bank');
 const getFromAws = require('./getFromAws').get;
+const getLatestTransactionTimestamp = require('./timestamp');
 const requestAndRoundup = require('./roundAndSendToAwsQueue').request;
 
 const objectId = require('mongoose').Types.ObjectId;
@@ -73,12 +74,22 @@ function processRoundups(user, options) {
 
     return buildRoundupParams(user, options)
         .then(roundupParams => {
+            return getLatestTransactionTimestamp(roundupParams.address)
+                .then(latestTimestamp => {
+                    if (latestTimestamp) {
+                        /* Modify start date to request and catch up with previous days */
+                        dateOptions.gte = moment(latestTimestamp).add(1, 'days').format(YMD);
+                    }
+                })
+                .then(() => roundupParams);
+        })
+        .then(roundupParams => {
             logger.info(`Triggering roundup process for user ${user._id}:${user.email}`);
             return requestAndRoundup(roundupParams, dateOptions)
-              .then(() => {
-                  user.latestRoundupDate = moment().format(YMD);
-                  return user.save();
-              });
+                .then(() => {
+                    user.latestRoundupDate = moment().format(YMD);
+                    return user.save();
+                });
         })
         .catch(error => {
             error.details = {userId: user._id, userEmail: user.email};
