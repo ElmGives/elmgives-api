@@ -26,6 +26,7 @@ module.exports = function triggerRoundups(options) {
         active: true,
         pledges: {$exists: true},
         'pledges.active': true,
+        'pledges.paused': false,
         'pledges.addresses': {$exists: true},
 
         plaid: {$exists: true},
