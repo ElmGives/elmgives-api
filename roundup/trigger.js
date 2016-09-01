@@ -24,10 +24,13 @@ module.exports = function triggerRoundups(options) {
 
     let query = {
         active: true,
-        pledges: {$exists: true},
-        'pledges.active': true,
-        'pledges.paused': false,
-        'pledges.addresses': {$exists: true},
+        pledges: {
+            $elemMatch: {
+                active: true,
+                paused: false,
+                addresses: {$exists: true}
+            }
+        },
 
         plaid: {$exists: true},
         'plaid.accounts': {$exists: true, $ne: {}},
