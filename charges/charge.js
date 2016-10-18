@@ -42,6 +42,7 @@ let schema = new mongoose.Schema({
         },
         fee: {
             type: Number,
+            default: 0
         },
         net: {
             type: Number,

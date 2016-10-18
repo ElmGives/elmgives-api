@@ -47,6 +47,8 @@ function processStripeCharge(charge, customer, params) {
 
     if (centCurrencies.indexOf(stripeChargeParams.currency) >= 0) {
         stripeChargeParams.amount *= 100; // convert to cents
+        /* jshint camelcase: false */
+        stripeChargeParams.application_fee *= 100;
     }
 
     return stripe.charges.create(stripeChargeParams)
