@@ -2,4 +2,4 @@
 
 require('dotenv').config();
 require('../config/database');
-require('./trigger')({month:true});
+require('./trigger').all({month:true});

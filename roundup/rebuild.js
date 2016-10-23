@@ -9,6 +9,8 @@ const User = require('../users/user');
 const Address = require('../addresses/address');
 const Transaction = require('../transactions/chain/transaction');
 
+const processRoundups = require('./trigger').one;
+
 module.exports = function rebuildTransactionChain(options) {
     let user = options.user;
     let date = moment(options.date).format('YYYY-MM');
@@ -44,6 +46,16 @@ module.exports = function rebuildTransactionChain(options) {
                         Address.update(query, update),
                         user.save()
                     ]);
+                })
+                .then(() => {
+                    let dateOptions = {
+                        month: true,
+                        gte: user.latestRoundupDate,
+                        lte: moment(date).add(1, 'month')
+                            .subtract(1, 'day').format('YYYY-MM-DD')
+                    };
+
+                    return processRoundups(user, dateOptions);
                 });
         });
 };
