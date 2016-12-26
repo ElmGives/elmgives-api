@@ -31,10 +31,10 @@ module.exports = function rebuildTransactionChain(options) {
                 return Promise.reject(new Error('no-active-pledge-found'));
             }
 
-            let address = activePledge.addresses[date];
             if (typeof activePledge.addresses !== 'object' || !activePledge.addresses[date]) {
                 return Promise.reject(new Error('no-pledge-address-found'));
             }
+            let address = activePledge.addresses[date];
 
             return removeTransactions({address: address})
                 .then(genesis => {
