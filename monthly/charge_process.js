@@ -309,7 +309,7 @@ function *donateAndUpdateAddresses(user, cents, currency, institution, isAchPaym
     const net = +(totalDonation - fee/100).toFixed(2);
     const description = npo.name ? `Donation to ${npo.name}` : '';
 
-    let report = {
+    let details = {
         name: user.name || `${user.firstName} ${user.lastName}`,
         email: user.email,
         fee,
@@ -335,7 +335,7 @@ function *donateAndUpdateAddresses(user, cents, currency, institution, isAchPaym
         currency,
         user._id,
         npo._id,
-        report,
+        details,
         chargeGen
     );
     

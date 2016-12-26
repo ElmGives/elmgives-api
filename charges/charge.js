@@ -15,6 +15,7 @@ let schema = new mongoose.Schema({
     },
     currency: {
         type: String,
+        required: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +25,11 @@ let schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    report: {
+    bankType: {
+        type: String,
+        required: true
+    },
+    details: {
         name: {
             type: String,
         },
@@ -37,6 +42,7 @@ let schema = new mongoose.Schema({
         },
         fee: {
             type: Number,
+            default: 0
         },
         net: {
             type: Number,
@@ -44,6 +50,10 @@ let schema = new mongoose.Schema({
         ach: {
             type: Boolean
         },
+    },
+    status: {
+        type: String,
+        default: 'pending'
     }
 }, {
     versionKey: false,
