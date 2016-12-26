@@ -51,7 +51,7 @@ function prepareCharge(user, options) {
 
 function buildChargeParams(user, options) {
     let date = options.date || moment().subtract(1, 'month').format('YYYY-MM');
-    let activePledge = user.pledges.find(pledge => pledge.active);
+    let activePledge = user.pledges.find(pledge => pledge.addresses && pledge.addresses[date]);
     if (!activePledge) {
         return Promise.reject(new Error('no-active-pledge'));
     } else if (!activePledge.addresses[date]) {

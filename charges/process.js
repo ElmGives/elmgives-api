@@ -49,6 +49,8 @@ function processStripeCharge(charge, customer, params) {
         stripeChargeParams.amount *= 100; // convert to cents
         /* jshint camelcase: false */
         stripeChargeParams.application_fee *= 100;
+        stripeChargeParams.amount = Math.round(stripeChargeParams.amount);
+        stripeChargeParams.application_fee = Math.round(stripeChargeParams.application_fee);
     }
 
     return stripe.charges.create(stripeChargeParams)
