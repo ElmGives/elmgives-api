@@ -18,7 +18,7 @@ const ROUNDUP_CONCURRENCY = 10;
 const ONE_MINUTE = 60 * 1000;
 const YMD = 'YYYY-MM-DD';
 
-module.exports = function triggerRoundups(options) {
+function triggerRoundups(options) {
     options = typeof options === 'object' ? options : {};
     let queryPromise;
 
@@ -67,10 +67,10 @@ module.exports = function triggerRoundups(options) {
                for one minute before polling the AWS queue for the response signatures */
             return P.delay(ONE_MINUTE).then(() => getFromAws({firstRun:true}));
         });
-};
+}
 
 function processRoundups(user, options) {
-    let dateOptions = setupDateOptions(options, user.latestRoundupDate);
+    let dateOptions = setupDateOptions(user.latestRoundupDate, options);
     if (typeof dateOptions === 'string') {
         logger.info(`Skipping roundup process for user ${user._id}:${user.email} (${dateOptions})`);
         return Promise.resolve();
@@ -82,7 +82,9 @@ function processRoundups(user, options) {
                 .then(latestTimestamp => {
                     if (latestTimestamp) {
                         /* Modify start date to request and catch up with previous days */
-                        dateOptions.gte = moment(latestTimestamp).add(1, 'days').format(YMD);
+                        let latestNextDay = moment(latestTimestamp).add(1, 'days').format(YMD);
+                        dateOptions.gte = dateOptions.gte < latestNextDay ?
+                            dateOptions.gte : latestNextDay;
                     }
                 })
                 .then(() => roundupParams);
@@ -128,7 +130,7 @@ function buildRoundupParams(user, options) {
         });
 }
 
-function setupDateOptions(options, latestRoundupDate) {
+function setupDateOptions(latestRoundupDate, options) {
     let today = moment().format(YMD);
     if (latestRoundupDate === today) {
         return 'already-run-today';
@@ -153,3 +155,8 @@ function setupDateOptions(options, latestRoundupDate) {
 
     return dateOptions;
 }
+
+module.exports = {
+    all: triggerRoundups,
+    one: processRoundups
+};
