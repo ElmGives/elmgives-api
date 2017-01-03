@@ -20,12 +20,14 @@ require('../config/database');
 const User = require('../users/user');
 const findOneBank = require('../banks/readOne');
 const logger = require('../logger');
+const P = require('bluebird');
 
 const roundAndSendToAmazon = require('./roundAndSendToAwsQueue');
 const getFromAws = require('./getFromAws');
 const getYearMonth = require('../helpers/getYearMonth');
 
 const ONE_MINUTE = 1000 * 60;
+const PROMISE_CONCURRENCY = 10;
 
 /**
  * Query User collection for people with plaid token and created pledge addresses
@@ -38,20 +40,21 @@ function run() {
     const query = {
         active: true,
         plaid: {
-            $exists: true
-        },
-        'plaid.accountId': {
             $exists: true,
+        },
+        'plaid.accounts': {
+            $exists: true,
+            $ne: {},
         },
         'plaid.tokens.connect': {
             $exists: true,
-            $ne: {}
+            $ne: {},
         },
         pledges: {
-            $exists: true
+            $exists: true,
         },
         'pledges.addresses': {
-            $exists: true
+            $exists: true,
         },
     };
 
@@ -67,15 +70,18 @@ function run() {
         .then(people => {
 
             if (!people || people.length === 0) {
-                logger.log('There is no people information to process');
+                logger.info('There is no people information to process');
                 return;
             }
-
-            // Round up and send to AWS queue for every person
-            people.map(extractInformationFromPerson);
             
             // Then extract from AWS queue transaction chain signed information for every person
             setTimeout(() => getFromAws.get({ firstRun: true }), ONE_MINUTE);
+
+            // Round up and send to AWS queue for every person
+            return P.map(people, person => {
+                return extractInformationFromPerson(person)
+                    .catch(error => logger.error({err: error}));
+            }, {concurrency: PROMISE_CONCURRENCY});
         })
         .catch(error => logger.error({
             err: error
@@ -88,33 +94,36 @@ function run() {
  * @param   {object}    person
  */
 function extractInformationFromPerson(person) {
-    const activePledge = person.pledges.filter(pledge => pledge.active);
-    
-    if (activePledge.length === 0) {
-        const error = new Error(`User with ID ${person._id} has not an active pledge`);
+    const activePledge = person.pledges.find(pledge => pledge.active);
+
+    if (!activePledge || !activePledge.addresses) {
+        const error = new Error(`User with ID ${person._id} has no active pledge.`);
 
         logger.error({ err: error });
-        return;
+        return Promise.resolve();
+    } else if (activePledge.paused) {
+        logger.info(`User with ID ${person._id} has an active pledge but it is paused.`);
+        return Promise.resolve();
     }
     
     const thisMonth = getYearMonth(new Date());
-    const address = activePledge[0].addresses[thisMonth];
+    const address = activePledge.addresses[thisMonth];
     
     if (!address) {
         const error = new Error('address-not-found');
         error.status = 422;
-        error.description = `User ${person._id} doesn't have an address for this month`;
+        error.description = `User ${person._id} does not have an address for this month`;
 
         logger.error({ err: error });
-        return;
+        return Promise.resolve();
     }
 
     // NOTE: We assume user has only one bank account registered on the application for pledge
     const query = {
-        _id: activePledge[0].bankId,
+        _id: activePledge.bankId,
     };
     
-    findOneBank(query).then(bank => {
+    return findOneBank(query).then(bank => {
     
         if (!bank) {
             const error = new Error('There is no bank on banks collection with this ID: ' + query._id);
@@ -122,12 +131,12 @@ function extractInformationFromPerson(person) {
                 err: error
             });
 
-            return;
+            return Promise.resolve();
         }
         
-        const accountId = person.plaid.accountId;
+        const accountId = person.plaid.accounts[bank.type].id;
         const plaidToken = person.plaid.tokens.connect[bank.type];
-        const monthlyLimit = activePledge[0].monthlyLimit;
+        const monthlyLimit = activePledge.monthlyLimit;
         
         let options = {
             _id: person._id,
@@ -137,7 +146,7 @@ function extractInformationFromPerson(person) {
             limit: monthlyLimit,
         };
         
-        roundAndSendToAmazon.request(options);
+        return roundAndSendToAmazon.request(options);
     });
 }
 

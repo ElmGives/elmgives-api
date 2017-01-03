@@ -25,8 +25,8 @@ const LIMIT_POST_DAHSHBOARD = process.env.LIMIT_POST_DAHSHBOARD || 1;
  * Default values for query on posts
  */
 const nodes = ['A', 'B', 'C', 'D', 'E'];
-const select = '_id npoId videos images node';
-const npoSelect = '_id logoUrl backgroundColor node';
+const select = '_id npoId videos images node available';
+const npoSelect = '_id logoUrl logoUrls backgroundColor node';
 const sort = {
     createdAt: -1
 };
@@ -43,11 +43,14 @@ function mapData(data) {
 }
 
 module.exports = function dashboard(request, response, next) {
+    let pledge = request.currentUser.pledges.find(item => item.active);
+    let npoId = typeof pledge === 'object' ? pledge.npoId : request.query.npoId;
 
     let promises = nodes.map(node => {
         let query = {
             node: node
         };
+        if (npoId && node !== 'C') {query.npoId = npoId;}
 
         return Post
             .find(query, select)

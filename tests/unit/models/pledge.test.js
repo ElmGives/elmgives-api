@@ -6,7 +6,7 @@ const types = require('../types');
 const required = require('../required');
 
 tape('Charity model', test => {
-    test.plan(13);
+    test.plan(12);
 
     let pledge = new Charity({});
     let values = pledge.schema.paths;
@@ -17,7 +17,7 @@ tape('Charity model', test => {
 
     pledge.validate(error => {
         let fields = [
-            'userId', 'bankId', 'npoId', 'monthlyLimit', 'npo', 'bank'
+            'userId', 'bankId', 'npoId', 'npo', 'bank'
         ];
         required(fields, error.errors, test);
     });

@@ -109,7 +109,7 @@ PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, q
         if (!user) {
             return Promise.reject(new Error('user-not-found'));
         }
-        return this.requestWalletAddress(user, message.pledgeId, message.nonce)
+        return this.requestWalletAddress(user, message.pledgeId, message.limit, message.nonce)
             .then(models => P.map(models, model => model.save()));
     })
     .then(() => {
@@ -119,11 +119,11 @@ PledgeAddressManager.prototype.handlePledgeAddressRequest = function (message, q
         );
     })
     .catch(error => {
-        logger.error(error);
+        logger.error({err: error});
     });
 };
 
-PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, nonce) {
+PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, limit, nonce) {
     let privateKey = process.env.SERVER_PRIVATE_KEY;
     let scheme = 'ed25519';
     let pledge = user.pledges.id(pledgeId);
@@ -136,7 +136,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
         payload: {
             type: 'pledge-address',
             reference: pledge._id,
-            limit: pledge.monthlyLimit,
+            limit: limit,
             nonce: nonce
         },
         signatures: [{
@@ -167,7 +167,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
 
             return P.all([transaction, address])
                 .spread((transaction, address) => {
-                    let currentYearMonth = getYearMonth();
+                    let currentYearMonth = getYearMonth(new Date());
                     let currentAddress = pledge.addresses[currentYearMonth];
 
                     if (!currentAddress) {
@@ -176,7 +176,7 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
                         let error = new Error();
                         error.message = 'An address for the current month has already been added.';
                         error.details = `month: ${currentYearMonth}, address: ${currentAddress}`;
-                        logger.error(error);
+                        logger.error({err: error});
                     }
 
                     return [
@@ -184,7 +184,8 @@ PledgeAddressManager.prototype.requestWalletAddress = function (user, pledgeId, 
                         transaction,
                         address
                     ];
-                });
+                })
+                .catch(error => logger.error({err: error}));
         });
 };
 

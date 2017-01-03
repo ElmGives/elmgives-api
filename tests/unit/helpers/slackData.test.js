@@ -17,9 +17,9 @@ tape('Slack Data helper', test => {
 
     test.equal(slackData(data, options).token, 'foobar', 'proper token');
     test.equal(slackData(data, options).text, '```{}```', 'proper message');
-    test.equal(slackData(data, options)[EMOJI], ':bicyclist:', 'proper icon');
+    test.equal(slackData(data, options)[EMOJI], ':elmgives:', 'proper icon');
     test.equal(slackData(data, options).channel, 'build', 'default channel');
-    test.equal(slackData(data, options).username, 'Custom ELM Integration', 'default channel');
+    test.equal(slackData(data, options).username, 'ELM System Notification', 'default channel');
 });
 
 tape('Slack Data helper with environment settings', test => {

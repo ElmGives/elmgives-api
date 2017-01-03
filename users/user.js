@@ -26,7 +26,18 @@ let schema = new mongoose.Schema({
     },
 
     name: {
-        type: String
+        type: String,
+        default: ''
+    },
+
+    firstName: {
+        type: String,
+        default: ''
+    },
+
+    lastName: {
+        type: String,
+        default: ''
     },
 
     email: {
@@ -54,8 +65,9 @@ let schema = new mongoose.Schema({
     },
 
     plaid: {
-        accountId: {
-            type: String
+        accounts: {
+            type: Object,
+            default: {}
         },
         tokens: {
             connect: {
@@ -92,6 +104,10 @@ let schema = new mongoose.Schema({
 
     verificationToken: {
         type: String
+    },
+
+    latestRoundupDate: {
+        type: String,
     },
 
     pledges: [pledgeSchema]

@@ -12,6 +12,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PlaidLinkExchanger = {
     middleware: middleware,
     exchangePublicToken: exchangePublicToken,
+    upgradeAccessToken: upgradeAccessToken,
     createStripeCustomer: createStripeCustomer,
     stripe: stripe,
     models: {
@@ -51,12 +52,16 @@ function middleware(request, response, next) {
         .then(exchanged => {
             let query = {};
             data.success.plaid = true;
-            query['plaid.accountId'] = roundupAccountID || bankAccountID;
-            query['plaid.tokens.connect.' + institution] = exchanged.plaidAccessToken;
+            query[`plaid.accounts.${institution}.id`] = roundupAccountID || bankAccountID;
+            query[`plaid.accounts.${institution}.last4`] = request.body.last4;
+            query[`plaid.tokens.connect.${institution}`] = exchanged.plaidAccessToken;
             query[`stripe.${institution}.ach`] = !stripeToken; // true: Stripe ACH, false: Stripe Credit Card
             let token = stripeToken || exchanged.stripeBankAccountToken;
 
-            return PlaidLinkExchanger.createStripeCustomer(request.currentUser, token)
+            let stripePromise = !token ? Promise.reject({name: 'no-stripe-token'}) :
+                PlaidLinkExchanger.createStripeCustomer(request.currentUser, token);
+
+            return stripePromise
                 .then(customer => {
                     query[`stripe.${institution}.customer.id`] = customer.id;
                     data.success.stripe = true;
@@ -115,11 +120,46 @@ function exchangePublicToken(plaid, publicToken, bankAccountID) {
                 return reject(error);
             }
 
-            resolve({
-                plaidAccessToken: plaidAccessToken,
-                stripeBankAccountToken: stripeBankAccountToken
-            });
+            let promise = (bankAccountID) ? Promise.resolve() :
+                PlaidLinkExchanger.upgradeAccessToken(plaid, plaidAccessToken);
+
+            promise
+                .then(result => {
+                    return resolve({
+                        plaidAccessToken: plaidAccessToken,
+                        stripeBankAccountToken: stripeBankAccountToken
+                    });
+                })
+                .catch(reject);
         });
+    });
+}
+
+/**
+ * Upgrades a Plaid access token obtained for a specific product so that it works for another product
+ * @param  {Object} plaid - Plaid client instance
+ */
+function upgradeAccessToken(plaid, token, product) {
+    let options = {};
+    return new Promise((resolve, reject) => {
+        plaid.client.upgradeUser(token, product || 'connect', options,
+            (err, mfaResponse, response) => {
+                if (err && err.code !== 1115) { // product already enabled
+                    let error = new Error();
+                    error.name = 'plaid-access-token-upgrade-error';
+                    error.details = err;
+                    return reject(error);
+                }
+                if (mfaResponse) { // MFA responses???
+                    let error = new Error();
+                    error.name = 'plaid-token-upgrade-requires-mfa';
+                    error.details = err;
+                    return reject(error);
+                }
+
+                return resolve({upgraded: true});
+            }
+        );
     });
 }
 

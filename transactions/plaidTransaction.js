@@ -5,6 +5,8 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const unique = require('mongoose-unique-validator');
+const timestamps = require('mongoose-timestamp');
 
 let schema = new mongoose.Schema({
     transactionId: {
@@ -53,5 +55,8 @@ let schema = new mongoose.Schema({
 }, {
     versionKey: false,
 });
+
+schema.plugin(unique);
+schema.plugin(timestamps);
 
 module.exports = mongoose.model('PlaidTransactions', schema);

@@ -4,6 +4,6 @@
  */
 'use strict';
 
-const REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const REGEX = process.env.EMAIL_REGEX || /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 module.exports = email => REGEX.test(email);

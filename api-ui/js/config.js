@@ -1,4 +1,4 @@
-var API = 'http://localhost:3000';
+var API = 'http://stage-api.elmgives.com';
 
 var users = {
     'name': 'Users',
@@ -75,8 +75,8 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'request password change': {
-            'description': 'Ask API for a token to change password',
+        'request to reset password': {
+            'description': 'Ask API for a CODE to change password',
             'params': {
                 changePassword: 'string ( email ) ',
             },
@@ -84,7 +84,7 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'request new password': {
+        'verify reset password code': {
             'description': 'Ask API token to change password',
             'params': {
                 changePassword: 'string(email)',
@@ -94,16 +94,29 @@ var users = {
             'wrapper': '',
             'method': 'POST'
         },
-        'change password': {
-            'description': 'Ask API for password change',
+        'submit password for reset': {
+            'description': 'Submit the new password for password reset',
             'params': {
+                'auth_token': 'string',
+                'id': 'string',
                 changePassword: 'string(email)',
                 token: 'string ( big token )',
                 password: 'string ( new password )'
             },
-            'url': API + '/users',
+            'url': API + '/users/[id]',
+            'urlWithId': 'id',
             'wrapper': '',
             'method': 'POST'
+        },
+        'change password': {
+            'description': 'Ask API for password change for existing user',
+            'params': {
+                password: 'string ( existing user password )',
+                newPassword: 'string( new password )'
+            },
+            'url': API + '/users',
+            'wrapper': '',
+            'method': 'PUT'
         }
     }
 };
@@ -259,22 +272,39 @@ var roles = {
     }
 };
 
+var contact = {
+    'name': 'Contact us',
+    'description': '<p> </p>',
+
+    'calls': {
+        'contact us': {
+            'description': 'send email to admin user',
+            'params': {
+                content: 'string',
+                contact: 'string',
+                category: 'string'
+            },
+            'url': API + '/contact',
+            'method': 'POST'
+        },
+    }
+};
+
+
 var images = {
     'name': 'Images',
     'description': '<p> Manage posts.</p>',
 
-    'calls': {
-        'upload image': {
-            'description': '',
-            'params': {
-                'auth_token': 'string',
-                'logos': 'file'
-            },
-            'url': API + '/images',
-            'wrapper': '',
-            hasFile: true,
-            'method': 'POST'
-        }
+    'upload image': {
+        'description': '',
+        'params': {
+            'auth_token': 'string',
+            'logos': 'file'
+        },
+        'url': API + '/images',
+        'wrapper': '',
+        hasFile: true,
+        'method': 'POST'
     }
 };
 
@@ -417,7 +447,7 @@ var sessions = {
             'url': API + '/sessions',
             'wrapper': '',
             'method': 'POST',
-            callback: function(response) {
+            callback: function (response) {
                 'use strict';
                 var data = response.data || [];
                 localStorage.setItem('cu', JSON.stringify(data));
@@ -431,7 +461,7 @@ var sessions = {
             'url': API + '/sessions/[id]',
             'wrapper': '',
             'method': 'DELETE',
-            callback: function() {
+            callback: function () {
                 'use strict';
                 localStorage.removeItem('cu');
             }
@@ -439,7 +469,7 @@ var sessions = {
     }
 };
 
-define([], function() {
+define([], function () {
     'use strict';
 
     var services = {
@@ -450,6 +480,7 @@ define([], function() {
         posts: posts,
         roles: roles,
         images: images,
+        contact: contact,
         pledges: pledges
     };
 

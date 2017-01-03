@@ -26,6 +26,7 @@ const defaultResponse = {
 module.exports = function requestPassword(request, response, next) {
     let token = request.body.token;
     let email = request.body.changePassword;
+    let recoveryCode;
 
     if (!token || !email) {
         let error = new Error();
@@ -67,6 +68,7 @@ module.exports = function requestPassword(request, response, next) {
 
                 return Promise.reject(error);
             }
+            recoveryCode = code;
 
             /**
              * Now we know that the code matches encrypted value and the request
@@ -103,7 +105,8 @@ module.exports = function requestPassword(request, response, next) {
 
             user.password = hash;
 
-            return user.save();
+            return user.save()
+                .then(() => recoveryCode.remove());
         })
         .then(() => response.json(defaultResponse))
         .catch(next);

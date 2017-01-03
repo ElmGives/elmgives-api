@@ -24,6 +24,12 @@ const defaultResponse = {
 
 module.exports = function update(request, response, next) {
 
+    if (!request.params.id) {
+        return response.status(422).json({
+            error: 'required params missing'
+        });
+    }
+
     let query = {
         _id: request.params.id
     };
@@ -50,6 +56,8 @@ module.exports = function update(request, response, next) {
              * Remove password and avoid store plain password to db
              */
             delete request.body.password;
+            delete request.body.stripe;
+            delete request.body.plaid;
 
             return User.update(query, request.body, options);
         })

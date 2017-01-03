@@ -6,8 +6,8 @@
 const select = require('../helpers/querySelect');
 const querySort = require('../helpers/querySort');
 
-const PER_PAGE = process.env.PER_PAGE || 10;
-const PER_PAGE_LIMIT = process.env.PER_PAGE_LIMIT || 50;
+const PER_PAGE = Number(process.env.PER_PAGE) || 10;
+const PER_PAGE_LIMIT = Number(process.env.PER_PAGE_LIMIT) || 50;
 
 module.exports = (request, Model) => {
         const fields = select(request.query.fields, Model);

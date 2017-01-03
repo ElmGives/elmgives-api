@@ -7,11 +7,12 @@ const required = require('../required');
 const defaults = require('../defaults');
 
 tape('Bank model', test => {
-    test.plan(23);
+    test.plan(24);
 
     let bank = new Bank({});
     let values = bank.schema.paths;
-    let stringProperties = ['name', 'description', 'logoUrl', 'email', 'phone'];
+    let stringProperties = ['name', 'description', 'logoUrl',
+        'logoUrls.selectScreen', 'email', 'phone'];
 
     types(stringProperties, values, test, 'String');
     types(['createdAt', 'updatedAt'], values, test, 'Date');

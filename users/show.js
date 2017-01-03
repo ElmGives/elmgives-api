@@ -2,6 +2,7 @@
  * Middleware to get single User information
  */
 'use strict';
+
 const User = require('./user');
 
 module.exports = function show(request, response, next) {
@@ -26,6 +27,8 @@ module.exports = function show(request, response, next) {
             }
 
             found.password = undefined;
+            found.stripe = undefined;
+            found.plaid = undefined;
 
             /**
              * As per requirements we should return everything associated to the

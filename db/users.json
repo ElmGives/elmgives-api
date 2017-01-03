@@ -42,11 +42,18 @@
         }
     ],
     "plaid": {
-        "accountId": "nban4wnPKEtnmEpaKzbYFYQvA7D7pnCaeDBMy",
+        "accounts": {
+            "wells": "nban4wnPKEtnmEpaKzbYFYQvA7D7pnCaeDBMy"
+        },
         "tokens": {
             "connect": {
                 "wells": "test_wells"
             }
+        }
+    },
+    "stripe": {
+        "wells": {
+            "customer": {}
         }
     }
 }]

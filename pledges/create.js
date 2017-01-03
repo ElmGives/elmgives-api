@@ -10,6 +10,8 @@ const aws = require('../lib/awsQueue');
 const logger = require('../logger');
 const getYearMonth = require('../helpers/getYearMonth');
 
+const hardCodedMonthlyLimit = 5000; // 5.000 USD
+
 module.exports = (request, response, next) => {
     const userId = request.body.userId + '';
 
@@ -54,12 +56,17 @@ module.exports = (request, response, next) => {
                 return next(error);
             }
 
+            let bankType = values[1].type;
+            let last4digits = user.plaid.accounts[bankType] ?
+                user.plaid.accounts[bankType].last4 : null;
+
             let pledge = {
                 monthlyLimit: request.body.monthlyLimit,
                 npoId: request.body.npoId,
                 bankId: request.body.bankId,
                 npo: values[0].name,
                 bank: values[1].name,
+                last4: last4digits,
                 userId: request.session.userId
             };
 
@@ -72,7 +79,7 @@ module.exports = (request, response, next) => {
             if (typeof active === 'object') {
                 active.active = false;
 
-                let currentYearMonth = getYearMonth();
+                let currentYearMonth = getYearMonth(new Date());
                 let dateQuery = `addresses.${currentYearMonth}`;
                 let currentAddress = active.addresses[currentYearMonth];
 
@@ -83,7 +90,7 @@ module.exports = (request, response, next) => {
             }
             /* Activate and add new pledge to the current user */
             pledge.active = true;
-            user.pledges.unshift(pledge);
+            user.pledges.push(pledge);
             request.pledgeId = pledge._id;
             return user.save();
         })
@@ -96,7 +103,7 @@ module.exports = (request, response, next) => {
             aws.sendMessage({
                 userId: userId,
                 pledgeId: String(request.pledgeId),
-                limit: request.body.monthlyLimit,
+                limit: hardCodedMonthlyLimit, // before: request.body.monthlyLimit,
                 nonce: String((new Date()).getTime())
             }, {
                 queue: process.env.AWS_SQS_URL_ADDRESS_REQUESTS

@@ -21,6 +21,8 @@ module.exports = function list(request, response, next) {
         .then(data => {
             let result = data.docs.map(user => {
                 user.password = undefined;
+                user.stripe = undefined;
+                user.plaid = undefined;
                 return user;
             });
 

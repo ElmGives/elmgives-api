@@ -45,6 +45,11 @@ let schema = new mongoose.Schema({
         enum: nodes
     },
 
+    available: {
+        type: Boolean,
+        default: true
+    },
+
     /**
      * Special status for 'deleted' posts
      */

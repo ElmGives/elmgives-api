@@ -15,7 +15,8 @@ let options = {
     'post /npos': 'post /npos',
     'get /npos/:id': 'get /npos/:id',
     'put /npos/:id': 'put /npos/:id',
-    'delete /npos/:id': 'delete /npos/:id'
+    'delete /npos/:id': 'delete /npos/:id',
+    'post /npos/suggestions': 'post /npos/suggestions'
 };
 
 npos.stack.map(item => {
@@ -31,7 +32,7 @@ npos.stack.map(item => {
 });
 
 tape.test('NPO Endpoints', test => {
-    test.plan(5);
+    test.plan(6);
 
     Object.keys(options).map(key => {
         test.equal(key, data[key], `should provide ${key} endpoint`);
@@ -43,7 +44,7 @@ tape.test('NPO Endpoints', test => {
  * object properly, at least on functions names
  */
 tape.test('NPOs endpoints middlewares', test => {
-    test.plan(10);
+    test.plan(12);
     Object.keys(middlewares).map(key => {
         let actual = middlewares[key];
         test.equal('verifyToken', actual[0], `should validate token on ${key}`);

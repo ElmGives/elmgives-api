@@ -2,7 +2,12 @@
 
 ## Misc
 SEND_ERRORS=
+### URL of the web/client app for Email Verification and others
 CLIENT_URL='http://localhost:3000'
+
+## Slack for Slack notifications
+SLACK_TOKEN=''
+SLACK_ENABLED=true
 
 ## Authentication
 EXPIRE_HOURS=8
@@ -34,15 +39,22 @@ AWS_S3_REGION=
 AWS_S3_ACL='public-read'
 
 ## Mandrill
+### These templates are named Mandrill templates, see Mandrill account
 MANDRILL_API_KEY='MANDRILL_API_KEY'
-MANDRILL_EMAIL_SENDER='danny@elmgives.com'
-MANDRILL_VERIFY_ACCOUNT=''
+MANDRILL_EMAIL_SENDER='danny@elmgives.com' - Email all outbound emails come from
+MANDRILL_ADMIN_EMAIL=''  -  Email Contact Us emails are sent to
 MANDRILL_VERIFY_ACCOUNT_EMAIL_TEMPLATE=''
+MANDRILL_RECOVERY_PASSWORD_EMAIL_TEMPLATE=''
+MANDRILL_CONTACT_US_EMAIL_TEMPLATE=''
 
 ## Signing Server
 SERVER_KID = 'uuid'
 SERVER_PRIVATE_KEY='private_key'
 SIGNER_URL='http://remotehost:3000'
 SIGNER_PUBLIC_KEY=''
+
+## Stripe
+STRIPE_SECRET_KEY='sk_live_...'
+
 
 

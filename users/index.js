@@ -18,12 +18,19 @@ const update = require('./update');
 const remove = require('./remove');
 const adminOrOwner = require('./adminOrOwner');
 const validateAccount = require('./validateAccount');
+const getCharges = require('./getCharges');
+const getBalances = require('./getBalances');
 const passwordCode = require('./passwordCode');
 const passwordToken = require('./passwordToken');
 const resetPassword = require('./resetPassword');
+const checkEmailAvailability = require('./checkEmailAvailability');
 
 const PATH = '/users';
 const SINGLE = '/users/:id';
+const CHARGES = '/users/:id/charges';
+const BALANCES = '/users/:id/balances';
+const VERIFICATION = '/users/verification/:token';
+const AVAILABILITY = '/users/availability';
 
 const middlewares = [verifyToken, authenticate, currentUser, isAdmin, create];
 const showAdmin = [isAdmin, show];
@@ -39,10 +46,6 @@ const showOwner = [show];
  */
 function validateRequest(request, response, next) {
     const token = request.headers.authorization;
-
-    if (request.body.verificationToken) {
-        return validateAccount(request, response, next);
-    }
 
     if (request.body.changePassword && !request.body.code && !request.body.token) {
         /**
@@ -80,10 +83,14 @@ function validateRequest(request, response, next) {
 }
 
 router
+    .get(VERIFICATION, validateAccount)
     .get(SINGLE, defaultMiddlewares, adminOrOwner(showAdmin, showOwner))
     .get(PATH, defaultMiddlewares, isAdmin, list)
+    .get(BALANCES, defaultMiddlewares, getBalances)
+    .get(CHARGES, defaultMiddlewares, getCharges)
     .put(SINGLE, defaultMiddlewares, adminOrOwner(updateAdmin, updateOwner))
     .delete(SINGLE, defaultMiddlewares, isAdmin, remove)
-    .post(PATH, validateRequest);
+    .post(PATH, validateRequest)
+    .post(AVAILABILITY, checkEmailAvailability);
 
 module.exports = router;

@@ -24,7 +24,10 @@ let schema = new mongoose.Schema({
     latestTransaction: {
         type: String,
         required: true,
-    }
+    },
+    charge: {
+        type: String,
+    },
 }, {
     versionKey: false,
 });
